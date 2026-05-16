@@ -26,26 +26,23 @@
       },
       "routes": [
         {
+          "filter": {
+            "name": "EMERGENCY",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "EMERGENCY",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
           "flow": [
             {
               "id": 3,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "condition": {
-                  "left": "{{1.alert_type}}",
-                  "operator": "equal",
-                  "right": "EMERGENCY"
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": -150 } }
-            },
-            {
-              "id": 4,
-              "module": "slack:ActionPostMessage",
-              "version": 1,
+              "module": "slack:CreateAMessage",
+              "version": 4,
               "parameters": {
                 "channel": "#sss-emergency-ops"
               },
@@ -53,10 +50,10 @@
                 "text": "🚨 *EMERGENCY ALERT* — {{1.booking_id}} — {{1.city}} — {{formatDate(now; \"YYYY-MM-DD HH:mm\")}} UTC\n*Type:* {{1.title}}\n*Description:* {{1.body}}\n*Brand:* {{1.brand}}\n*Status:* AWAITING WILL CLEARANCE\n*Automations:* PAUSED"
               },
               "metadata": {
-                "designer": { "x": 600, "y": -150 },
+                "designer": { "x": 500, "y": -150 },
                 "restore": {
                   "parameters": {
-                    "channel": { "label": "#sss-emergency-ops" }
+                    "channel": { "label": "#sss-emergency-ops", "mode": "chose" }
                   }
                 }
               }
@@ -64,26 +61,23 @@
           ]
         },
         {
+          "filter": {
+            "name": "LEAD",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "LEAD",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
           "flow": [
             {
-              "id": 5,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "condition": {
-                  "left": "{{1.alert_type}}",
-                  "operator": "equal",
-                  "right": "LEAD"
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": 0 } }
-            },
-            {
-              "id": 6,
-              "module": "slack:ActionPostMessage",
-              "version": 1,
+              "id": 4,
+              "module": "slack:CreateAMessage",
+              "version": 4,
               "parameters": {
                 "channel": "#sss-lead-intake"
               },
@@ -91,10 +85,10 @@
                 "text": "🎯 *New Lead* — {{1.brand}}\n*Name:* {{1.lead_name}}\n*Occasion:* {{1.occasion}}\n*Date:* {{1.preferred_date}}\n*Guests:* {{1.guest_count}}\n*City:* {{1.city}}\n*Source:* {{1.source}}"
               },
               "metadata": {
-                "designer": { "x": 600, "y": 0 },
+                "designer": { "x": 500, "y": 0 },
                 "restore": {
                   "parameters": {
-                    "channel": { "label": "#sss-lead-intake" }
+                    "channel": { "label": "#sss-lead-intake", "mode": "chose" }
                   }
                 }
               }
@@ -102,31 +96,28 @@
           ]
         },
         {
+          "filter": {
+            "name": "OPS",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "EMERGENCY",
+                  "o": "text:notequal"
+                },
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "LEAD",
+                  "o": "text:notequal"
+                }
+              ]
+            ]
+          },
           "flow": [
             {
-              "id": 7,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "condition": {
-                  "left": "{{1.alert_type}}",
-                  "operator": "notEqual",
-                  "right": "EMERGENCY",
-                  "and": {
-                    "left": "{{1.alert_type}}",
-                    "operator": "notEqual",
-                    "right": "LEAD"
-                  }
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": 150 } }
-            },
-            {
-              "id": 8,
-              "module": "slack:ActionPostMessage",
-              "version": 1,
+              "id": 5,
+              "module": "slack:CreateAMessage",
+              "version": 4,
               "parameters": {
                 "channel": "#sss-ops-alerts"
               },
@@ -134,10 +125,10 @@
                 "text": "{{if(1.severity = \"CRITICAL\"; \"🔴\"; if(1.severity = \"WARNING\"; \"🟡\"; \"🟢\"))}} *{{1.title}}*\n{{1.body}}\n*Booking:* {{1.booking_id}} | *City:* {{1.city}} | *Brand:* {{1.brand}}\n_{{formatDate(now; \"YYYY-MM-DD HH:mm\")}} UTC_"
               },
               "metadata": {
-                "designer": { "x": 600, "y": 150 },
+                "designer": { "x": 500, "y": 150 },
                 "restore": {
                   "parameters": {
-                    "channel": { "label": "#sss-ops-alerts" }
+                    "channel": { "label": "#sss-ops-alerts", "mode": "chose" }
                   }
                 }
               }
@@ -165,6 +156,6 @@
       "orphans": []
     },
     "zone": "us1.make.com",
-    "notes": "REBINDING REQUIRED: Slack OAuth connection must be rebound. Channels: #sss-emergency-ops, #sss-lead-intake, #sss-ops-alerts. Router routes by alert_type: EMERGENCY → #sss-emergency-ops, LEAD → #sss-lead-intake, all others → #sss-ops-alerts. Copy webhook URL after import."
+    "notes": "REBINDING REQUIRED: Slack connection on all 3 Slack modules. Filters are now on the routes (not separate modules). Channels: EMERGENCY → #sss-emergency-ops, LEAD → #sss-lead-intake, OPS → #sss-ops-alerts."
   }
 }

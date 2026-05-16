@@ -1,0 +1,355 @@
+{
+  "name": "M-CONCIERGE-ASSIGNMENT — Booking Confirmation and Payment Link (BOOKING-001)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerNewRecord",
+      "version": 3,
+      "parameters": {
+        "__IMTCONN__": null,
+        "baseId": "appdZ49WqgjRXxA1R",
+        "tableId": "tbl72omPibBkn2hZL",
+        "formula": "{Status}=\"AVAILABILITY_CONFIRMED\""
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": {
+              "label": "RECONNECT_AIRTABLE_CONNECTION — Watch Bookings table for AVAILABILITY_CONFIRMED status"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "_note": "CRITICAL GUARD: check Emergency_Flag and Automations_Paused before ANY client-facing action"
+      },
+      "routes": [
+        {
+          "label": "Safe to proceed — flags clear",
+          "filter": {
+            "name": "Emergency_Flag false AND Automations_Paused false",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                },
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "tools:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "idempotency_key",
+                "scope": "roundtrip",
+                "value": "CONCIERGE-{{1.id}}-BOOKING-001"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -75 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "baseId": "appdZ49WqgjRXxA1R",
+                "tableId": "tblrMpTfMk8q1eNHp",
+                "filterByFormula": "{Idempotency_Key}=\"{{3.value}}\"",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_AIRTABLE_CONNECTION"
+                    }
+                  },
+                  "_note": "Check Audit Log for idempotency — prevents duplicate deposit sends on scenario retry"
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": {},
+              "metadata": {
+                "designer": { "x": 1200, "y": -75 },
+                "_note": "Idempotency guard"
+              },
+              "routes": [
+                {
+                  "label": "Not yet processed — proceed",
+                  "filter": {
+                    "name": "No existing audit record",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:equal"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 6,
+                      "module": "stripe:MakeAnAPICall",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "url": "/v1/payment_links",
+                        "method": "POST",
+                        "body": [
+                          { "key": "line_items[0][price_data][currency]", "value": "usd" },
+                          { "key": "line_items[0][price_data][unit_amount]", "value": "{{round(multiply(multiply(1.fields.Package_Price; 0.3); 100); 0)}}" },
+                          { "key": "line_items[0][price_data][product_data][name]", "value": "She Said Sail — Deposit for {{1.fields.Booking_Name}}" },
+                          { "key": "line_items[0][price_data][product_data][description]", "value": "30% deposit for charter on {{1.fields.Charter_Date}}" },
+                          { "key": "line_items[0][quantity]", "value": "1" },
+                          { "key": "after_completion[type]", "value": "redirect" },
+                          { "key": "after_completion[redirect][url]", "value": "https://www.shesaidsail.com/booking-confirmed" },
+                          { "key": "metadata[booking_id]", "value": "{{1.id}}" },
+                          { "key": "metadata[scenario]", "value": "M-CONCIERGE-ASSIGNMENT" },
+                          { "key": "metadata[idempotency_key]", "value": "{{3.value}}" }
+                        ]
+                      },
+                      "metadata": {
+                        "designer": { "x": 1500, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_STRIPE_CONNECTION"
+                            }
+                          },
+                          "_note": "PATCHED: stripe:MakeAnAPICall POST /v1/payment_links. Replaces stripe:ActionCreatePaymentLink (not available in Make Stripe app). unit_amount multiplied by 100 (Stripe expects cents). Response fields {{6.url}} and {{6.id}} are the Payment Link URL and ID from Stripe API response."
+                        }
+                      }
+                    },
+                    {
+                      "id": 7,
+                      "module": "airtable:ActionUpdateRecord",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "recordId": "{{1.id}}",
+                        "fields": {
+                          "Stripe_Deposit_Link": "{{6.url}}",
+                          "Stripe_Payment_Link_ID": "{{6.id}}",
+                          "Status": "DEPOSIT_SENT",
+                          "Idempotency_Key": "{{3.value}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 1800, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 8,
+                      "module": "gmail:ActionSendEmail",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "to": "{{1.fields.Client_Email}}",
+                        "subject": "Your She Said Sail Charter is Confirmed — Deposit Required",
+                        "bodyType": "html",
+                        "body": "<p>Hi {{1.fields.Client_Name}},</p><p>Wonderful news — we have confirmed your charter date of <strong>{{1.fields.Charter_Date}}</strong>!</p><p>To secure your booking, please complete your 30% deposit via the secure link below:</p><p><a href='{{6.url}}'>Pay Deposit Now</a></p><p>Once your deposit is received, we will send your full booking confirmation and charter brief details.</p><p>Questions? Reply to this email or call us directly.</p><p>With excitement,<br>The She Said Sail Team<br>hello@shesaidsail.com</p>",
+                        "from": "hello@shesaidsail.com"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2100, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_GMAIL_CONNECTION — hello@shesaidsail.com"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 9,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_QUO_API_ENDPOINT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" },
+                          { "name": "Authorization", "value": "Bearer RECONNECT_QUO_API_KEY" }
+                        ],
+                        "body": "{\"to\":\"{{1.fields.Client_Phone}}\",\"message\":\"Hi {{1.fields.Client_Name}}, your She Said Sail charter on {{1.fields.Charter_Date}} is confirmed! Please complete your deposit to secure your booking: {{6.url}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2400, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — Quo SMS has no native Make module. Replace RECONNECT_QUO_API_ENDPOINT with Quo API URL and RECONNECT_QUO_API_KEY with API key from credential vault. Do NOT hardcode credentials here."
+                        }
+                      }
+                    },
+                    {
+                      "id": 10,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                        "method": "POST",
+                        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                        "body": "{\"scenario_id\":\"M-CONCIERGE-ASSIGNMENT\",\"action_type\":\"DEPOSIT_SENT\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"AI\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"idempotency_key\":\"{{3.value}}\",\"payload_summary\":\"Deposit link sent to {{1.fields.Client_Email}} for {{1.fields.Charter_Date}}\",\"outcome\":\"SUCCESS\",\"city\":\"{{1.fields.City}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2700, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER."
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "Already processed — skip",
+                  "filter": {
+                    "name": "Idempotency key found — duplicate run",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:greater"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "BLOCKED — Emergency_Flag or Automations_Paused active",
+          "filter": {
+            "name": "Emergency or pause flag is active",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 11,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+              "mapper": {
+                "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"scenario_id\":\"M-CONCIERGE-ASSIGNMENT\",\"action_type\":\"BLOCKED_BY_FLAG\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"payload_summary\":\"Scenario blocked: Emergency_Flag={{1.fields.Emergency_Flag}}, Automations_Paused={{1.fields.Automations_Paused}}\",\"outcome\":\"SKIPPED\"}"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 75 }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "airtable:TriggerNewRecord — NATIVE. Watches Bookings table for AVAILABILITY_CONFIRMED status. Replaces any manual webhook trigger.",
+    "module_4_airtable_search": "NATIVE — airtable:ActionSearchRecords for idempotency check against Audit Log.",
+    "module_6_stripe": "NATIVE — stripe:MakeAnAPICall POST /v1/payment_links. Replaces stripe:ActionCreatePaymentLink (not available in Make Stripe app per approved module inventory). Stripe Payment Links API creates a hosted payment page. Response body from Stripe contains {id, url, ...} — accessible as {{6.id}} and {{6.url}} via Make native app API call response parsing. PATCH NOTE: unit_amount formula corrected to multiply by 100 to convert dollars to Stripe cents (raw API requires cents, unlike the ActionCreatePaymentLink module which may have handled conversion internally).",
+    "module_7_airtable_update": "NATIVE — airtable:ActionUpdateRecord. Stores payment link URL and ID from module 6 response. Replaces HTTP Airtable PATCH.",
+    "module_8_gmail": "NATIVE — gmail:ActionSendEmail. Replaces HTTP Gmail API call.",
+    "module_9_http_quo": "HTTP KEPT — Quo SMS provider has no native Make module. See STAGE_1_REMAINING_HTTP_WEBHOOK_JUSTIFICATION.md for alternatives.",
+    "module_10_http_audit": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER.",
+    "module_11_http_audit_blocked": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER for blocked execution.",
+    "quo_note": "Quo SMS API key must be stored in Make Credential Vault — never hardcoded. Placeholder RECONNECT_QUO_API_KEY must be replaced post-import.",
+    "stripe_patch_date": "2026-05-16",
+    "stripe_patch_reason": "stripe:ActionCreatePaymentLink confirmed not available in She Said Sail Make account. Patched to stripe:MakeAnAPICall with direct Stripe Payment Links API call. All downstream module references to {{6.url}} and {{6.id}} preserved unchanged.",
+    "connection_placeholders": [
+      "RECONNECT_AIRTABLE_CONNECTION",
+      "RECONNECT_STRIPE_CONNECTION",
+      "RECONNECT_GMAIL_CONNECTION",
+      "RECONNECT_QUO_API_ENDPOINT",
+      "RECONNECT_QUO_API_KEY",
+      "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"
+    ],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

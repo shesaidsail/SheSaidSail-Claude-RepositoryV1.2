@@ -1,0 +1,277 @@
+{
+  "name": "M-LEAD-INTAKE — Inbound Request Processing (INBOUND-001)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "RECONNECT_WEBHOOK_SQUARESPACE_FORM",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "Squarespace Form Submission Webhook — reconnect after import"
+            }
+          }
+        },
+        "expect": [
+          { "name": "name", "type": "text", "label": "Lead Full Name" },
+          { "name": "email", "type": "text", "label": "Lead Email" },
+          { "name": "phone", "type": "text", "label": "Lead Phone" },
+          { "name": "inquiry_text", "type": "text", "label": "Inquiry Message" },
+          { "name": "event_date", "type": "text", "label": "Requested Event Date" },
+          { "name": "guest_count", "type": "text", "label": "Guest Count" },
+          { "name": "source_page", "type": "text", "label": "Source Page URL" },
+          { "name": "form_name", "type": "text", "label": "Squarespace Form Name" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "tools:SetVariable",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "name": "idempotency_key",
+        "scope": "roundtrip",
+        "value": "LEAD-{{1.email}}-{{formatDate(now; 'YYYYMMDD')}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "parameters": {
+        "__IMTCONN__": null
+      },
+      "mapper": {
+        "baseId": "appdZ49WqgjRXxA1R",
+        "tableId": "tblTlSB9CO4dTGodg",
+        "filterByFormula": "AND({Idempotency_Key}=\"{{2.value}}\",{Source_Email}=\"{{1.email}}\")",
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": {
+              "label": "RECONNECT_AIRTABLE_CONNECTION"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "_note": "Idempotency guard: skip if duplicate lead already processed today"
+      },
+      "routes": [
+        {
+          "label": "New lead — process",
+          "filter": {
+            "name": "No existing record (not a duplicate)",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(3.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 5,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "baseId": "appdZ49WqgjRXxA1R",
+                "tableId": "tblTlSB9CO4dTGodg",
+                "fields": {
+                  "Lead_Name": "{{1.name}}",
+                  "Source_Email": "{{1.email}}",
+                  "Phone": "{{1.phone}}",
+                  "Inquiry_Text": "{{1.inquiry_text}}",
+                  "Requested_Event_Date": "{{1.event_date}}",
+                  "Guest_Count": "{{1.guest_count}}",
+                  "Source_Page": "{{1.source_page}}",
+                  "Form_Name": "{{1.form_name}}",
+                  "Status": "NEW",
+                  "Agent_Status": "AI_RESPONDING",
+                  "Source_System": "Airtable",
+                  "Environment": "Production",
+                  "Idempotency_Key": "{{2.value}}",
+                  "Created_At": "{{now}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_AIRTABLE_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+              "mapper": {
+                "url": "RECONNECT_BRAND_ROUTER_WEBHOOK_URL",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"request_id\":\"{{5.id}}\",\"lead_name\":\"{{1.name}}\",\"lead_email\":\"{{1.email}}\",\"inquiry_text\":\"{{1.inquiry_text}}\",\"source_url\":\"{{1.source_page}}\",\"environment\":\"Production\",\"idempotency_key\":\"{{2.value}}\"}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": -75 },
+                "restore": {
+                  "_note": "HTTP KEPT — inter-scenario call to M-BRAND-ROUTER. Replace URL with M-BRAND-ROUTER webhook URL after import. No native Make cross-scenario module exists."
+                }
+              }
+            },
+            {
+              "id": 7,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "to": "{{1.email}}",
+                "subject": "We received your inquiry — She Said Sail",
+                "bodyType": "html",
+                "body": "<p>Hi {{1.name}},</p><p>Thank you for reaching out to She Said Sail. We've received your inquiry and our team will be in touch within 24 hours to discuss your perfect charter experience.</p><p>In the meantime, feel free to explore our packages at shesaidsail.com.</p><p>Warm regards,<br>The She Said Sail Team</p>",
+                "from": "hello@shesaidsail.com"
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_GMAIL_CONNECTION — hello@shesaidsail.com"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 8,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": "*New Lead Received — {{1.name}}*\nEmail: {{1.email}} | Phone: {{1.phone}}\nEvent Date: {{1.event_date}} | Guests: {{1.guest_count}}\nSource: {{1.source_page}}\nAirtable Request ID: {{5.id}}\n\nInquiry: {{1.inquiry_text}}"
+              },
+              "metadata": {
+                "designer": { "x": 2100, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 9,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+              "mapper": {
+                "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"scenario_id\":\"M-LEAD-INTAKE\",\"action_type\":\"LEAD_CREATED\",\"brand\":\"PENDING_BRAND_ROUTER\",\"request_id\":\"{{5.id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"idempotency_key\":\"{{2.value}}\",\"payload_summary\":\"New lead {{1.name}} ({{1.email}}) created from {{1.form_name}}\",\"outcome\":\"SUCCESS\"}"
+              },
+              "metadata": {
+                "designer": { "x": 2400, "y": -75 },
+                "restore": {
+                  "_note": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "Duplicate — skip",
+          "filter": {
+            "name": "Duplicate lead already processed",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(3.records)}}",
+                  "b": "0",
+                  "o": "number:greater"
+                }
+              ]
+            ]
+          },
+          "flow": []
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "CustomWebHook — KEPT: Squarespace has no native Make app. Webhook is the only reliable intake method for Squarespace form submissions.",
+    "module_3_airtable_search": "NATIVE — airtable:ActionSearchRecords for idempotency check. Replaces HTTP Airtable list call.",
+    "module_5_airtable_create": "NATIVE — airtable:ActionCreateRecord. Replaces HTTP Airtable POST.",
+    "module_6_http_brand_router": "HTTP KEPT — inter-scenario call to M-BRAND-ROUTER. No native Make cross-scenario trigger module exists.",
+    "module_7_gmail": "NATIVE — gmail:ActionSendEmail. Replaces HTTP Gmail API call.",
+    "module_8_slack": "NATIVE — slack:CreateMessage. Replaces HTTP Slack webhook.",
+    "module_9_http_audit": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER.",
+    "squarespace_note": "No native Squarespace Make module supports form submissions reliably. Custom webhook at Squarespace form → Make webhook URL is the standard integration pattern.",
+    "connection_placeholders": [
+      "RECONNECT_AIRTABLE_CONNECTION",
+      "RECONNECT_GMAIL_CONNECTION",
+      "RECONNECT_SLACK_CONNECTION",
+      "RECONNECT_BRAND_ROUTER_WEBHOOK_URL",
+      "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"
+    ],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

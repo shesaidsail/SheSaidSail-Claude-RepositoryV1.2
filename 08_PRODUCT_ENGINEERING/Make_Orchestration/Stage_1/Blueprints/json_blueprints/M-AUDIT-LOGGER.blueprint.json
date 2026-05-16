@@ -1,0 +1,109 @@
+{
+  "name": "M-AUDIT-LOGGER — Audit Event Logger",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "RECONNECT_WEBHOOK_AUDIT_LOGGER",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "M-AUDIT-LOGGER Inbound Webhook — reconnect after import"
+            }
+          }
+        },
+        "expect": [
+          { "name": "scenario_id", "type": "text", "label": "Scenario ID" },
+          { "name": "action_type", "type": "text", "label": "Action Type" },
+          { "name": "brand", "type": "text", "label": "Brand (SSS/ME)" },
+          { "name": "booking_id", "type": "text", "label": "Booking ID" },
+          { "name": "request_id", "type": "text", "label": "Request ID" },
+          { "name": "actor", "type": "text", "label": "Actor (AI/Human/System)" },
+          { "name": "autonomy_tier", "type": "text", "label": "Autonomy Tier (A/B/C)" },
+          { "name": "prompt_version", "type": "text", "label": "Prompt Version ID" },
+          { "name": "ai_confidence_score", "type": "number", "label": "AI Confidence Score (0-100)" },
+          { "name": "approval_state", "type": "text", "label": "Approval State" },
+          { "name": "environment", "type": "text", "label": "Environment (Production/Sandbox/Development)" },
+          { "name": "idempotency_key", "type": "text", "label": "Idempotency Key" },
+          { "name": "payload_summary", "type": "text", "label": "Payload Summary (truncated)" },
+          { "name": "outcome", "type": "text", "label": "Outcome (SUCCESS/FAILURE/SKIPPED)" },
+          { "name": "error_message", "type": "text", "label": "Error Message if applicable" },
+          { "name": "city", "type": "text", "label": "City" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "__IMTCONN__": null
+      },
+      "mapper": {
+        "baseId": "appdZ49WqgjRXxA1R",
+        "tableId": "tblrMpTfMk8q1eNHp",
+        "fields": {
+          "Scenario_ID": "{{1.scenario_id}}",
+          "Action_Type": "{{1.action_type}}",
+          "Brand": "{{1.brand}}",
+          "Booking_ID": "{{1.booking_id}}",
+          "Request_ID": "{{1.request_id}}",
+          "Actor": "{{1.actor}}",
+          "Autonomy_Tier": "{{1.autonomy_tier}}",
+          "Prompt_Version": "{{1.prompt_version}}",
+          "AI_Confidence_Score": "{{1.ai_confidence_score}}",
+          "Approval_State": "{{1.approval_state}}",
+          "Environment": "{{1.environment}}",
+          "Idempotency_Key": "{{1.idempotency_key}}",
+          "Payload_Summary": "{{1.payload_summary}}",
+          "Outcome": "{{1.outcome}}",
+          "Error_Message": "{{1.error_message}}",
+          "City": "{{1.city}}",
+          "Logged_At": "{{now}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": {
+              "label": "RECONNECT_AIRTABLE_CONNECTION — She Said Sail Production Base"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "CustomWebHook — KEPT: this scenario is called by all other scenarios as a fire-and-forget audit sink; webhook is required",
+    "module_2_airtable_create": "NATIVE — replaced HTTP Airtable API call with native airtable:ActionCreateRecord",
+    "connection_placeholders": ["RECONNECT_AIRTABLE_CONNECTION"],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

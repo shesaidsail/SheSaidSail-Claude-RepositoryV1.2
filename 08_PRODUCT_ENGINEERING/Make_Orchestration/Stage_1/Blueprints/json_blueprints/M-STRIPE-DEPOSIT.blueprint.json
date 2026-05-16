@@ -1,0 +1,315 @@
+{
+  "name": "M-STRIPE-DEPOSIT — Deposit Payment Processing (BOOKING-002)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "RECONNECT_WEBHOOK_STRIPE_DEPOSIT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "Stripe Webhook — payment_intent.succeeded (deposit) — reconnect after import"
+            }
+          }
+        },
+        "expect": [
+          { "name": "type", "type": "text", "label": "Stripe Event Type" },
+          { "name": "data", "type": "collection", "label": "Stripe Event Data" },
+          { "name": "created", "type": "number", "label": "Stripe Timestamp (Unix)" },
+          { "name": "id", "type": "text", "label": "Stripe Event ID" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "_note": "Validate Stripe event type before any processing"
+      },
+      "routes": [
+        {
+          "label": "Valid payment_intent.succeeded — process",
+          "filter": {
+            "name": "Correct event type",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.type}}",
+                  "b": "payment_intent.succeeded",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "tools:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "idempotency_key",
+                "scope": "roundtrip",
+                "value": "STRIPE-DEPOSIT-{{1.id}}"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -75 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "baseId": "appdZ49WqgjRXxA1R",
+                "tableId": "tblrMpTfMk8q1eNHp",
+                "filterByFormula": "{Idempotency_Key}=\"{{3.value}}\"",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_AIRTABLE_CONNECTION"
+                    }
+                  },
+                  "_note": "Idempotency check — Stripe can retry webhooks; prevent duplicate processing"
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": {},
+              "metadata": {
+                "designer": { "x": 1200, "y": -75 }
+              },
+              "routes": [
+                {
+                  "label": "Not yet processed — proceed",
+                  "filter": {
+                    "name": "No existing audit record for this Stripe event",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:equal"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 6,
+                      "module": "airtable:ActionSearchRecords",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "filterByFormula": "OR({Stripe_Payment_Intent_ID}=\"{{1.data.object.id}}\",{Stripe_Payment_Link_ID}=\"{{1.data.object.metadata.payment_link}}\")",
+                        "maxRecords": 1
+                      },
+                      "metadata": {
+                        "designer": { "x": 1500, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 7,
+                      "module": "airtable:ActionUpdateRecord",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "recordId": "{{6.records[].id}}",
+                        "fields": {
+                          "Status": "DEPOSIT_PAID",
+                          "Stripe_Payment_Intent_ID": "{{1.data.object.id}}",
+                          "Deposit_Amount_Received": "{{divide(1.data.object.amount_received; 100)}}",
+                          "Deposit_Paid_At": "{{parseDate(multiply(1.created; 1000); 'x')}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 1800, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 8,
+                      "module": "gmail:ActionSendEmail",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "to": "{{6.records[].fields.Client_Email}}",
+                        "subject": "Deposit Received — Your She Said Sail Charter is Secured!",
+                        "bodyType": "html",
+                        "body": "<p>Hi {{6.records[].fields.Client_Name}},</p><p>Your deposit has been received and your charter on <strong>{{6.records[].fields.Charter_Date}}</strong> is officially secured!</p><p><strong>Deposit Amount:</strong> ${{divide(1.data.object.amount_received; 100)}}</p><p>We will be in touch with your full charter brief and final details as your date approaches. Your balance will be due 7 days before your charter.</p><p>We cannot wait to host you!</p><p>With anticipation,<br>The She Said Sail Team<br>hello@shesaidsail.com</p>",
+                        "from": "hello@shesaidsail.com"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2100, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_GMAIL_CONNECTION — hello@shesaidsail.com"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 9,
+                      "module": "slack:CreateMessage",
+                      "version": 4,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "channel": "#sss-ops-alerts",
+                        "text": "*Deposit Received — {{6.records[].fields.Booking_Name}}*\nClient: {{6.records[].fields.Client_Name}} ({{6.records[].fields.Client_Email}})\nAmount: ${{divide(1.data.object.amount_received; 100)}}\nCharter Date: {{6.records[].fields.Charter_Date}}\nStripe Payment Intent: {{1.data.object.id}}\nBooking ID: {{6.records[].id}}\nStatus → DEPOSIT_PAID"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2400, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_SLACK_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 10,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                        "method": "POST",
+                        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                        "body": "{\"scenario_id\":\"M-STRIPE-DEPOSIT\",\"action_type\":\"DEPOSIT_PAYMENT_CONFIRMED\",\"brand\":\"{{6.records[].fields.Brand}}\",\"booking_id\":\"{{6.records[].id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"idempotency_key\":\"{{3.value}}\",\"payload_summary\":\"Deposit ${{divide(1.data.object.amount_received; 100)}} received via Stripe event {{1.id}}\",\"outcome\":\"SUCCESS\",\"city\":\"{{6.records[].fields.City}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2700, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER."
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "Already processed — skip (Stripe retry)",
+                  "filter": {
+                    "name": "Duplicate Stripe webhook",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:greater"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Wrong event type — ignore",
+          "filter": {
+            "name": "Not a deposit payment_intent.succeeded event",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.type}}",
+                  "b": "payment_intent.succeeded",
+                  "o": "text:notEqual"
+                }
+              ]
+            ]
+          },
+          "flow": []
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "CustomWebHook — KEPT: Stripe webhook is required to receive payment events with full payload integrity. Stripe native 'Watch Events' trigger is a polling module that may miss events or delay processing; webhook is safer for financial events.",
+    "stripe_webhook_note": "Configure webhook endpoint in Stripe Dashboard → Developers → Webhooks. Subscribe to: payment_intent.succeeded. Validate Stripe-Signature header in Make webhook settings.",
+    "module_4_airtable_search": "NATIVE — airtable:ActionSearchRecords for idempotency check.",
+    "module_6_airtable_search": "NATIVE — airtable:ActionSearchRecords to find booking by Stripe Payment Intent ID.",
+    "module_7_airtable_update": "NATIVE — airtable:ActionUpdateRecord. Replaces HTTP Airtable PATCH.",
+    "module_8_gmail": "NATIVE — gmail:ActionSendEmail. Replaces HTTP Gmail API call.",
+    "module_9_slack": "NATIVE — slack:CreateMessage. Replaces HTTP Slack webhook.",
+    "module_10_http_audit": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER.",
+    "connection_placeholders": [
+      "RECONNECT_AIRTABLE_CONNECTION",
+      "RECONNECT_GMAIL_CONNECTION",
+      "RECONNECT_SLACK_CONNECTION",
+      "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"
+    ],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

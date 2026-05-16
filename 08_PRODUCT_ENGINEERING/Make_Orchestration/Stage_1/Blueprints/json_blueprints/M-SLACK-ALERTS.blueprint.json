@@ -1,0 +1,299 @@
+{
+  "name": "M-SLACK-ALERTS — Operational Alerts and Escalation",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "RECONNECT_WEBHOOK_SLACK_ALERTS",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "M-SLACK-ALERTS Inbound Webhook — reconnect after import"
+            }
+          }
+        },
+        "expect": [
+          { "name": "alert_level", "type": "text", "label": "Alert Level (L1/L2/L3/L4)" },
+          { "name": "scenario_id", "type": "text", "label": "Source Scenario ID" },
+          { "name": "brand", "type": "text", "label": "Brand (SSS/ME)" },
+          { "name": "booking_id", "type": "text", "label": "Booking ID if applicable" },
+          { "name": "message_text", "type": "text", "label": "Alert Message Body" },
+          { "name": "environment", "type": "text", "label": "Environment" },
+          { "name": "city", "type": "text", "label": "City" },
+          { "name": "idempotency_key", "type": "text", "label": "Idempotency Key" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "label": "L1-L2 Operational — #sss-ops-alerts",
+          "filter": {
+            "name": "L1 or L2 alert",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_level}}",
+                  "b": "L1",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.alert_level}}",
+                  "b": "L2",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": "{{1.message_text}}",
+                "attachments": [
+                  {
+                    "color": "#F7A81B",
+                    "fields": [
+                      { "title": "Alert Level", "value": "{{1.alert_level}}", "short": true },
+                      { "title": "Brand", "value": "{{1.brand}}", "short": true },
+                      { "title": "Scenario", "value": "{{1.scenario_id}}", "short": true },
+                      { "title": "Booking ID", "value": "{{1.booking_id}}", "short": true },
+                      { "title": "Environment", "value": "{{1.environment}}", "short": true }
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "L3 Escalation — DM Will",
+          "filter": {
+            "name": "L3 alert",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_level}}",
+                  "b": "L3",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": "*L3 ESCALATION — Luciana + Will Review Required*\n{{1.message_text}}",
+                "attachments": [
+                  {
+                    "color": "#E8401C",
+                    "fields": [
+                      { "title": "Alert Level", "value": "L3", "short": true },
+                      { "title": "Brand", "value": "{{1.brand}}", "short": true },
+                      { "title": "Scenario", "value": "{{1.scenario_id}}", "short": true },
+                      { "title": "Booking ID", "value": "{{1.booking_id}}", "short": true }
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "RECONNECT_WILL_SLACK_USER_ID",
+                "text": "*L3 ALERT — Action Required*\n{{1.message_text}}\n\nScenario: {{1.scenario_id}} | Brand: {{1.brand}} | Booking: {{1.booking_id}}"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "L4 Emergency — #sss-emergency-ops + DM Will",
+          "filter": {
+            "name": "L4 emergency",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_level}}",
+                  "b": "L4",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 6,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "#sss-emergency-ops",
+                "text": "*🚨 L4 EMERGENCY — Immediate Founder Action Required 🚨*\n{{1.message_text}}",
+                "attachments": [
+                  {
+                    "color": "#FF0000",
+                    "fields": [
+                      { "title": "Alert Level", "value": "L4 EMERGENCY", "short": true },
+                      { "title": "Brand", "value": "{{1.brand}}", "short": true },
+                      { "title": "Scenario", "value": "{{1.scenario_id}}", "short": true },
+                      { "title": "Booking ID", "value": "{{1.booking_id}}", "short": true },
+                      { "title": "Environment", "value": "{{1.environment}}", "short": true },
+                      { "title": "City", "value": "{{1.city}}", "short": true }
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 7,
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "channel": "RECONNECT_WILL_SLACK_USER_ID",
+                "text": "*L4 EMERGENCY — IMMEDIATE ACTION REQUIRED*\n{{1.message_text}}\n\nScenario: {{1.scenario_id}} | Brand: {{1.brand}} | Booking: {{1.booking_id}} | Env: {{1.environment}}"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+      "mapper": {
+        "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+        "method": "POST",
+        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+        "body": "{\"scenario_id\":\"M-SLACK-ALERTS\",\"action_type\":\"SLACK_ALERT_SENT\",\"brand\":\"{{1.brand}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"{{1.environment}}\",\"idempotency_key\":\"{{1.idempotency_key}}\",\"payload_summary\":\"Alert level {{1.alert_level}} dispatched\",\"outcome\":\"SUCCESS\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "_note": "HTTP KEPT — inter-scenario webhook call to M-AUDIT-LOGGER sink. Replace URL with M-AUDIT-LOGGER webhook URL after import."
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "CustomWebHook — KEPT: this scenario is called by all other scenarios; webhook is the correct intake pattern",
+    "module_3_slack": "NATIVE — slack:CreateMessage used for all alert routes",
+    "module_4_slack": "NATIVE — slack:CreateMessage for L3 channel post",
+    "module_5_slack": "NATIVE — slack:CreateMessage for L3 DM to Will (set RECONNECT_WILL_SLACK_USER_ID to Will's Slack User ID after import)",
+    "module_6_slack": "NATIVE — slack:CreateMessage for L4 emergency channel",
+    "module_7_slack": "NATIVE — slack:CreateMessage for L4 DM to Will",
+    "module_8_http": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER; no native Make cross-scenario module",
+    "connection_placeholders": ["RECONNECT_SLACK_CONNECTION", "RECONNECT_WILL_SLACK_USER_ID", "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

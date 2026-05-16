@@ -1,0 +1,366 @@
+{
+  "name": "M-BOOKING-CREATION — Charter Brief Auto-Generation (CHARTER-004)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerNewRecord",
+      "version": 3,
+      "parameters": {
+        "__IMTCONN__": null,
+        "baseId": "appdZ49WqgjRXxA1R",
+        "tableId": "tbl72omPibBkn2hZL",
+        "formula": "AND({Status}=\"CONFIRMED\",{Agreement_Signed}=TRUE(),DATETIME_DIFF({Charter_Date},TODAY(),\"days\")<=14,{Charter_Brief_Sent}=FALSE())"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": {
+              "label": "RECONNECT_AIRTABLE_CONNECTION — Watch Bookings: CONFIRMED + Agreement_Signed + Charter_Date ≤ T-14 + Charter_Brief_Sent = false"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "_note": "CRITICAL GUARD: Emergency_Flag and Automations_Paused must be clear before Charter Brief is generated and sent"
+      },
+      "routes": [
+        {
+          "label": "Safe to proceed",
+          "filter": {
+            "name": "Flags clear",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                },
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "tools:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "idempotency_key",
+                "scope": "roundtrip",
+                "value": "CHARTER-BRIEF-{{1.id}}-CHARTER-004"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -75 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "baseId": "appdZ49WqgjRXxA1R",
+                "tableId": "tblrMpTfMk8q1eNHp",
+                "filterByFormula": "{Idempotency_Key}=\"{{3.value}}\"",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_AIRTABLE_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": -75 } },
+              "routes": [
+                {
+                  "label": "Not yet sent — proceed",
+                  "filter": {
+                    "name": "No idempotency record found",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:equal"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 6,
+                      "module": "airtable:ActionGetRecord",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "recordId": "{{1.id}}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 1500, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 7,
+                      "module": "anthropic:ActionCreateMessage",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "model": "claude-sonnet-4-20250514",
+                        "max_tokens": 600,
+                        "temperature": 0.4,
+                        "system": "You are the She Said Sail charter brief generator. Create a professional, detailed charter brief for the City Manager based on the booking record provided. The brief must be concise, factual, and contain ONLY information from the provided record — do not invent or estimate any details. Format as plain text with clear sections: CLIENT, CHARTER DETAILS, PACKAGE, SPECIAL REQUESTS, OPERATIONAL NOTES. Do not include pricing details in the client-facing version.",
+                        "messages": [
+                          {
+                            "role": "user",
+                            "content": "Generate charter brief for:\nBooking Name: {{6.fields.Booking_Name}}\nClient Name: {{6.fields.Client_Name}}\nCharter Date: {{6.fields.Charter_Date}}\nCharter Start Time: {{6.fields.Charter_Start_Time}}\nCharter Duration: {{6.fields.Charter_Duration_Hours}} hours\nGuest Count: {{6.fields.Guest_Count}}\nPackage Name: {{6.fields.Package_Name}}\nVessel: {{6.fields.Vessel_Name}}\nDeparture Location: {{6.fields.Departure_Location}}\nCity: {{6.fields.City}}\nSpecial Requests: {{6.fields.Special_Requests}}\nF_and_B_Notes: {{6.fields.Food_Beverage_Notes}}\nAllergies: {{6.fields.Dietary_Restrictions}}\nCity Manager: {{6.fields.City_Manager_Name}}"
+                          }
+                        ]
+                      },
+                      "metadata": {
+                        "designer": { "x": 1800, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_CLAUDE_API_KEY — Anthropic Claude API connection"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 8,
+                      "module": "gmail:ActionSendEmail",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "to": "{{6.fields.City_Manager_Email}}",
+                        "cc": "hello@shesaidsail.com",
+                        "subject": "Charter Brief — {{6.fields.Booking_Name}} — {{6.fields.Charter_Date}}",
+                        "bodyType": "plain",
+                        "body": "Charter Brief — Automatically Generated\n\n{{7.content[].text}}\n\n---\nGenerated by She Said Sail Operations System\nBooking Record: {{1.id}}\nGenerated: {{now}}\n\nPlease review and confirm receipt. Contact hello@shesaidsail.com with any questions.",
+                        "from": "hello@shesaidsail.com"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2100, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_GMAIL_CONNECTION — hello@shesaidsail.com"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 9,
+                      "module": "airtable:ActionUpdateRecord",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "recordId": "{{1.id}}",
+                        "fields": {
+                          "Charter_Brief_Sent": true,
+                          "Charter_Brief_Sent_At": "{{now}}",
+                          "Charter_Brief_Text": "{{7.content[].text}}",
+                          "Idempotency_Key": "{{3.value}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 2400, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 10,
+                      "module": "slack:CreateMessage",
+                      "version": 4,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "channel": "#sss-ops-alerts",
+                        "text": "*Charter Brief Sent — {{6.fields.Booking_Name}}*\nCity Manager: {{6.fields.City_Manager_Name}} ({{6.fields.City_Manager_Email}})\nCharter Date: {{6.fields.Charter_Date}} | City: {{6.fields.City}}\nGuests: {{6.fields.Guest_Count}} | Package: {{6.fields.Package_Name}}\nBooking ID: {{1.id}}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2700, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_SLACK_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 11,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                        "method": "POST",
+                        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                        "body": "{\"scenario_id\":\"M-BOOKING-CREATION\",\"action_type\":\"CHARTER_BRIEF_GENERATED\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"AI\",\"autonomy_tier\":\"A\",\"prompt_version\":\"SSS_CHARTER_BRIEF_V1\",\"environment\":\"Production\",\"idempotency_key\":\"{{3.value}}\",\"payload_summary\":\"Charter brief generated and sent to {{6.fields.City_Manager_Email}} for {{6.fields.Charter_Date}}\",\"outcome\":\"SUCCESS\",\"city\":\"{{1.fields.City}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 3000, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER."
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "Already sent — skip",
+                  "filter": {
+                    "name": "Charter brief already generated",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:greater"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "BLOCKED — flags active",
+          "filter": {
+            "name": "Emergency or automation paused",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 12,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+              "mapper": {
+                "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"scenario_id\":\"M-BOOKING-CREATION\",\"action_type\":\"BLOCKED_BY_FLAG\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"payload_summary\":\"Charter brief blocked: Emergency_Flag={{1.fields.Emergency_Flag}}, Automations_Paused={{1.fields.Automations_Paused}}\",\"outcome\":\"SKIPPED\"}"
+              },
+              "metadata": { "designer": { "x": 600, "y": 75 } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "airtable:TriggerNewRecord — NATIVE. Watches Bookings table for CONFIRMED + Agreement_Signed + Charter_Date ≤ 14 days + Charter_Brief_Sent = false.",
+    "module_4_airtable_search": "NATIVE — airtable:ActionSearchRecords for idempotency check.",
+    "module_6_airtable_get": "NATIVE — airtable:ActionGetRecord to fetch full booking details before brief generation.",
+    "module_7_anthropic": "NATIVE — anthropic:ActionCreateMessage with model claude-sonnet-4-20250514, max_tokens:600, temperature:0.4, system prompt, user message. Replaces HTTP POST to Claude API.",
+    "module_8_gmail": "NATIVE — gmail:ActionSendEmail. Replaces HTTP Gmail API call.",
+    "module_9_airtable_update": "NATIVE — airtable:ActionUpdateRecord. Replaces HTTP Airtable PATCH.",
+    "module_10_slack": "NATIVE — slack:CreateMessage. Replaces HTTP Slack webhook.",
+    "module_11_http_audit": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER.",
+    "module_12_http_audit_blocked": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER for blocked execution.",
+    "connection_placeholders": [
+      "RECONNECT_AIRTABLE_CONNECTION",
+      "RECONNECT_CLAUDE_API_KEY",
+      "RECONNECT_GMAIL_CONNECTION",
+      "RECONNECT_SLACK_CONNECTION",
+      "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"
+    ],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

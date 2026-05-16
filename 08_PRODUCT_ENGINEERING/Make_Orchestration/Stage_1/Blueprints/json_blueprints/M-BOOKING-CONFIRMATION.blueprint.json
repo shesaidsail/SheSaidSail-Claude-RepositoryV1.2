@@ -1,0 +1,382 @@
+{
+  "name": "M-BOOKING-CONFIRMATION — Balance Due Reminder and Post-Confirmation Messaging (CHARTER-001)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerNewRecord",
+      "version": 3,
+      "parameters": {
+        "__IMTCONN__": null,
+        "baseId": "appdZ49WqgjRXxA1R",
+        "tableId": "tbl72omPibBkn2hZL",
+        "formula": "AND({Status}=\"CONFIRMED\",{Balance_Reminder_Sent}=FALSE(),DATETIME_DIFF({Charter_Date},TODAY(),\"hours\")<=72,DATETIME_DIFF({Charter_Date},TODAY(),\"hours\")>0)"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": {
+              "label": "RECONNECT_AIRTABLE_CONNECTION — Watch Bookings: CONFIRMED + Charter_Date within 72 hours + Balance_Reminder_Sent = false"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "_note": "CRITICAL GUARD: check Emergency_Flag and Automations_Paused before any client outreach"
+      },
+      "routes": [
+        {
+          "label": "Safe to proceed",
+          "filter": {
+            "name": "Flags clear",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                },
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:notEqual"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "tools:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "idempotency_key",
+                "scope": "roundtrip",
+                "value": "BALANCE-REMINDER-{{1.id}}-CHARTER-001"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -75 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "baseId": "appdZ49WqgjRXxA1R",
+                "tableId": "tblrMpTfMk8q1eNHp",
+                "filterByFormula": "{Idempotency_Key}=\"{{3.value}}\"",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -75 },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "RECONNECT_AIRTABLE_CONNECTION"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": -75 } },
+              "routes": [
+                {
+                  "label": "Not yet sent — proceed",
+                  "filter": {
+                    "name": "No existing idempotency record",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:equal"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 6,
+                      "module": "stripe:ActionCreatePaymentLink",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "line_items": [
+                          {
+                            "price_data": {
+                              "currency": "usd",
+                              "unit_amount": "{{round(multiply(subtract(1.fields.Package_Price; ifempty(1.fields.Deposit_Amount_Received; 0)); 100); 0)}}",
+                              "product_data": {
+                                "name": "She Said Sail — Balance Due for {{1.fields.Booking_Name}}",
+                                "description": "Remaining balance for charter on {{1.fields.Charter_Date}}"
+                              }
+                            },
+                            "quantity": 1
+                          }
+                        ],
+                        "after_completion": {
+                          "type": "redirect",
+                          "redirect": {
+                            "url": "https://www.shesaidsail.com/payment-received"
+                          }
+                        },
+                        "metadata": {
+                          "booking_id": "{{1.id}}",
+                          "scenario": "M-BOOKING-CONFIRMATION",
+                          "payment_type": "BALANCE",
+                          "idempotency_key": "{{3.value}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 1500, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_STRIPE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 7,
+                      "module": "airtable:ActionUpdateRecord",
+                      "version": 3,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "baseId": "appdZ49WqgjRXxA1R",
+                        "tableId": "tbl72omPibBkn2hZL",
+                        "recordId": "{{1.id}}",
+                        "fields": {
+                          "Stripe_Balance_Link": "{{6.url}}",
+                          "Stripe_Balance_Payment_Link_ID": "{{6.id}}",
+                          "Balance_Reminder_Sent": true,
+                          "Balance_Reminder_Sent_At": "{{now}}",
+                          "Status": "BALANCE_DUE",
+                          "Idempotency_Key": "{{3.value}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 1800, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_AIRTABLE_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 8,
+                      "module": "gmail:ActionSendEmail",
+                      "version": 1,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "to": "{{1.fields.Client_Email}}",
+                        "subject": "Balance Due — Your She Said Sail Charter is 72 Hours Away!",
+                        "bodyType": "html",
+                        "body": "<p>Hi {{1.fields.Client_Name}},</p><p>Your charter experience is just around the corner — we're so excited to host you!</p><p><strong>Charter Date:</strong> {{1.fields.Charter_Date}}<br><strong>Departure:</strong> {{1.fields.Departure_Location}}<br><strong>Guests:</strong> {{1.fields.Guest_Count}}</p><p>Your final balance is now due. Please complete payment via the secure link below:</p><p><a href='{{6.url}}'>Pay Balance Now</a></p><p>Once payment is received, we will send your final charter day instructions with all the details you need for a perfect experience.</p><p>Questions? Reply to this email or call us.</p><p>We cannot wait to see you!<br>The She Said Sail Team<br>hello@shesaidsail.com</p>",
+                        "from": "hello@shesaidsail.com"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2100, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_GMAIL_CONNECTION — hello@shesaidsail.com"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 9,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_QUO_API_ENDPOINT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" },
+                          { "name": "Authorization", "value": "Bearer RECONNECT_QUO_API_KEY" }
+                        ],
+                        "body": "{\"to\":\"{{1.fields.Client_Phone}}\",\"message\":\"Hi {{1.fields.Client_Name}}, your She Said Sail charter is in 72 hours! Your final balance is due now: {{6.url}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2400, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — Quo SMS has no native Make module. Replace RECONNECT_QUO_API_ENDPOINT and RECONNECT_QUO_API_KEY from credential vault. Do NOT hardcode credentials."
+                        }
+                      }
+                    },
+                    {
+                      "id": 10,
+                      "module": "slack:CreateMessage",
+                      "version": 4,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "channel": "#sss-ops-alerts",
+                        "text": "*Balance Reminder Sent — {{1.fields.Booking_Name}}*\nClient: {{1.fields.Client_Name}} ({{1.fields.Client_Email}})\nCharter: {{1.fields.Charter_Date}} | City: {{1.fields.City}}\nStatus → BALANCE_DUE\nBalance Link: {{6.url}}\nBooking ID: {{1.id}}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 2700, "y": -150 },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "RECONNECT_SLACK_CONNECTION"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 11,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+                      "mapper": {
+                        "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                        "method": "POST",
+                        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                        "body": "{\"scenario_id\":\"M-BOOKING-CONFIRMATION\",\"action_type\":\"BALANCE_REMINDER_SENT\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"idempotency_key\":\"{{3.value}}\",\"payload_summary\":\"Balance reminder sent to {{1.fields.Client_Email}} for charter {{1.fields.Charter_Date}}\",\"outcome\":\"SUCCESS\",\"city\":\"{{1.fields.City}}\"}"
+                      },
+                      "metadata": {
+                        "designer": { "x": 3000, "y": -150 },
+                        "restore": {
+                          "_note": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER."
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "Already sent — skip",
+                  "filter": {
+                    "name": "Already processed",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:greater"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "BLOCKED — flags active",
+          "filter": {
+            "name": "Emergency or automation paused",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.fields.Emergency_Flag}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.fields.Automations_Paused}}",
+                  "b": "true",
+                  "o": "boolean:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 12,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompression": true },
+              "mapper": {
+                "url": "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"scenario_id\":\"M-BOOKING-CONFIRMATION\",\"action_type\":\"BLOCKED_BY_FLAG\",\"brand\":\"{{1.fields.Brand}}\",\"booking_id\":\"{{1.id}}\",\"actor\":\"SYSTEM\",\"autonomy_tier\":\"A\",\"environment\":\"Production\",\"payload_summary\":\"Balance reminder blocked: Emergency_Flag={{1.fields.Emergency_Flag}}, Automations_Paused={{1.fields.Automations_Paused}}\",\"outcome\":\"SKIPPED\"}"
+              },
+              "metadata": { "designer": { "x": 600, "y": 75 } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_native_first_notes": {
+    "trigger": "airtable:TriggerNewRecord — NATIVE. Watches Bookings table for CONFIRMED + Charter_Date ≤ 72 hours + Balance_Reminder_Sent = false.",
+    "module_4_airtable_search": "NATIVE — airtable:ActionSearchRecords for idempotency check.",
+    "module_6_stripe": "NATIVE — stripe:ActionCreatePaymentLink for balance payment. Replaces HTTP Stripe API call.",
+    "module_7_airtable_update": "NATIVE — airtable:ActionUpdateRecord. Replaces HTTP Airtable PATCH.",
+    "module_8_gmail": "NATIVE — gmail:ActionSendEmail. Replaces HTTP Gmail API call.",
+    "module_9_http_quo": "HTTP KEPT — Quo SMS has no native Make module.",
+    "module_10_slack": "NATIVE — slack:CreateMessage. Replaces HTTP Slack webhook.",
+    "module_11_http_audit": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER.",
+    "module_12_http_audit_blocked": "HTTP KEPT — inter-scenario call to M-AUDIT-LOGGER for blocked execution.",
+    "connection_placeholders": [
+      "RECONNECT_AIRTABLE_CONNECTION",
+      "RECONNECT_STRIPE_CONNECTION",
+      "RECONNECT_GMAIL_CONNECTION",
+      "RECONNECT_SLACK_CONNECTION",
+      "RECONNECT_QUO_API_ENDPOINT",
+      "RECONNECT_QUO_API_KEY",
+      "RECONNECT_AUDIT_LOGGER_WEBHOOK_URL"
+    ],
+    "no_secrets_included": true,
+    "stage_contamination": "none"
+  }
+}

@@ -17,40 +17,6 @@
     },
     {
       "id": 2,
-      "module": "builtin:SetVariables",
-      "version": 1,
-      "parameters": {},
-      "mapper": {
-        "variables": [
-          { "name": "stripe_event_type", "value": "{{1.type}}" },
-          { "name": "payment_intent_id", "value": "{{1.data.object.id}}" },
-          { "name": "amount_received", "value": "{{divide(1.data.object.amount_received; 100)}}" },
-          { "name": "currency", "value": "{{1.data.object.currency}}" },
-          { "name": "customer_email", "value": "{{1.data.object.receipt_email}}" },
-          { "name": "metadata_booking_id", "value": "{{1.data.object.metadata.booking_id}}" },
-          { "name": "metadata_request_id", "value": "{{1.data.object.metadata.request_id}}" }
-        ]
-      },
-      "metadata": { "designer": { "x": 200, "y": 0 } }
-    },
-    {
-      "id": 3,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "Only process payment_intent.succeeded",
-        "condition": {
-          "left": "{{stripe_event_type}}",
-          "operator": "equal",
-          "right": "payment_intent.succeeded"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 400, "y": 0 } }
-    },
-    {
-      "id": 4,
       "module": "airtable:SearchRecords",
       "version": 3,
       "parameters": {
@@ -59,10 +25,10 @@
         "maxRecords": 1
       },
       "mapper": {
-        "filterByFormula": "OR(FIND(\"{{payment_intent_id}}\", {Stripe Payment Intent ID}), FIND(\"{{payment_intent_id}}\", {Idempotency_Key}))"
+        "filterByFormula": "FIND(\"{{1.data.object.metadata.booking_id}}\", {Booking ID})"
       },
       "metadata": {
-        "designer": { "x": 600, "y": 0 },
+        "designer": { "x": 200, "y": 0 },
         "restore": {
           "parameters": {
             "base": { "label": "She Said Sail" },
@@ -72,92 +38,99 @@
       }
     },
     {
-      "id": 5,
-      "module": "builtin:BasicFilter",
+      "id": 3,
+      "module": "builtin:BasicRouter",
       "version": 1,
-      "parameters": {
-        "label": "Booking found and not already DEPOSIT_PAID",
-        "condition": {
-          "left": "{{4.id}}",
-          "operator": "exist",
-          "and": {
-            "left": "{{4.fields.Status}}",
-            "operator": "notEqual",
-            "right": "DEPOSIT_PAID"
-          }
-        },
-        "throw": false
-      },
+      "parameters": {},
       "mapper": {},
-      "metadata": { "designer": { "x": 800, "y": 0 } }
-    },
-    {
-      "id": 6,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "Environment check — Production only",
-        "condition": {
-          "left": "{{4.fields.Environment}}",
-          "operator": "notEqual",
-          "right": "Sandbox"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 1000, "y": 0 } }
-    },
-    {
-      "id": 7,
-      "module": "airtable:ActionUpdateRecord",
-      "version": 3,
-      "parameters": {
-        "base": "appdZ49WqgjRXxA1R",
-        "table": "tbl72omPibBkn2hZL"
-      },
-      "mapper": {
-        "recordId": "{{4.id}}",
-        "fields": {
-          "Status": "DEPOSIT_PAID",
-          "Source_System": "Stripe",
-          "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
-        }
-      },
       "metadata": {
-        "designer": { "x": 1200, "y": 0 },
-        "restore": {
-          "parameters": {
-            "base": { "label": "She Said Sail" },
-            "table": { "label": "Bookings" }
-          }
+        "designer": { "x": 400, "y": 0 }
+      },
+      "routes": [
+        {
+          "filter": {
+            "name": "Process deposit",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.type}}",
+                  "b": "payment_intent.succeeded",
+                  "o": "text:equal"
+                },
+                {
+                  "a": "{{2.id}}",
+                  "b": "",
+                  "o": "text:notempty"
+                },
+                {
+                  "a": "{{2.fields.Status}}",
+                  "b": "DEPOSIT_PAID",
+                  "o": "text:notequal"
+                },
+                {
+                  "a": "{{2.fields.Environment}}",
+                  "b": "Sandbox",
+                  "o": "text:notequal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tbl72omPibBkn2hZL"
+              },
+              "mapper": {
+                "recordId": "{{2.id}}",
+                "fields": {
+                  "Status": "DEPOSIT_PAID",
+                  "Source_System": "Stripe",
+                  "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Bookings" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Deposit Received\", \"body\": \"${{divide(1.data.object.amount_received; 100)}} deposit confirmed via Stripe. Booking updated to DEPOSIT_PAID.\", \"booking_id\": \"{{2.fields.Booking ID}}\", \"city\": \"{{2.fields.City}}\", \"brand\": \"{{2.fields.Brand}}\"}"
+              },
+              "metadata": { "designer": { "x": 800, "y": 0 } }
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"triggering_event\": \"Stripe payment_intent.succeeded — deposit\", \"source_data\": \"Payment Intent ID: {{1.data.object.id}}, Amount: ${{divide(1.data.object.amount_received; 100)}} {{1.data.object.currency}}, Customer: {{1.data.object.receipt_email}}\", \"output\": \"Booking {{2.fields.Booking ID}} updated to DEPOSIT_PAID\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{2.fields.Brand}}\", \"environment\": \"{{2.fields.Environment}}\", \"destination\": \"Airtable Bookings\"}"
+              },
+              "metadata": { "designer": { "x": 1000, "y": 0 } }
+            }
+          ]
         }
-      }
-    },
-    {
-      "id": 8,
-      "module": "http:ActionSendData",
-      "version": 3,
-      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
-      "mapper": {
-        "url": "PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE",
-        "method": "POST",
-        "headers": [{ "name": "Content-Type", "value": "application/json" }],
-        "body": "{\"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"💳 Deposit Received\", \"body\": \"${{amount_received}} deposit confirmed via Stripe. Booking status updated to DEPOSIT_PAID.\", \"booking_id\": \"{{4.fields.Booking ID}}\", \"city\": \"{{4.fields.City}}\", \"brand\": \"{{4.fields.Brand}}\"}"
-      },
-      "metadata": { "designer": { "x": 1400, "y": 0 } }
-    },
-    {
-      "id": 9,
-      "module": "http:ActionSendData",
-      "version": 3,
-      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
-      "mapper": {
-        "url": "PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE",
-        "method": "POST",
-        "headers": [{ "name": "Content-Type", "value": "application/json" }],
-        "body": "{\"triggering_event\": \"Stripe payment_intent.succeeded — deposit\", \"source_data\": \"Payment Intent ID: {{payment_intent_id}}, Amount: ${{amount_received}} {{currency}}, Customer: {{customer_email}}\", \"output\": \"Booking {{4.fields.Booking ID}} updated to DEPOSIT_PAID\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{4.fields.Brand}}\", \"city\": \"{{4.fields.City}}\", \"environment\": \"{{4.fields.Environment}}\", \"destination\": \"Airtable Bookings (tbl72omPibBkn2hZL)\"}"
-      },
-      "metadata": { "designer": { "x": 1600, "y": 0 } }
+      ]
     }
   ],
   "metadata": {
@@ -177,7 +150,7 @@
     "designer": {
       "orphans": []
     },
-    "zone": "us1.make.com",
-    "notes": "REBINDING REQUIRED: Airtable connection (modules 4, 7). STRIPE SETUP: register webhook in Stripe → Developers → Webhooks for event payment_intent.succeeded. Copy signing secret into credential vault. PLACEHOLDERS: replace PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE (module 8), PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE (module 9). SAFETY: filters prevent processing if already DEPOSIT_PAID (idempotency) or Environment = Sandbox. Stripe metadata must include booking_id for lookup."
+    "zone": "us2.make.com",
+    "notes": "REBINDING REQUIRED: Airtable connection on modules 2 and 4. PLACEHOLDERS: replace PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE (module 5), PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE (module 6). STRIPE SETUP: register webhook URL (Module 1) in Stripe Developers → Webhooks → Add endpoint, event: payment_intent.succeeded. Stripe metadata must include booking_id. Router filter: event=payment_intent.succeeded AND booking found AND not DEPOSIT_PAID AND not Sandbox."
   }
 }

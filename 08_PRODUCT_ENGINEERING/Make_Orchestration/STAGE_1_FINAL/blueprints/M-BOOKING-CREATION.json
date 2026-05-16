@@ -1,0 +1,272 @@
+{
+  "name": "M-BOOKING-CREATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "{{STRIPE_DEPOSIT_WEBHOOK_ID}}",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": { "editable": "true" },
+              "label": "Stripe Deposit Webhook (payment_link.completed)"
+            }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "stripe_event_type": "{{1.body.type}}",
+            "stripe_event_id": "{{1.body.id}}",
+            "payment_intent_id": "{{1.body.data.object.payment_intent}}",
+            "payment_link_id": "{{1.body.data.object.id}}",
+            "amount_total": "{{1.body.data.object.amount_total}}",
+            "currency": "{{1.body.data.object.currency}}",
+            "booking_id": "{{1.body.data.object.metadata.booking_id}}",
+            "airtable_record_id": "{{1.body.data.object.metadata.airtable_record_id}}",
+            "payment_type": "{{1.body.data.object.metadata.payment_type}}",
+            "brand": "{{1.body.data.object.metadata.brand}}",
+            "environment": "{{1.body.data.object.metadata.environment}}",
+            "customer_email": "{{1.body.data.object.customer_details.email}}",
+            "customer_name": "{{1.body.data.object.customer_details.name}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Validate: checkout.session.completed + deposit + Production",
+        "conditions": [
+          [
+            {
+              "a": "{{2.stripe_event_type}}",
+              "b": "checkout.session.completed",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{2.payment_type}}",
+              "b": "deposit",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{2.environment}}",
+              "b": "Production",
+              "o": "text:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "value": [
+          {
+            "validated": true
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Audit Log"
+      },
+      "mapper": {
+        "formula": "AND({Stripe_Event_ID} = '{{2.stripe_event_id}}')"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "filter": {
+        "name": "Idempotency — skip if event already processed",
+        "conditions": [
+          [
+            {
+              "a": "{{length(4.records)}}",
+              "b": "0",
+              "o": "number:equal"
+            }
+          ]
+        ]
+      },
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings"
+      },
+      "mapper": {
+        "id": "{{2.airtable_record_id}}",
+        "fields": {
+          "Status": "DEPOSIT_PAID",
+          "Stripe_Deposit_Payment_Intent": "{{2.payment_intent_id}}",
+          "Stripe_Deposit_Event_ID": "{{2.stripe_event_id}}",
+          "Deposit_Paid_At": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}",
+          "Deposit_Amount_Received": "{{2.amount_total / 100}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "filter": {
+        "name": "Only after successful update",
+        "conditions": [
+          [
+            {
+              "a": "{{5.id}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "url": "{{SLACK_ALERTS_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{SLACK_ALERTS_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"alert_level\":\"INFO\",\"scenario_id\":\"BOOKING-002\",\"message\":\"💳 Deposit received — Booking {{2.booking_id}} is now DEPOSIT_PAID. Amount: ${{formatNumber(2.amount_total / 100; 2; \".\"; \",\")}} | Customer: {{2.customer_name}} ({{2.customer_email}})\",\"environment\":\"Production\",\"booking_id\":\"{{2.booking_id}}\",\"error_detail\":\"Stripe Event: {{2.stripe_event_id}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "filter": {
+        "name": "Only after successful update",
+        "conditions": [
+          [
+            {
+              "a": "{{5.id}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "url": "{{AUDIT_LOGGER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{AUDIT_LOGGER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"actor\":\"M-BOOKING-CREATION\",\"action_type\":\"DEPOSIT_RECEIVED\",\"scenario_id\":\"BOOKING-002\",\"source_system\":\"Stripe\",\"environment\":\"Production\",\"booking_id\":\"{{2.booking_id}}\",\"before_state\":\"DEPOSIT_SENT\",\"after_state\":\"DEPOSIT_PAID\",\"payload_summary\":\"Stripe checkout.session.completed. Event {{2.stripe_event_id}}. PI {{2.payment_intent_id}}. Amount ${{formatNumber(2.amount_total / 100; 2; \".\"; \",\")}}\",\"rollback_reference\":\"Stripe Dashboard > PI {{2.payment_intent_id}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 300 }
+      }
+    },
+    {
+      "id": 8,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"received\":true}",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "BOOKING-002",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Stripe webhook: checkout.session.completed where metadata.payment_type = deposit AND metadata.environment = Production",
+    "purpose": "Handle Stripe deposit payment confirmation. Validate event type, payment_type, and environment metadata. Idempotency-checked against Audit Log by Stripe event ID. Update Booking status to DEPOSIT_PAID. Notify Slack. Write audit log.",
+    "stripe_notes": {
+      "api_version": "2023-10-16",
+      "webhook_event": "checkout.session.completed",
+      "signing_secret_required": true,
+      "idempotency_strategy": "Search Audit Log for Stripe_Event_ID before processing",
+      "metadata_required": ["booking_id", "airtable_record_id", "payment_type=deposit", "environment=Production"]
+    },
+    "webhook_registration": {
+      "platform": "Stripe Dashboard > Developers > Webhooks",
+      "event": "checkout.session.completed",
+      "target": "This scenario's Make webhook URL",
+      "signing_secret": "Store as STRIPE_WEBHOOK_SIGNING_SECRET in Make credential vault"
+    },
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_tables": ["Bookings", "Audit Log"],
+      "upstream_required": ["M-STRIPE-DEPOSIT", "M-AUDIT-LOGGER", "M-SLACK-ALERTS"],
+      "credentials": ["AIRTABLE_PAT", "STRIPE_DEPOSIT_WEBHOOK_SECRET", "STRIPE_WEBHOOK_SIGNING_SECRET", "SLACK_ALERTS_WEBHOOK_URL", "SLACK_ALERTS_WEBHOOK_SECRET", "AUDIT_LOGGER_WEBHOOK_URL", "AUDIT_LOGGER_WEBHOOK_SECRET"]
+    },
+    "import_order": 6,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

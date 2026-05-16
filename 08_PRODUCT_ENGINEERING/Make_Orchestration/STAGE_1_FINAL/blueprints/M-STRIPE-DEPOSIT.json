@@ -1,0 +1,231 @@
+{
+  "name": "M-STRIPE-DEPOSIT",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerWatchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings",
+        "triggerField": "Updated_At",
+        "maxResults": 10
+      },
+      "filter": {
+        "name": "Availability confirmed — deposit link not yet sent",
+        "conditions": [
+          [
+            {
+              "a": "{{1.Status}}",
+              "b": "AVAILABILITY_CONFIRMED",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{1.Deposit_Link_Sent}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            },
+            {
+              "a": "{{1.Environment}}",
+              "b": "Production",
+              "o": "text:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": {
+              "data": { "editable": "true" },
+              "label": "SSS Operations (Production)"
+            },
+            "table": {
+              "data": { "editable": "true" },
+              "label": "Bookings"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "deposit_amount": "{{round(1.Package_Price * 0.5 * 100)}}",
+            "total_amount": "{{round(1.Package_Price * 100)}}",
+            "client_name": "{{1.Client_Name}}",
+            "client_email": "{{1.Client_Email}}",
+            "booking_id": "{{1.Booking_ID}}",
+            "airtable_record_id": "{{1.id}}",
+            "charter_date": "{{formatDate(1.Charter_Date; \"MMMM D, YYYY\")}}",
+            "vessel_name": "{{1.Vessel_Name}}",
+            "package_name": "{{1.Package_Name}}",
+            "guest_count": "{{1.Guest_Count}}",
+            "city": "{{1.City}}",
+            "brand": "{{ifempty(1.Brand; \"SSS\")}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": true, "useNewZLibDecompression": true },
+      "mapper": {
+        "url": "https://api.stripe.com/v1/payment_links",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer {{STRIPE_SECRET_KEY}}" },
+          { "name": "Stripe-Version", "value": "2023-10-16" },
+          { "name": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "name": "Idempotency-Key", "value": "deposit-{{2.booking_id}}-{{formatDate(now; \"YYYYMMDD\")}}" }
+        ],
+        "bodyType": "urlencoded",
+        "body": [
+          { "key": "line_items[0][price_data][currency]", "value": "usd" },
+          { "key": "line_items[0][price_data][product_data][name]", "value": "{{2.package_name}} — Charter Deposit (50%)" },
+          { "key": "line_items[0][price_data][product_data][description]", "value": "50% deposit for charter on {{2.charter_date}} aboard {{2.vessel_name}} for {{2.guest_count}} guests. Booking ID: {{2.booking_id}}" },
+          { "key": "line_items[0][price_data][unit_amount]", "value": "{{2.deposit_amount}}" },
+          { "key": "line_items[0][quantity]", "value": "1" },
+          { "key": "after_completion[type]", "value": "redirect" },
+          { "key": "after_completion[redirect][url]", "value": "https://shesaidsail.com/booking-confirmed?booking_id={{2.booking_id}}" },
+          { "key": "metadata[booking_id]", "value": "{{2.booking_id}}" },
+          { "key": "metadata[airtable_record_id]", "value": "{{2.airtable_record_id}}" },
+          { "key": "metadata[payment_type]", "value": "deposit" },
+          { "key": "metadata[brand]", "value": "{{2.brand}}" },
+          { "key": "metadata[environment]", "value": "Production" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "json": "{{3.body}}"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings"
+      },
+      "mapper": {
+        "id": "{{2.airtable_record_id}}",
+        "fields": {
+          "Status": "DEPOSIT_SENT",
+          "Stripe_Payment_Link_ID": "{{4.id}}",
+          "Stripe_Payment_Link_URL": "{{4.url}}",
+          "Deposit_Amount": "{{2.deposit_amount / 100}}",
+          "Deposit_Link_Sent": true,
+          "Deposit_Link_Sent_At": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "connection": "{{GMAIL_CONNECTION_ID}}"
+      },
+      "mapper": {
+        "to": "{{2.client_email}}",
+        "subject": "Your She Said Sail Charter Deposit — {{2.charter_date}}",
+        "bodyType": "html",
+        "body": "<p>Hi {{2.client_name}},</p><p>Your charter reservation is confirmed! To secure your booking, please complete your 50% deposit using the link below.</p><p><strong>Charter Details</strong><br>Date: {{2.charter_date}}<br>Vessel: {{2.vessel_name}}<br>Package: {{2.package_name}}<br>Guests: {{2.guest_count}}<br>Booking ID: {{2.booking_id}}</p><p><strong>Deposit Amount: ${{formatNumber(2.deposit_amount / 100; 2; \".\"; \",\")}}</strong><br>(50% of total — balance due 72 hours before charter)</p><p><a href=\"{{4.url}}\" style=\"display:inline-block;background:#1a1a1a;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:4px;font-weight:600;\">Pay Deposit Now</a></p><p>If you have any questions, reply to this email or text us directly.</p><p>We can't wait to have you aboard.<br><br>The She Said Sail Team<br>Miami · Fort Lauderdale</p>",
+        "from": "hello@shesaidsail.com"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "mapper": {
+        "url": "{{AUDIT_LOGGER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{AUDIT_LOGGER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"actor\":\"M-STRIPE-DEPOSIT\",\"action_type\":\"DEPOSIT_LINK_CREATED\",\"scenario_id\":\"BOOKING-001\",\"source_system\":\"Make\",\"environment\":\"Production\",\"booking_id\":\"{{2.booking_id}}\",\"before_state\":\"AVAILABILITY_CONFIRMED\",\"after_state\":\"DEPOSIT_SENT\",\"payload_summary\":\"Stripe Payment Link {{4.id}} created. Deposit ${{formatNumber(2.deposit_amount / 100; 2; \".\"; \",\")}}. Email sent to {{2.client_email}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "BOOKING-001",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Airtable Bookings record watch: Status = AVAILABILITY_CONFIRMED AND Deposit_Link_Sent != true",
+    "purpose": "Generate Stripe Payment Link for 50% deposit. Update Booking to DEPOSIT_SENT. Send deposit request email to client. Write audit log. Uses Stripe API version 2023-10-16 via HTTP module — NOT the deprecated stripe:ActionCreatePaymentLink connector.",
+    "stripe_notes": {
+      "api_version": "2023-10-16",
+      "endpoint": "https://api.stripe.com/v1/payment_links",
+      "method": "POST via http:ActionSendData",
+      "idempotency_key_pattern": "deposit-{booking_id}-{YYYYMMDD}",
+      "deprecated_module_removed": "stripe:ActionCreatePaymentLink — REMOVED. Replaced with http:ActionSendData calling Stripe REST API directly with Stripe-Version: 2023-10-16 header.",
+      "metadata_fields": ["booking_id", "airtable_record_id", "payment_type", "brand", "environment"]
+    },
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Bookings",
+      "required_booking_fields": ["Status", "Package_Price", "Client_Name", "Client_Email", "Booking_ID", "Charter_Date", "Vessel_Name", "Package_Name", "Guest_Count", "City", "Brand", "Deposit_Link_Sent", "Environment"],
+      "credentials": ["AIRTABLE_PAT", "STRIPE_SECRET_KEY", "GMAIL_CONNECTION_ID", "AUDIT_LOGGER_WEBHOOK_URL", "AUDIT_LOGGER_WEBHOOK_SECRET"],
+      "upstream_required": ["M-AUDIT-LOGGER"]
+    },
+    "import_order": 5,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

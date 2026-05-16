@@ -1,0 +1,152 @@
+{
+  "name": "M-BRAND-ROUTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "{{BRAND_ROUTER_WEBHOOK_ID}}",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": { "editable": "true" },
+              "label": "M-BRAND-ROUTER Inbound Hook"
+            }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "raw_email": "{{lower(1.body.client_email)}}",
+            "raw_source": "{{lower(ifempty(1.body.source; \"\"))}}",
+            "raw_form_brand": "{{lower(ifempty(1.body.form_brand; \"\"))}}",
+            "request_id": "{{1.body.request_id}}",
+            "context": "{{1.body.context}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "brand": "{{if(contains(2.raw_form_brand; \"mare\") or contains(2.raw_source; \"mare-executive\") or contains(2.raw_source; \"mareexecutive\") or contains(2.raw_source; \"me-\"); \"ME\"; \"SSS\")}}",
+            "brand_full": "{{if(contains(2.raw_form_brand; \"mare\") or contains(2.raw_source; \"mare-executive\") or contains(2.raw_source; \"mareexecutive\") or contains(2.raw_source; \"me-\"); \"Mare Executive\"; \"She Said Sail\")}}",
+            "prompt_prefix": "{{if(contains(2.raw_form_brand; \"mare\") or contains(2.raw_source; \"mare-executive\") or contains(2.raw_source; \"mareexecutive\") or contains(2.raw_source; \"me-\"); \"ME_SYSTEM_PROMPT\"; \"SSS_SYSTEM_PROMPT\")}}",
+            "slack_channel": "{{if(contains(2.raw_form_brand; \"mare\") or contains(2.raw_source; \"mare-executive\") or contains(2.raw_source; \"mareexecutive\") or contains(2.raw_source; \"me-\"); \"#me-ops-alerts\"; \"#sss-ops-alerts\")}}",
+            "airtable_base": "{{if(contains(2.raw_form_brand; \"mare\") or contains(2.raw_source; \"mare-executive\") or contains(2.raw_source; \"mareexecutive\") or contains(2.raw_source; \"me-\"); \"{{AIRTABLE_BASE_ID_ME}}\"; \"{{AIRTABLE_BASE_ID_PRODUCTION}}\")}}",
+            "request_id": "{{2.request_id}}",
+            "context": "{{2.context}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Audit Log"
+      },
+      "mapper": {
+        "fields": {
+          "Audit_UUID": "{{uuid()}}",
+          "Actor": "M-BRAND-ROUTER",
+          "Action_Type": "BRAND_CLASSIFICATION",
+          "Scenario_ID": "BRAND-ROUTER-001",
+          "Source_System": "Make",
+          "Environment": "Production",
+          "Request_ID": "{{3.request_id}}",
+          "After_State": "{{3.brand}}",
+          "Payload_Summary": "Brand classified as {{3.brand_full}} from source={{2.raw_source}} form_brand={{2.raw_form_brand}}",
+          "Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"brand\":\"{{3.brand}}\",\"brand_full\":\"{{3.brand_full}}\",\"prompt_prefix\":\"{{3.prompt_prefix}}\",\"slack_channel\":\"{{3.slack_channel}}\",\"airtable_base\":\"{{3.airtable_base}}\",\"request_id\":\"{{3.request_id}}\"}",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "BRAND-ROUTER-001",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Called by any scenario requiring brand determination before client communication or AI context injection",
+    "purpose": "Classify inbound request as SSS (She Said Sail) or ME (Mare Executive) based on source URL, form field, or email domain. Returns brand token, prompt prefix, Slack channel, and Airtable base. Brand misrouting is a system failure — this module is non-negotiable first step in every inbound lead flow.",
+    "classification_rules": {
+      "ME_signals": ["mare", "mare-executive", "mareexecutive", "me-"],
+      "SSS_signals": ["shesaidsail", "sss", "bachelorette", "default_if_ambiguous"]
+    },
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Audit Log",
+      "credentials": ["AIRTABLE_PAT", "BRAND_ROUTER_WEBHOOK_SECRET", "AIRTABLE_BASE_ID_PRODUCTION", "AIRTABLE_BASE_ID_ME"]
+    },
+    "stripe_api_version": "N/A",
+    "import_order": 3,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

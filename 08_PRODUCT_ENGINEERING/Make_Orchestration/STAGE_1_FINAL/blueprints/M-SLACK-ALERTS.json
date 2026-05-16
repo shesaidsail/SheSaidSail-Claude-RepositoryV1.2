@@ -1,0 +1,208 @@
+{
+  "name": "M-SLACK-ALERTS",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "{{SLACK_ALERTS_WEBHOOK_ID}}",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": { "editable": "true" },
+              "label": "M-SLACK-ALERTS Inbound Hook"
+            }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "alert_level": "{{1.body.alert_level}}",
+            "scenario_id": "{{1.body.scenario_id}}",
+            "message": "{{1.body.message}}",
+            "environment": "{{1.body.environment}}",
+            "booking_id": "{{ifempty(1.body.booking_id; \"N/A\")}}",
+            "error_detail": "{{ifempty(1.body.error_detail; \"No additional detail\")}}",
+            "timestamp": "{{now}}",
+            "channel": "{{if(1.body.alert_level = \"SEV-1\"; \"#sss-emergency-ops\"; if(1.body.alert_level = \"SEV-2\"; \"#sss-ops-alerts\"; \"#sss-ops-alerts\"))}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "slack:CreateAMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "{{SLACK_CONNECTION_ID}}"
+      },
+      "mapper": {
+        "channelId": "{{2.channel}}",
+        "text": "{{2.message}}",
+        "blocks": [
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": "{{if(2.alert_level = \"SEV-1\"; \"🚨 SEV-1 ALERT\"; if(2.alert_level = \"SEV-2\"; \"⚠️ SEV-2 ALERT\"; \"ℹ️ SYSTEM NOTICE\"))}}",
+              "emoji": true
+            }
+          },
+          {
+            "type": "section",
+            "fields": [
+              {
+                "type": "mrkdwn",
+                "text": "*Level:*\n{{2.alert_level}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Scenario:*\n{{2.scenario_id}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Booking ID:*\n{{2.booking_id}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Environment:*\n{{2.environment}}"
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Message:*\n{{2.message}}"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Error Detail:*\n{{2.error_detail}}"
+            }
+          },
+          {
+            "type": "context",
+            "elements": [
+              {
+                "type": "mrkdwn",
+                "text": "She Said Sail · Make Orchestration · {{formatDate(2.timestamp; \"MMM D, YYYY h:mm A\")}}"
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": {
+              "data": { "editable": "true" },
+              "label": "SSS Slack Workspace"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "slack:CreateAMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "{{SLACK_CONNECTION_ID}}"
+      },
+      "filter": {
+        "name": "SEV-1 Only — DM Will",
+        "conditions": [
+          [
+            {
+              "a": "{{2.alert_level}}",
+              "b": "SEV-1",
+              "o": "text:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "channelId": "{{SLACK_WILL_DM_ID}}",
+        "text": "🚨 *SEV-1 ALERT — Immediate Attention Required*\n\nScenario: {{2.scenario_id}}\nBooking: {{2.booking_id}}\nMessage: {{2.message}}\nDetail: {{2.error_detail}}\nTime: {{formatDate(2.timestamp; \"MMM D, YYYY h:mm A\")}}"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 300 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"status\":\"alert_sent\",\"channel\":\"{{2.channel}}\",\"level\":\"{{2.alert_level}}\"}",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "ALERTS-001",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Inbound webhook from any Make scenario on error or alert condition",
+    "purpose": "Route operational alerts to the correct Slack channel. SEV-1 goes to #sss-emergency-ops AND Will DM. SEV-2 and below go to #sss-ops-alerts. Must be imported before any operational scenario.",
+    "dependencies": {
+      "slack_connection": "SSS Slack Workspace OAuth",
+      "slack_channels": ["#sss-emergency-ops", "#sss-ops-alerts"],
+      "slack_dm": "SLACK_WILL_DM_ID",
+      "credentials": ["SLACK_CONNECTION_ID", "SLACK_ALERTS_WEBHOOK_SECRET", "SLACK_WILL_DM_ID"]
+    },
+    "stripe_api_version": "N/A",
+    "import_order": 2,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

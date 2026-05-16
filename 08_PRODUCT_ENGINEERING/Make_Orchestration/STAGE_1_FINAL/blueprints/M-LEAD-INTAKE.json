@@ -1,0 +1,249 @@
+{
+  "name": "M-LEAD-INTAKE",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "{{LEAD_INTAKE_WEBHOOK_ID}}",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": { "editable": "true" },
+              "label": "Webflow Form Submission Hook"
+            }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "mapper": {
+        "url": "{{BRAND_ROUTER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{BRAND_ROUTER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"client_email\":\"{{1.body.email}}\",\"source\":\"{{1.body.source}}\",\"form_brand\":\"{{ifempty(1.body.brand; \"\")}}\",\"request_id\":\"pending\",\"context\":\"lead_intake\"}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "json": "{{2.body}}"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Requests"
+      },
+      "mapper": {
+        "formula": "AND({Email} = '{{1.body.email}}', IS_AFTER({Created_At}, DATEADD(TODAY(), -24, 'hours')))"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "filter": {
+        "name": "No duplicate in last 24h",
+        "conditions": [
+          [
+            {
+              "a": "{{length(4.records)}}",
+              "b": "0",
+              "o": "number:equal"
+            }
+          ]
+        ]
+      },
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Requests"
+      },
+      "mapper": {
+        "fields": {
+          "Name": "{{1.body.name}}",
+          "Email": "{{1.body.email}}",
+          "Phone": "{{ifempty(1.body.phone; \"\")}}",
+          "Occasion": "{{ifempty(1.body.occasion; \"\")}}",
+          "Preferred_Date": "{{ifempty(1.body.preferred_date; \"\")}}",
+          "Guest_Count": "{{ifempty(1.body.guest_count; \"\")}}",
+          "Budget_Range": "{{ifempty(1.body.budget; \"\")}}",
+          "Message": "{{ifempty(1.body.message; \"\")}}",
+          "Source": "{{ifempty(1.body.source; \"Webflow\")}}",
+          "Brand": "{{3.brand}}",
+          "City": "{{ifempty(1.body.city; \"Miami\")}}",
+          "Agent_Status": "AI_RESPONDING",
+          "Environment": "Production",
+          "Source_System": "Make",
+          "Created_At": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": {
+              "data": { "editable": "true" },
+              "label": "SSS Operations (Production)"
+            },
+            "table": {
+              "data": { "editable": "true" },
+              "label": "Requests"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "filter": {
+        "name": "Only if new record created",
+        "conditions": [
+          [
+            {
+              "a": "{{5.id}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "url": "{{SLACK_ALERTS_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{SLACK_ALERTS_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"alert_level\":\"INFO\",\"scenario_id\":\"INBOUND-001\",\"message\":\"New lead received: {{1.body.name}} ({{1.body.email}}) — Brand: {{3.brand}} — Occasion: {{ifempty(1.body.occasion; \\\"Not specified\\\")}} — Date: {{ifempty(1.body.preferred_date; \\\"Not specified\\\")}}\",\"environment\":\"Production\",\"booking_id\":\"N/A\",\"error_detail\":\"Request ID: {{5.id}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "filter": {
+        "name": "Only if new record created",
+        "conditions": [
+          [
+            {
+              "a": "{{5.id}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "url": "{{AUDIT_LOGGER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{AUDIT_LOGGER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"actor\":\"M-LEAD-INTAKE\",\"action_type\":\"REQUEST_CREATED\",\"scenario_id\":\"INBOUND-001\",\"source_system\":\"Make\",\"environment\":\"Production\",\"request_id\":\"{{5.id}}\",\"booking_id\":\"\",\"client_id\":\"\",\"before_state\":\"NONE\",\"after_state\":\"AI_RESPONDING\",\"payload_summary\":\"Lead intake: {{1.body.name}} | {{1.body.email}} | Brand: {{3.brand}} | Source: {{ifempty(1.body.source; \\\"Webflow\\\")}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 300 }
+      }
+    },
+    {
+      "id": 8,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"status\":\"received\",\"request_id\":\"{{5.id}}\",\"brand\":\"{{3.brand}}\",\"duplicate_suppressed\":{{if(length(4.records) > 0; \"true\"; \"false\")}}}",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "INBOUND-001",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Webflow form submission webhook (inbound lead form on shesaidsail.com and mareexecutive.com)",
+    "purpose": "Receive inbound lead form submission. Call M-BRAND-ROUTER to classify brand. Deduplicate against recent submissions (24h window). Create Airtable Request record with Agent_Status=AI_RESPONDING. Notify Luciana via Slack. Write audit log.",
+    "idempotency": "Searches for duplicate email in Requests within last 24 hours — skips record creation if duplicate found. Still responds 200.",
+    "dependencies": {
+      "upstream_calls": ["M-BRAND-ROUTER", "M-AUDIT-LOGGER", "M-SLACK-ALERTS"],
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Requests",
+      "credentials": ["AIRTABLE_PAT", "LEAD_INTAKE_WEBHOOK_SECRET", "BRAND_ROUTER_WEBHOOK_URL", "BRAND_ROUTER_WEBHOOK_SECRET", "SLACK_ALERTS_WEBHOOK_URL", "SLACK_ALERTS_WEBHOOK_SECRET", "AUDIT_LOGGER_WEBHOOK_URL", "AUDIT_LOGGER_WEBHOOK_SECRET"]
+    },
+    "webflow_webhook_registration": "Register at Webflow Site Settings > Integrations > Webhooks. Event: form_submission. Target: this scenario's webhook URL.",
+    "stripe_api_version": "N/A",
+    "import_order": 4,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "name": "M-BOOKING-CONFIRMATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerWatchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings",
+        "triggerField": "Updated_At",
+        "maxResults": 10
+      },
+      "filter": {
+        "name": "Status = CONFIRMED and confirmation not yet sent",
+        "conditions": [
+          [
+            {
+              "a": "{{1.Status}}",
+              "b": "CONFIRMED",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{1.Confirmation_Sent}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            },
+            {
+              "a": "{{1.Emergency_Flag}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            },
+            {
+              "a": "{{1.Automations_Paused}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            },
+            {
+              "a": "{{1.Environment}}",
+              "b": "Production",
+              "o": "text:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": {
+              "data": { "editable": "true" },
+              "label": "SSS Operations (Production)"
+            },
+            "table": {
+              "data": { "editable": "true" },
+              "label": "Bookings"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "booking_id": "{{1.Booking_ID}}",
+            "airtable_record_id": "{{1.id}}",
+            "client_name": "{{1.Client_Name}}",
+            "client_email": "{{1.Client_Email}}",
+            "client_first_name": "{{split(1.Client_Name; \" \")[1]}}",
+            "charter_date": "{{formatDate(1.Charter_Date; \"MMMM D, YYYY\")}}",
+            "charter_date_short": "{{formatDate(1.Charter_Date; \"MM/DD/YYYY\")}}",
+            "vessel_name": "{{1.Vessel_Name}}",
+            "package_name": "{{1.Package_Name}}",
+            "guest_count": "{{1.Guest_Count}}",
+            "occasion": "{{ifempty(1.Occasion; \"Not specified\")}}",
+            "city": "{{1.City}}",
+            "brand": "{{ifempty(1.Brand; \"SSS\")}}",
+            "hv_client": "{{ifempty(1.HV_Client; false)}}",
+            "deposit_paid": "{{1.Deposit_Amount_Received}}",
+            "balance_due": "{{1.Package_Price - 1.Deposit_Amount_Received}}",
+            "total_price": "{{1.Package_Price}}",
+            "marina_address": "{{ifempty(1.Marina_Address; \"Address will be provided 48 hours before charter\")}}",
+            "balance_due_date": "{{formatDate(addDays(1.Charter_Date; -3); \"MMMM D, YYYY\")}}",
+            "add_ons": "{{ifempty(1.Add_Ons_Selected; \"None selected\")}}",
+            "agreement_signed": "{{1.Agreement_Signed}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "HV Client check — route to Tier B if HV",
+        "conditions": [
+          [
+            {
+              "a": "{{2.hv_client}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "value": [{ "proceed": true }]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "connection": "{{GMAIL_CONNECTION_ID}}"
+      },
+      "mapper": {
+        "to": "{{2.client_email}}",
+        "subject": "You're Officially Booked — She Said Sail {{2.charter_date_short}}",
+        "bodyType": "html",
+        "body": "<p>Hi {{2.client_first_name}},</p><p>Your charter is officially confirmed. Here's everything you need to know.</p><hr><p><strong>Your Charter Details</strong></p><table style=\"border-collapse:collapse;width:100%\"><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Date</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.charter_date}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Vessel</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.vessel_name}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Package</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.package_name}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Guests</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.guest_count}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Occasion</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.occasion}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Add-Ons</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.add_ons}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Boarding Location</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.marina_address}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Booking ID</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">{{2.booking_id}}</td></tr></table><hr><p><strong>Payment Summary</strong></p><table style=\"border-collapse:collapse;width:100%\"><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Total Charter Price</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">${{formatNumber(2.total_price; 2; \".\"; \",\")}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Deposit Paid</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\">${{formatNumber(2.deposit_paid; 2; \".\"; \",\")}}</td></tr><tr><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>Balance Due</strong></td><td style=\"padding:8px 0;border-bottom:1px solid #eee;\"><strong>${{formatNumber(2.balance_due; 2; \".\"; \",\")}} — due by {{2.balance_due_date}}</strong></td></tr></table><p>You'll receive a balance payment link automatically on {{2.balance_due_date}}.</p><hr><p><strong>What Happens Next</strong></p><ul><li>We'll reach out 72 hours before your charter with your balance link and final logistics</li><li>Your boarding address and any final instructions arrive 24 hours before</li><li>Have questions? Reply to this email anytime — we respond fast</li></ul><p>We're beyond excited for this one.<br><br>The She Said Sail Team<br>Miami · Fort Lauderdale<br>hello@shesaidsail.com</p>",
+        "from": "hello@shesaidsail.com"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "slack:CreateAMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "{{SLACK_CONNECTION_ID}}"
+      },
+      "filter": {
+        "name": "HV Client — route to Luciana for Tier B review",
+        "conditions": [
+          [
+            {
+              "a": "{{2.hv_client}}",
+              "b": "true",
+              "o": "boolean:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "channelId": "{{SLACK_LUCIANA_ID}}",
+        "text": "⭐ HV Client Confirmation Required — Tier B Review",
+        "blocks": [
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": "⭐ HV Client — Confirmation Requires Your Review",
+              "emoji": true
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "Booking {{2.booking_id}} ({{2.client_name}}) has HV_Client = true. Automated confirmation suppressed. Please draft and send the confirmation personally or route to Will.\n\n*Charter:* {{2.charter_date}} | {{2.vessel_name}} | {{2.guest_count}} guests | {{2.occasion}}"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 300 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings"
+      },
+      "mapper": {
+        "id": "{{2.airtable_record_id}}",
+        "fields": {
+          "Confirmation_Sent": true,
+          "Confirmation_Sent_At": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "mapper": {
+        "url": "{{AUDIT_LOGGER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{AUDIT_LOGGER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"actor\":\"M-BOOKING-CONFIRMATION\",\"action_type\":\"CONFIRMATION_SENT\",\"scenario_id\":\"BOOKING-004\",\"source_system\":\"Make\",\"environment\":\"Production\",\"booking_id\":\"{{2.booking_id}}\",\"before_state\":\"CONFIRMED_UNNOTIFIED\",\"after_state\":\"CONFIRMED_NOTIFIED\",\"payload_summary\":\"Confirmation email sent to {{2.client_email}} for charter {{2.charter_date}} aboard {{2.vessel_name}}. HV suppressed: {{2.hv_client}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "BOOKING-004",
+    "stage": 1,
+    "autonomy_tier": "A (Tier B for HV clients)",
+    "trigger": "Airtable Bookings watch: Status = CONFIRMED AND Confirmation_Sent != true AND Emergency_Flag != true AND Automations_Paused != true",
+    "purpose": "Send booking confirmation email to client with full charter details, payment summary, and next-steps. Non-HV: Tier A autonomous send. HV_Client = true: suppress email, DM Luciana for Tier B review. Update Confirmation_Sent flag. Write audit log.",
+    "hv_client_behavior": "If HV_Client = true, the Gmail send module is skipped (filtered out). Luciana receives a DM with context. She sends manually or escalates to Will.",
+    "balance_due_date_logic": "Automatically calculated as Charter_Date minus 3 days (D-72h). Balance payment link generated separately by CHARTER-001.",
+    "emergency_guard": "Emergency_Flag = true OR Automations_Paused = true prevents scenario execution — booking is flagged for manual handling.",
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Bookings",
+      "required_fields": ["Status", "Confirmation_Sent", "Emergency_Flag", "Automations_Paused", "Client_Name", "Client_Email", "Booking_ID", "Charter_Date", "Vessel_Name", "Package_Name", "Guest_Count", "Occasion", "HV_Client", "Deposit_Amount_Received", "Package_Price", "Marina_Address", "Add_Ons_Selected", "Brand", "Environment"],
+      "upstream_required": ["M-CONCIERGE-ASSIGNMENT", "M-AUDIT-LOGGER"],
+      "credentials": ["AIRTABLE_PAT", "GMAIL_CONNECTION_ID", "SLACK_CONNECTION_ID", "SLACK_LUCIANA_ID", "AUDIT_LOGGER_WEBHOOK_URL", "AUDIT_LOGGER_WEBHOOK_SECRET"]
+    },
+    "stripe_api_version": "N/A",
+    "import_order": 8,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

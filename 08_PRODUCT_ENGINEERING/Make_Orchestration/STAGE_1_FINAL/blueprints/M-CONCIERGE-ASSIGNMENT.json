@@ -1,0 +1,282 @@
+{
+  "name": "M-CONCIERGE-ASSIGNMENT",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:TriggerWatchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings",
+        "triggerField": "Updated_At",
+        "maxResults": 10
+      },
+      "filter": {
+        "name": "Status = DEPOSIT_PAID and no concierge assigned",
+        "conditions": [
+          [
+            {
+              "a": "{{1.Status}}",
+              "b": "DEPOSIT_PAID",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{1.Concierge_Assigned}}",
+              "b": "true",
+              "o": "boolean:notequal"
+            },
+            {
+              "a": "{{1.Environment}}",
+              "b": "Production",
+              "o": "text:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": {
+              "data": { "editable": "true" },
+              "label": "SSS Operations (Production)"
+            },
+            "table": {
+              "data": { "editable": "true" },
+              "label": "Bookings"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "booking_id": "{{1.Booking_ID}}",
+            "airtable_record_id": "{{1.id}}",
+            "client_name": "{{1.Client_Name}}",
+            "client_email": "{{1.Client_Email}}",
+            "client_phone": "{{ifempty(1.Client_Phone; \"Not provided\")}}",
+            "charter_date": "{{formatDate(1.Charter_Date; \"MMMM D, YYYY\")}}",
+            "vessel_name": "{{1.Vessel_Name}}",
+            "package_name": "{{1.Package_Name}}",
+            "guest_count": "{{1.Guest_Count}}",
+            "occasion": "{{ifempty(1.Occasion; \"Not specified\")}}",
+            "city": "{{1.City}}",
+            "brand": "{{ifempty(1.Brand; \"SSS\")}}",
+            "hv_client": "{{ifempty(1.HV_Client; false)}}",
+            "deposit_amount": "{{1.Deposit_Amount_Received}}",
+            "total_amount": "{{1.Package_Price}}",
+            "concierge_id": "{{LUCIANA_AIRTABLE_RECORD_ID}}",
+            "concierge_name": "Luciana",
+            "concierge_slack_id": "{{SLACK_LUCIANA_ID}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Bookings"
+      },
+      "mapper": {
+        "id": "{{2.airtable_record_id}}",
+        "fields": {
+          "Concierge_Assigned": true,
+          "Assigned_Concierge": [{ "id": "{{2.concierge_id}}" }],
+          "Concierge_Assigned_At": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}",
+          "Status": "DEPOSIT_PAID"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "slack:CreateAMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "{{SLACK_CONNECTION_ID}}"
+      },
+      "mapper": {
+        "channelId": "{{2.concierge_slack_id}}",
+        "text": "New booking assigned to you",
+        "blocks": [
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": "{{if(2.hv_client; \"⭐ HV CLIENT — New Charter Booking\"; \"New Charter Booking Assigned\")}}",
+              "emoji": true
+            }
+          },
+          {
+            "type": "section",
+            "fields": [
+              {
+                "type": "mrkdwn",
+                "text": "*Client:*\n{{2.client_name}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Booking ID:*\n{{2.booking_id}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Charter Date:*\n{{2.charter_date}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Vessel:*\n{{2.vessel_name}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Package:*\n{{2.package_name}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Guests:*\n{{2.guest_count}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Occasion:*\n{{2.occasion}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*City:*\n{{2.city}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Contact:*\n{{2.client_phone}} · {{2.client_email}}"
+              },
+              {
+                "type": "mrkdwn",
+                "text": "*Deposit Paid:*\n${{formatNumber(2.deposit_amount; 2; \".\"; \",\")}}"
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "{{if(2.hv_client; \"🌟 *High-Value Client — escalate all communications to Will for review before sending.*\"; \"Please send booking confirmation and review charter brief when available.\")}}"
+            }
+          },
+          {
+            "type": "context",
+            "elements": [
+              {
+                "type": "mrkdwn",
+                "text": "She Said Sail · Make Orchestration · {{formatDate(now; \"MMM D, YYYY h:mm A\")}}"
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "slack:CreateAMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "{{SLACK_CONNECTION_ID}}"
+      },
+      "filter": {
+        "name": "HV Client — also DM Will",
+        "conditions": [
+          [
+            {
+              "a": "{{2.hv_client}}",
+              "b": "true",
+              "o": "boolean:equal"
+            }
+          ]
+        ]
+      },
+      "mapper": {
+        "channelId": "{{SLACK_WILL_DM_ID}}",
+        "text": "⭐ HV Client booking just assigned to Luciana. Booking: {{2.booking_id}} | Client: {{2.client_name}} | Date: {{2.charter_date}} | Deposit: ${{formatNumber(2.deposit_amount; 2; \".\"; \",\")}}. All outbound communications require your review."
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 300 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDecompression": true },
+      "mapper": {
+        "url": "{{AUDIT_LOGGER_WEBHOOK_URL}}",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{AUDIT_LOGGER_WEBHOOK_SECRET}}" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"actor\":\"M-CONCIERGE-ASSIGNMENT\",\"action_type\":\"CONCIERGE_ASSIGNED\",\"scenario_id\":\"BOOKING-003\",\"source_system\":\"Make\",\"environment\":\"Production\",\"booking_id\":\"{{2.booking_id}}\",\"before_state\":\"DEPOSIT_PAID_UNASSIGNED\",\"after_state\":\"DEPOSIT_PAID_ASSIGNED\",\"payload_summary\":\"Concierge {{2.concierge_name}} assigned to booking {{2.booking_id}}. HV: {{2.hv_client}}. Charter: {{2.charter_date}} aboard {{2.vessel_name}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "BOOKING-003",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Airtable Bookings watch: Status = DEPOSIT_PAID AND Concierge_Assigned != true",
+    "purpose": "Assign Luciana as concierge on newly deposit-paid bookings. DM Luciana in Slack with full booking details. If HV_Client = true, also DM Will. Update Booking record. Write audit log.",
+    "hv_escalation": "HV_Client = true triggers additional DM to Will (SLACK_WILL_DM_ID). Luciana still receives assignment. All outbound communications for HV clients must be reviewed by Will before sending.",
+    "concierge_binding": {
+      "default_concierge": "Luciana",
+      "concierge_airtable_id": "{{LUCIANA_AIRTABLE_RECORD_ID}} — set during credential binding",
+      "concierge_slack_id": "{{SLACK_LUCIANA_ID}} — Luciana's Slack member ID"
+    },
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Bookings",
+      "upstream_required": ["M-BOOKING-CREATION", "M-AUDIT-LOGGER", "M-SLACK-ALERTS"],
+      "credentials": ["AIRTABLE_PAT", "SLACK_CONNECTION_ID", "SLACK_LUCIANA_ID", "SLACK_WILL_DM_ID", "LUCIANA_AIRTABLE_RECORD_ID", "AUDIT_LOGGER_WEBHOOK_URL", "AUDIT_LOGGER_WEBHOOK_SECRET"]
+    },
+    "stripe_api_version": "N/A",
+    "import_order": 7,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

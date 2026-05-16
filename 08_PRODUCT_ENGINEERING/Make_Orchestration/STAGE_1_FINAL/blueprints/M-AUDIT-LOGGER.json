@@ -1,0 +1,151 @@
+{
+  "name": "M-AUDIT-LOGGER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "{{AUDIT_LOGGER_WEBHOOK_ID}}",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": { "editable": "true" },
+              "label": "M-AUDIT-LOGGER Inbound Hook"
+            }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFeeder",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "value": [
+          {
+            "audit_uuid": "{{uuid()}}",
+            "actor": "{{1.body.actor}}",
+            "action_type": "{{1.body.action_type}}",
+            "scenario_id": "{{1.body.scenario_id}}",
+            "source_system": "{{1.body.source_system}}",
+            "environment": "{{1.body.environment}}",
+            "booking_id": "{{1.body.booking_id}}",
+            "request_id": "{{1.body.request_id}}",
+            "client_id": "{{1.body.client_id}}",
+            "before_state": "{{1.body.before_state}}",
+            "after_state": "{{1.body.after_state}}",
+            "payload_summary": "{{1.body.payload_summary}}",
+            "rollback_reference": "{{1.body.rollback_reference}}",
+            "timestamp": "{{now}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "{{AIRTABLE_BASE_ID_PRODUCTION}}",
+        "table": "Audit Log"
+      },
+      "mapper": {
+        "fields": {
+          "Audit_UUID": "{{2.audit_uuid}}",
+          "Actor": "{{2.actor}}",
+          "Action_Type": "{{2.action_type}}",
+          "Scenario_ID": "{{2.scenario_id}}",
+          "Source_System": "{{2.source_system}}",
+          "Environment": "{{2.environment}}",
+          "Booking_ID": "{{2.booking_id}}",
+          "Request_ID": "{{2.request_id}}",
+          "Client_ID": "{{2.client_id}}",
+          "Before_State": "{{2.before_state}}",
+          "After_State": "{{2.after_state}}",
+          "Payload_Summary": "{{2.payload_summary}}",
+          "Rollback_Reference": "{{2.rollback_reference}}",
+          "Timestamp": "{{formatDate(2.timestamp; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": {
+              "data": { "editable": "true" },
+              "label": "SSS Operations (Production)"
+            },
+            "table": {
+              "data": { "editable": "true" },
+              "label": "Audit Log"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"status\":\"logged\",\"audit_uuid\":\"{{2.audit_uuid}}\",\"airtable_record_id\":\"{{3.id}}\"}",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  },
+  "_sss_metadata": {
+    "scenario_id": "AUDIT-001",
+    "stage": 1,
+    "autonomy_tier": "A",
+    "trigger": "Inbound webhook from any Tier A Make scenario before action completion",
+    "purpose": "Write immutable Audit Log record to Airtable before any Tier A autonomous action is marked complete. All Tier A scenarios call this endpoint as their first action.",
+    "dependencies": {
+      "airtable_base": "appdZ49WqgjRXxA1R",
+      "airtable_table": "Audit Log",
+      "credentials": ["AIRTABLE_PAT", "AUDIT_LOGGER_WEBHOOK_SECRET"]
+    },
+    "stripe_api_version": "N/A",
+    "import_order": 1,
+    "safe_to_import": true,
+    "verified": "2026-05-16"
+  }
+}

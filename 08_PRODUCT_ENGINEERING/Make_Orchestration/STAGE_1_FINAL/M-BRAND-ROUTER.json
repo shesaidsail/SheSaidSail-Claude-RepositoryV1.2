@@ -26,159 +26,86 @@
       },
       "routes": [
         {
+          "filter": {
+            "name": "SSS",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.source_url}}",
+                  "b": "shesaidsail",
+                  "o": "text:contain"
+                }
+              ]
+            ]
+          },
           "flow": [
             {
               "id": 3,
-              "module": "builtin:BasicFilter",
+              "module": "gateway:CustomWebHookRespond",
               "version": 1,
-              "parameters": {
-                "label": "SSS Route",
-                "condition": {
-                  "left": "{{1.source_url}}",
-                  "operator": "contain",
-                  "right": "shesaidsail.com"
-                },
-                "throw": false
+              "parameters": {},
+              "mapper": {
+                "status": "200",
+                "body": "{\"brand\": \"SSS\", \"routing_confidence\": \"HIGH\"}",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }]
               },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": -200 } }
-            },
+              "metadata": {
+                "designer": { "x": 500, "y": -150 }
+              }
+            }
+          ]
+        },
+        {
+          "filter": {
+            "name": "ME",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.source_url}}",
+                  "b": "mareexecutive",
+                  "o": "text:contain"
+                }
+              ]
+            ]
+          },
+          "flow": [
             {
               "id": 4,
-              "module": "builtin:SetVariables",
+              "module": "gateway:CustomWebHookRespond",
               "version": 1,
               "parameters": {},
               "mapper": {
-                "variables": [
-                  { "name": "classified_brand", "value": "SSS" },
-                  { "name": "routing_confidence", "value": "HIGH" }
-                ]
+                "status": "200",
+                "body": "{\"brand\": \"ME\", \"routing_confidence\": \"HIGH\"}",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }]
               },
-              "metadata": { "designer": { "x": 600, "y": -200 } }
-            },
+              "metadata": {
+                "designer": { "x": 500, "y": 0 }
+              }
+            }
+          ]
+        },
+        {
+          "filter": {
+            "name": "UNKNOWN",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.source_url}}",
+                  "b": "shesaidsail",
+                  "o": "text:notcontain"
+                },
+                {
+                  "a": "{{1.source_url}}",
+                  "b": "mareexecutive",
+                  "o": "text:notcontain"
+                }
+              ]
+            ]
+          },
+          "flow": [
             {
               "id": 5,
-              "module": "airtable:ActionUpdateRecord",
-              "version": 3,
-              "parameters": {
-                "base": "appdZ49WqgjRXxA1R",
-                "table": "tblTlSB9CO4dTGodg"
-              },
-              "mapper": {
-                "recordId": "{{1.request_record_id}}",
-                "fields": {
-                  "Brand": "SSS",
-                  "Source_System": "Make"
-                }
-              },
-              "metadata": {
-                "designer": { "x": 800, "y": -200 },
-                "restore": {
-                  "parameters": {
-                    "base": { "label": "She Said Sail" },
-                    "table": { "label": "Requests" }
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "flow": [
-            {
-              "id": 6,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "label": "ME Route",
-                "condition": {
-                  "left": "{{1.source_url}}",
-                  "operator": "contain",
-                  "right": "mareexecutive.com"
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": 0 } }
-            },
-            {
-              "id": 7,
-              "module": "builtin:SetVariables",
-              "version": 1,
-              "parameters": {},
-              "mapper": {
-                "variables": [
-                  { "name": "classified_brand", "value": "ME" },
-                  { "name": "routing_confidence", "value": "HIGH" }
-                ]
-              },
-              "metadata": { "designer": { "x": 600, "y": 0 } }
-            },
-            {
-              "id": 8,
-              "module": "airtable:ActionUpdateRecord",
-              "version": 3,
-              "parameters": {
-                "base": "appdZ49WqgjRXxA1R",
-                "table": "tblTlSB9CO4dTGodg"
-              },
-              "mapper": {
-                "recordId": "{{1.request_record_id}}",
-                "fields": {
-                  "Brand": "ME",
-                  "Source_System": "Make"
-                }
-              },
-              "metadata": {
-                "designer": { "x": 800, "y": 0 },
-                "restore": {
-                  "parameters": {
-                    "base": { "label": "She Said Sail" },
-                    "table": { "label": "Requests" }
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "flow": [
-            {
-              "id": 9,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "label": "Ambiguous — Needs Classification",
-                "condition": {
-                  "left": "{{1.source_url}}",
-                  "operator": "notContain",
-                  "right": "shesaidsail.com",
-                  "and": {
-                    "left": "{{1.source_url}}",
-                    "operator": "notContain",
-                    "right": "mareexecutive.com"
-                  }
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 400, "y": 200 } }
-            },
-            {
-              "id": 10,
-              "module": "builtin:SetVariables",
-              "version": 1,
-              "parameters": {},
-              "mapper": {
-                "variables": [
-                  { "name": "classified_brand", "value": "UNKNOWN" },
-                  { "name": "routing_confidence", "value": "LOW" }
-                ]
-              },
-              "metadata": { "designer": { "x": 600, "y": 200 } }
-            },
-            {
-              "id": 11,
               "module": "http:ActionSendData",
               "version": 3,
               "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
@@ -186,24 +113,29 @@
                 "url": "PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE",
                 "method": "POST",
                 "headers": [{ "name": "Content-Type", "value": "application/json" }],
-                "body": "{\"alert_type\": \"OPS\", \"severity\": \"WARNING\", \"title\": \"Brand classification UNKNOWN — manual action required\", \"body\": \"Inbound request from {{1.source_url}} could not be classified as SSS or ME. Request ID: {{1.request_record_id}}. Luciana: please set Brand field manually.\", \"booking_id\": \"{{1.request_record_id}}\", \"city\": \"Unknown\", \"brand\": \"UNKNOWN\"}"
+                "body": "{\"alert_type\": \"OPS\", \"severity\": \"WARNING\", \"title\": \"Brand classification UNKNOWN\", \"body\": \"Source URL could not be classified: {{1.source_url}}. Manual brand assignment needed.\", \"booking_id\": \"N/A\", \"city\": \"Unknown\", \"brand\": \"UNKNOWN\"}"
               },
-              "metadata": { "designer": { "x": 800, "y": 200 } }
+              "metadata": {
+                "designer": { "x": 500, "y": 150 }
+              }
+            },
+            {
+              "id": 6,
+              "module": "gateway:CustomWebHookRespond",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "status": "200",
+                "body": "{\"brand\": \"UNKNOWN\", \"routing_confidence\": \"LOW\"}",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }]
+              },
+              "metadata": {
+                "designer": { "x": 700, "y": 150 }
+              }
             }
           ]
         }
       ]
-    },
-    {
-      "id": 12,
-      "module": "gateway:CustomWebHookRespond",
-      "version": 1,
-      "parameters": {},
-      "mapper": {
-        "status": "200",
-        "body": "{\"brand\": \"{{classified_brand}}\", \"routing_confidence\": \"{{routing_confidence}}\"}"
-      },
-      "metadata": { "designer": { "x": 1000, "y": 0 } }
     }
   ],
   "metadata": {
@@ -224,6 +156,6 @@
       "orphans": []
     },
     "zone": "us1.make.com",
-    "notes": "REBINDING REQUIRED: Airtable connection on modules 5 and 8. PLACEHOLDER: replace PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE in module 11. Router: SSS (shesaidsail.com) → Brand=SSS, ME (mareexecutive.com) → Brand=ME, neither → UNKNOWN + Slack alert. Returns JSON brand classification to caller."
+    "notes": "PLACEHOLDER: replace PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE in module 5 with SSS-SLACK-ALERTS webhook URL. No connections to rebind — no Airtable or Slack OAuth needed. Pure classification: SSS → {brand:SSS}, ME → {brand:ME}, unknown → Slack alert + {brand:UNKNOWN}. Webhook respond is inside each route branch."
   }
 }

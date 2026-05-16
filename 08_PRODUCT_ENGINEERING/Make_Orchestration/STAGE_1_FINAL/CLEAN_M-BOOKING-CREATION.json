@@ -1,0 +1,272 @@
+{
+  "name": "SSS-BOOKING-CREATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:WatchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg",
+        "maxResults": 1,
+        "formula": "AND({Status} = 'AVAILABILITY_CONFIRMED', {Environment} = 'Production')",
+        "sort": [{ "field": "Submission Date", "direction": "asc" }]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL",
+        "maxRecords": 1
+      },
+      "mapper": {
+        "filterByFormula": "FIND(\"BOOKING-{{1.id}}\", {Idempotency_Key})"
+      },
+      "metadata": {
+        "designer": { "x": 200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Bookings" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 400, "y": 0 }
+      },
+      "routes": [
+        {
+          "filter": {
+            "name": "New booking — process",
+            "conditions": [
+              [
+                {
+                  "a": "{{2.id}}",
+                  "b": "",
+                  "o": "text:empty"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tbl72omPibBkn2hZL"
+              },
+              "mapper": {
+                "fields": {
+                  "Status": "AVAILABILITY_CONFIRMED",
+                  "Guest Count": "{{toNumber(1.fields.Guest Count)}}",
+                  "Charter Date": "{{1.fields.Preferred Date}}",
+                  "Occasion": "{{1.fields.Occasion}}",
+                  "Boarding Location": "{{1.fields.Boarding Location}}",
+                  "Charter Notes": "{{1.fields.Special Requests}}",
+                  "Add-ons": "{{1.fields.Add-Ons Selected}}",
+                  "Environment": "Production",
+                  "Source_System": "Make",
+                  "Idempotency_Key": "BOOKING-{{1.id}}",
+                  "Automations_Paused": false,
+                  "HV Booking": false,
+                  "Confirmation_Sent": false,
+                  "Concierge_Assigned": false
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Bookings" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "stripe:createPaymentLink",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "lineItems": [
+                  {
+                    "price_data": {
+                      "currency": "usd",
+                      "unit_amount": "{{round(multiply(toNumber(1.fields.Base Price); 50))}}",
+                      "product_data": {
+                        "name": "{{1.fields.Experience}} — Deposit (50%)",
+                        "description": "Deposit for {{1.fields.First Name}} {{1.fields.Last Name}} — {{1.fields.Preferred Date}}"
+                      }
+                    },
+                    "quantity": 1
+                  }
+                ],
+                "metadata": {
+                  "booking_id": "{{4.id}}",
+                  "request_id": "{{1.id}}",
+                  "client_name": "{{1.fields.First Name}} {{1.fields.Last Name}}"
+                },
+                "after_completion": {
+                  "type": "redirect",
+                  "redirect": {
+                    "url": "https://shesaidsail.com/booking-confirmed"
+                  }
+                }
+              },
+              "metadata": { "designer": { "x": 800, "y": 0 } }
+            },
+            {
+              "id": 6,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tbl72omPibBkn2hZL"
+              },
+              "mapper": {
+                "recordId": "{{4.id}}",
+                "fields": {
+                  "Status": "DEPOSIT_SENT",
+                  "Stripe Payment Link": "{{5.url}}",
+                  "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1000, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Bookings" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 7,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Automations_Paused — exit before outbound if true",
+                "condition": {
+                  "left": "{{4.fields.Automations_Paused}}",
+                  "operator": "notEqual",
+                  "right": "true"
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": 0 } }
+            },
+            {
+              "id": 8,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "account": "hello@shesaidsail.com"
+              },
+              "mapper": {
+                "to": "{{1.fields.Email}}",
+                "subject": "Your {{if(1.fields.Brand = \"ME\"; \"Mare Executive\"; \"She Said Sail\")}} Deposit Link — {{1.fields.First Name}}",
+                "bodyType": "html",
+                "body": "<div style=\"font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #ffffff;\"><div style=\"text-align: center; padding: 40px 0 24px;\"><img src=\"https://shesaidsail.com/wp-content/uploads/2026/03/Asset-3.png\" alt=\"She Said Sail\" style=\"max-width: 180px;\" /></div><div style=\"padding: 10px 40px 40px; color: #333333;\"><p style=\"font-size: 17px;\">Hi {{1.fields.First Name}},</p><p style=\"font-size: 15px; line-height: 1.8;\">Great news — we've confirmed availability for your <strong>{{1.fields.Experience}}</strong> on <strong>{{1.fields.Preferred Date}}</strong>!</p><p style=\"font-size: 15px; line-height: 1.8;\">To secure your booking, please complete your 50% deposit using the link below:</p><div style=\"text-align: center; margin: 30px 0;\"><a href=\"{{5.url}}\" style=\"background: #1a1a2e; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-size: 15px; letter-spacing: 0.5px;\">Pay Deposit Now</a></div><p style=\"font-size: 14px; color: #888888; text-align: center;\">This link expires in 24 hours.</p><p style=\"font-size: 15px; line-height: 1.8; margin-top: 24px;\">Once your deposit is received, you'll get your full booking confirmation. Questions? Just reply to this email.</p><p style=\"font-size: 15px; margin-top: 32px;\">Warmly,<br><strong>The {{if(1.fields.Brand = \"ME\"; \"Mare Executive\"; \"She Said Sail\")}} Team</strong></p></div><div style=\"text-align: center; padding: 20px 40px; background: #1a1a2e; color: #aaaaaa; font-size: 12px; letter-spacing: 0.5px;\"><p style=\"margin: 0;\">© 2026 She Said Sail &nbsp;·&nbsp; Miami, FL</p></div></div>"
+              },
+              "metadata": {
+                "designer": { "x": 1400, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "account": { "label": "hello@shesaidsail.com" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 9,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "https://api.quosms.com/v1/messages",
+                "method": "POST",
+                "headers": [
+                  { "name": "Authorization", "value": "Bearer PASTE_QUO_API_KEY_HERE" },
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "body": "{\"to\": \"{{1.fields.Phone}}\", \"body\": \"Hi {{1.fields.First Name}}! Your {{if(1.fields.Brand = 'ME'; 'Mare Executive'; 'She Said Sail')}} experience is confirmed for {{1.fields.Preferred Date}}. Complete your deposit to secure your spot: {{5.url}} — Reply STOP to opt out.\"}"
+              },
+              "metadata": { "designer": { "x": 1600, "y": 0 } }
+            },
+            {
+              "id": 10,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"triggering_event\": \"Request Status = AVAILABILITY_CONFIRMED — Booking Creation\", \"source_data\": \"Request ID: {{1.id}}, Client: {{1.fields.First Name}} {{1.fields.Last Name}}, Date: {{1.fields.Preferred Date}}\", \"output\": \"Booking created: {{4.id}}. Stripe deposit link: {{5.url}}. Email and SMS dispatched.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{1.fields.Brand}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings + Stripe + Gmail + Quo SMS\"}"
+              },
+              "metadata": { "designer": { "x": 1800, "y": 0 } }
+            },
+            {
+              "id": 11,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Booking Created — Deposit Sent\", \"body\": \"{{1.fields.First Name}} {{1.fields.Last Name}} — {{1.fields.Experience}} — {{1.fields.Preferred Date}}. Deposit link sent via email and SMS.\", \"booking_id\": \"{{4.id}}\", \"city\": \"{{1.fields.City}}\", \"brand\": \"{{1.fields.Brand}}\"}"
+              },
+              "metadata": { "designer": { "x": 2000, "y": 0 } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us2.make.com",
+    "notes": "REBINDING REQUIRED: Airtable (modules 1, 2, 4, 6), Stripe TEST MODE (module 5), Gmail (module 8). PLACEHOLDERS: PASTE_QUO_API_KEY_HERE (module 9), PASTE_AUDIT_LOGGER_WEBHOOK_URL_HERE (module 10), PASTE_SLACK_ALERTS_WEBHOOK_URL_HERE (module 11). Router (module 3): only processes if no Booking record exists with Idempotency_Key = BOOKING-{request_id}. Automations_Paused filter (module 7): exits scenario before any outbound if true. Stripe module 5 uses inline price_data — do NOT open the line items field in the Make UI after import. Trigger: Requests table tblTlSB9CO4dTGodg, filter Status = AVAILABILITY_CONFIRMED + Environment = Production."
+  }
+}

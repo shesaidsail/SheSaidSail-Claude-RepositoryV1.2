@@ -1,0 +1,321 @@
+{
+  "name": "M-BOOKING-CREATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-BOOKING-CREATION Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblBookings"
+      },
+      "mapper": {
+        "filterByFormula": "AND({fldIdempotencyKey} = 'BOOKING-{{1.body.request_record_id}}', {fldEnvironment} = 'Production')",
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Idempotency — Booking not already created",
+        "conditions": {
+          "a": "{{length(2.records)}}",
+          "b": "0",
+          "o": "number:equal"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblRequests",
+        "id": "{{1.body.request_record_id}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblBookings"
+      },
+      "mapper": {
+        "fldRecordID": "BK-{{formatDate(now; 'YYYY')}}-{{1.body.sequence_id}}",
+        "fldStatus": "AVAILABILITY_PENDING",
+        "fldLinkedRequestID": ["{{1.body.request_record_id}}"],
+        "fldLinkedClientID": ["{{4.fldLinkedClientID[]}}"],
+        "fldClientFirstName": "{{4.fldFirstName}}",
+        "fldClientLastName": "{{4.fldLastName}}",
+        "fldClientEmail": "{{4.fldEmail}}",
+        "fldClientPhone": "{{4.fldPhone}}",
+        "fldCharterDate": "{{4.fldEventDate}}",
+        "fldGroupSize": "{{4.fldGroupSize}}",
+        "fldEventType": "{{4.fldEventType}}",
+        "fldCity": "{{4.fldCity}}",
+        "fldBrand": "{{4.fldBrand}}",
+        "fldAssignedBrokerID": ["{{4.fldAssignedBrokerID[]}}"],
+        "fldPackagePreference": "{{4.fldBudgetRange}}",
+        "fldSourceSystem": "Make",
+        "fldEnvironment": "Production",
+        "fldIdempotencyKey": "BOOKING-{{1.body.request_record_id}}",
+        "fldCreatedAt": "{{now}}",
+        "fldUpdatedAt": "{{now}}",
+        "fldEmergencyFlag": false,
+        "fldAutomationsPaused": false,
+        "fldHVClient": false,
+        "fldAgreementSigned": false,
+        "fldCharterNotes": "Booking created from Request {{1.body.request_record_id}} on {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC."
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblRequests",
+        "id": "{{1.body.request_record_id}}"
+      },
+      "mapper": {
+        "fldStatus": "PROMOTED_TO_BOOKING",
+        "fldLinkedBookingID": ["{{5.id}}"],
+        "fldUpdatedAt": "{{now}}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "alert_type": "NEW_BOOKING",
+          "brand": "{{4.fldBrand}}",
+          "city": "{{4.fldCity}}",
+          "booking_id": "BK-{{formatDate(now; 'YYYY')}}-{{1.body.sequence_id}}",
+          "client_name": "{{4.fldFirstName}} {{4.fldLastName}}",
+          "event_date": "{{4.fldEventDate}}",
+          "group_size": "{{4.fldGroupSize}}",
+          "record_id": "{{5.id}}",
+          "base_id": "{{1.body.base_id}}",
+          "auth_token": "{{1.body.auth_token}}",
+          "idempotency_key": "SLACK-BOOKING-{{5.id}}"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": -150 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-SLACK-ALERTS Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-BOOKING-CREATION",
+          "action": "BOOKING_CREATED",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-BOOKING-CREATION",
+          "target_table": "Bookings",
+          "target_record_id": "{{5.id}}",
+          "autonomy_tier": "A",
+          "brand": "{{4.fldBrand}}",
+          "city": "{{4.fldCity}}",
+          "base_id": "{{1.body.base_id}}",
+          "idempotency_key": "AUDIT-BOOKING-{{1.body.request_record_id}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Booking record created from Request — status AVAILABILITY_PENDING",
+          "destination": "Bookings table"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 150 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-AUDIT-LOGGER Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "module": "builtin:ErrorHandler",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 500 }
+      }
+    },
+    {
+      "id": 10,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblAutomationFailures"
+      },
+      "mapper": {
+        "fldScenarioName": "M-BOOKING-CREATION",
+        "fldErrorMessage": "{{error.message}}",
+        "fldErrorCode": "{{error.code}}",
+        "fldFailedAt": "{{now}}",
+        "fldEnvironment": "Production",
+        "fldPayload": "{{toString(1.body)}}",
+        "fldRetryCount": "1",
+        "fldStatus": "OPEN"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":red_circle: *M-BOOKING-CREATION FAILURE*\nError: {{error.message}}\nRequest Record: {{1.body.request_record_id}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

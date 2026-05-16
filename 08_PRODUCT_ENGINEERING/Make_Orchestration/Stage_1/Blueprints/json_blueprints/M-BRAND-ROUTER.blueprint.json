@@ -1,0 +1,330 @@
+{
+  "name": "M-BRAND-ROUTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-BRAND-ROUTER Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Route: She Said Sail (SSS)",
+                "conditions": {
+                  "a": "{{lower(1.body.brand)}}",
+                  "b": "sss",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -300 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblRequests",
+                "id": "{{1.body.record_id}}"
+              },
+              "mapper": {
+                "fldBrand": "SSS",
+                "fldBrandClassifiedAt": "{{now}}",
+                "fldBrandClassificationSource": "M-BRAND-ROUTER",
+                "fldAgentStatus": "AI_RESPONDING",
+                "fldEnvironment": "Production"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "method": "POST",
+                "headers": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{1.body.auth_token}}"
+                  }
+                ],
+                "body": {
+                  "record_id": "{{1.body.record_id}}",
+                  "brand": "SSS",
+                  "city": "{{1.body.city}}",
+                  "base_id": "{{1.body.base_id}}",
+                  "idempotency_key": "BRAND-SSS-{{1.body.record_id}}",
+                  "routed_at": "{{now}}"
+                },
+                "timeout": 30
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -300 }
+              }
+            }
+          ],
+          "label": "SSS Route"
+        },
+        {
+          "flow": [
+            {
+              "id": 6,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Route: Mare Executive (ME)",
+                "conditions": {
+                  "a": "{{lower(1.body.brand)}}",
+                  "b": "me",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 0 }
+              }
+            },
+            {
+              "id": 7,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblRequests",
+                "id": "{{1.body.record_id}}"
+              },
+              "mapper": {
+                "fldBrand": "ME",
+                "fldBrandClassifiedAt": "{{now}}",
+                "fldBrandClassificationSource": "M-BRAND-ROUTER",
+                "fldAgentStatus": "AI_RESPONDING",
+                "fldEnvironment": "Production"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 8,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "method": "POST",
+                "headers": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{1.body.auth_token}}"
+                  }
+                ],
+                "body": {
+                  "record_id": "{{1.body.record_id}}",
+                  "brand": "ME",
+                  "city": "{{1.body.city}}",
+                  "base_id": "{{1.body.base_id}}",
+                  "idempotency_key": "BRAND-ME-{{1.body.record_id}}",
+                  "routed_at": "{{now}}"
+                },
+                "timeout": 30
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 0 }
+              }
+            }
+          ],
+          "label": "ME Route"
+        },
+        {
+          "flow": [
+            {
+              "id": 9,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Route: Ambiguous — requires human classification",
+                "conditions": {
+                  "a": "{{if(or(lower(1.body.brand) = 'sss', lower(1.body.brand) = 'me'); false; true)}}",
+                  "b": true,
+                  "o": "boolean:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 300 }
+              }
+            },
+            {
+              "id": 10,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblRequests",
+                "id": "{{1.body.record_id}}"
+              },
+              "mapper": {
+                "fldBrand": "AMBIGUOUS",
+                "fldAgentStatus": "HUMAN_REVIEW",
+                "fldEscalationReason": "Brand could not be determined from inbound data. Manual classification required before AI proceeds.",
+                "fldBrandClassifiedAt": "{{now}}",
+                "fldEnvironment": "Production"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 11,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":warning: *BRAND CLASSIFICATION REQUIRED — M-BRAND-ROUTER*\nRecord: `{{1.body.record_id}}`\nInbound Brand Signal: `{{1.body.brand}}`\nCity: {{1.body.city}}\nRequested At: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\n\nAction: Classify this record as SSS or ME in Airtable before AI can proceed.\nAirtable Requests table → Agent_Status field."
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Ambiguous — Human Classification Required"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-BRAND-ROUTER",
+          "action": "BRAND_CLASSIFIED",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-BRAND-ROUTER",
+          "target_table": "Requests",
+          "target_record_id": "{{1.body.record_id}}",
+          "autonomy_tier": "A",
+          "brand": "{{1.body.brand}}",
+          "city": "{{1.body.city}}",
+          "base_id": "{{1.body.base_id}}",
+          "idempotency_key": "AUDIT-BRAND-{{1.body.record_id}}-{{formatDate(now; 'X')}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Brand classified and record routed",
+          "destination": "Requests table — Brand field"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 450 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

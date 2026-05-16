@@ -1,0 +1,384 @@
+{
+  "name": "M-BOOKING-CONFIRMATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-BOOKING-CONFIRMATION Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblBookings",
+        "id": "{{1.body.booking_record_id}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Booking status is DEPOSIT_PAID and automations not paused",
+        "conditions": {
+          "and": [
+            {
+              "a": "{{2.fldStatus}}",
+              "b": "DEPOSIT_PAID",
+              "o": "text:equal"
+            },
+            {
+              "a": "{{2.fldEmergencyFlag}}",
+              "b": true,
+              "o": "boolean:notEqual"
+            },
+            {
+              "a": "{{2.fldAutomationsPaused}}",
+              "b": true,
+              "o": "boolean:notEqual"
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 5,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "High-value booking (>$5,000) — agreement check required",
+                "conditions": {
+                  "and": [
+                    {
+                      "a": "{{2.fldTotalAmount}}",
+                      "b": "5000",
+                      "o": "number:greater"
+                    },
+                    {
+                      "a": "{{2.fldAgreementSigned}}",
+                      "b": false,
+                      "o": "boolean:equal"
+                    }
+                  ]
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -300 }
+              }
+            },
+            {
+              "id": 6,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblApprovalQueue"
+              },
+              "mapper": {
+                "fldRequestTitle": "Agreement Required Before Confirmation — {{2.fldRecordID}}",
+                "fldSubmittedBy": "M-BOOKING-CONFIRMATION",
+                "fldRequestType": "BOOKING",
+                "fldUrgency": "SAME_DAY",
+                "fldContext": "Booking {{2.fldRecordID}} for {{2.fldClientFirstName}} {{2.fldClientLastName}} has a total of ${{2.fldTotalAmount}} which exceeds $5,000. Agreement must be signed before status can advance to CONFIRMED.",
+                "fldProposedAction": "Send charter agreement to client and update Agreement_Signed = true once signed.",
+                "fldLinkedBookingID": ["{{1.body.booking_record_id}}"],
+                "fldEnvironment": "Production",
+                "fldCreatedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": -300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 7,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":pen: *Agreement Required Before Confirmation*\nBooking: `{{2.fldRecordID}}`\nClient: {{2.fldClientFirstName}} {{2.fldClientLastName}}\nTotal: ${{2.fldTotalAmount}}\nCharter Date: {{formatDate(2.fldCharterDate; 'YYYY-MM-DD')}}\nApproval Queue item created.\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": -300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "High-Value — Agreement Required"
+        },
+        {
+          "flow": [
+            {
+              "id": 8,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Standard confirmation — proceed",
+                "conditions": {
+                  "a": "{{if(and(2.fldTotalAmount > 5000; not(2.fldAgreementSigned)); false; true)}}",
+                  "b": true,
+                  "o": "boolean:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 0 }
+              }
+            },
+            {
+              "id": 9,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblBookings",
+                "id": "{{1.body.booking_record_id}}"
+              },
+              "mapper": {
+                "fldStatus": "CONFIRMED",
+                "fldConfirmedAt": "{{now}}",
+                "fldUpdatedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 10,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "connection": "RECONNECT_GMAIL_CONNECTION"
+              },
+              "mapper": {
+                "to": "{{2.fldClientEmail}}",
+                "from": "hello@shesaidsail.com",
+                "subject": "{{if(2.fldBrand = 'SSS'; 'Your Charter is Confirmed — She Said Sail 🌊'; 'Your Experience is Confirmed — Mare Executive')}}",
+                "body": "Hi {{2.fldClientFirstName}},\n\nWonderful news — your charter is officially confirmed!\n\nBooking Reference: {{2.fldRecordID}}\nCharter Date: {{formatDate(2.fldCharterDate; 'MMMM D, YYYY')}}\nCity: {{2.fldCity}}\nGroup Size: {{2.fldGroupSize}}\nEvent Type: {{2.fldEventType}}\n\nYour concierge will be in touch with all the details you need to prepare for your experience.\n\n{{if(2.fldBrand = 'SSS'; 'We cannot wait to welcome you aboard.\n\nWarm regards,\nThe She Said Sail Team'; 'We look forward to hosting you.\n\nWith warmth,\nMare Executive')}}",
+                "isHtml": false
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Gmail — hello@shesaidsail.com" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 11,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":white_check_mark: *Booking Confirmed — {{2.fldBrand}}*\nBooking: `{{2.fldRecordID}}`\nClient: {{2.fldClientFirstName}} {{2.fldClientLastName}}\nCharter Date: {{formatDate(2.fldCharterDate; 'YYYY-MM-DD')}}\nCity: {{2.fldCity}}\nGroup Size: {{2.fldGroupSize}}\nConfirmation email sent to {{2.fldClientEmail}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Standard Confirmation"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-BOOKING-CONFIRMATION",
+          "action": "BOOKING_CONFIRMED",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-BOOKING-CONFIRMATION",
+          "target_table": "Bookings",
+          "target_record_id": "{{1.body.booking_record_id}}",
+          "autonomy_tier": "A",
+          "brand": "{{2.fldBrand}}",
+          "city": "{{2.fldCity}}",
+          "base_id": "{{1.body.base_id}}",
+          "idempotency_key": "AUDIT-CONFIRM-{{1.body.booking_record_id}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Booking status updated to CONFIRMED and confirmation email sent",
+          "destination": "Bookings table + Gmail + Slack"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 500 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-AUDIT-LOGGER Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "module": "builtin:ErrorHandler",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 600 }
+      }
+    },
+    {
+      "id": 14,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblAutomationFailures"
+      },
+      "mapper": {
+        "fldScenarioName": "M-BOOKING-CONFIRMATION",
+        "fldErrorMessage": "{{error.message}}",
+        "fldErrorCode": "{{error.code}}",
+        "fldFailedAt": "{{now}}",
+        "fldEnvironment": "Production",
+        "fldPayload": "{{toString(1.body)}}",
+        "fldRetryCount": "1",
+        "fldStatus": "OPEN"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 600 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 15,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":red_circle: *M-BOOKING-CONFIRMATION FAILURE*\nError: {{error.message}}\nBooking: {{1.body.booking_record_id}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 600 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

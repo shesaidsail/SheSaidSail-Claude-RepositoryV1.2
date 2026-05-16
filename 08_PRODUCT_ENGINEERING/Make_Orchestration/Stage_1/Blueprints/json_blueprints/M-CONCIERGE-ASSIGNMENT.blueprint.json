@@ -1,0 +1,433 @@
+{
+  "name": "M-CONCIERGE-ASSIGNMENT",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-CONCIERGE-ASSIGNMENT Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblRequests"
+      },
+      "mapper": {
+        "filterByFormula": "AND({fldIdempotencyKey} = 'ASSIGN-{{1.body.record_id}}', {fldEnvironment} = 'Production')",
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Idempotency — Not already assigned",
+        "conditions": {
+          "a": "{{length(2.records)}}",
+          "b": "0",
+          "o": "number:equal"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblRequests",
+        "id": "{{1.body.record_id}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblBrokers"
+      },
+      "mapper": {
+        "filterByFormula": "AND({fldCity} = '{{4.fldCity}}', {fldBrand} = '{{4.fldBrand}}', {fldAvailability} = 'AVAILABLE', {fldStatus} = 'ACTIVE')",
+        "sort": [{ "field": "fldCurrentBookingCount", "direction": "asc" }],
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 7,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Broker found — proceed with assignment",
+                "conditions": {
+                  "a": "{{length(5.records)}}",
+                  "b": "0",
+                  "o": "number:greater"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": -150 }
+              }
+            },
+            {
+              "id": 8,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblRequests",
+                "id": "{{1.body.record_id}}"
+              },
+              "mapper": {
+                "fldAssignedBrokerID": ["{{5.records[].id}}"],
+                "fldAssignedBrokerName": "{{5.records[].fldFullName}}",
+                "fldAssignedAt": "{{now}}",
+                "fldAgentStatus": "AI_RESPONDING",
+                "fldIdempotencyKey": "ASSIGN-{{1.body.record_id}}",
+                "fldUpdatedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 2100, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 9,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblBrokers",
+                "id": "{{5.records[].id}}"
+              },
+              "mapper": {
+                "fldCurrentBookingCount": "{{add(5.records[].fldCurrentBookingCount; 1)}}",
+                "fldLastAssignedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 2400, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 10,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":handshake: *Concierge Assigned — {{4.fldBrand}}*\nRequest: `{{1.body.record_id}}`\nClient: {{4.fldFirstName}} {{4.fldLastName}}\nCity: {{4.fldCity}}\nAssigned To: {{5.records[].fldFullName}}\nEvent Date: {{4.fldEventDate}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 2700, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Broker Available — Assign"
+        },
+        {
+          "flow": [
+            {
+              "id": 11,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "No broker available — escalate",
+                "conditions": {
+                  "a": "{{length(5.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": 150 }
+              }
+            },
+            {
+              "id": 12,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblRequests",
+                "id": "{{1.body.record_id}}"
+              },
+              "mapper": {
+                "fldAgentStatus": "HUMAN_REVIEW",
+                "fldEscalationReason": "No available broker found for city: {{4.fldCity}}, brand: {{4.fldBrand}}. Manual assignment required.",
+                "fldUpdatedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 2100, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 13,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblApprovalQueue"
+              },
+              "mapper": {
+                "fldRequestTitle": "Manual Concierge Assignment Required — {{4.fldCity}} / {{4.fldBrand}}",
+                "fldSubmittedBy": "M-CONCIERGE-ASSIGNMENT",
+                "fldRequestType": "BOOKING",
+                "fldUrgency": "SAME_DAY",
+                "fldContext": "No available broker found for city: {{4.fldCity}}, brand: {{4.fldBrand}}. Request: {{1.body.record_id}}. Client: {{4.fldFirstName}} {{4.fldLastName}}.",
+                "fldProposedAction": "Manually assign an available concierge to this request in the Requests table.",
+                "fldLinkedRequestID": ["{{1.body.record_id}}"],
+                "fldEnvironment": "Production",
+                "fldCreatedAt": "{{now}}"
+              },
+              "metadata": {
+                "designer": { "x": 2400, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 14,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":warning: *No Available Concierge — Manual Assignment Required*\nRequest: `{{1.body.record_id}}`\nClient: {{4.fldFirstName}} {{4.fldLastName}}\nCity: {{4.fldCity}}\nBrand: {{4.fldBrand}}\nFounder Decision created in Approval Queue.\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 2700, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "No Broker — Escalate to Human"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-CONCIERGE-ASSIGNMENT",
+          "action": "CONCIERGE_ASSIGNED",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-CONCIERGE-ASSIGNMENT",
+          "target_table": "Requests",
+          "target_record_id": "{{1.body.record_id}}",
+          "autonomy_tier": "A",
+          "brand": "{{4.fldBrand}}",
+          "city": "{{4.fldCity}}",
+          "base_id": "{{1.body.base_id}}",
+          "idempotency_key": "AUDIT-ASSIGN-{{1.body.record_id}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Concierge assignment completed",
+          "destination": "Requests table — Assigned Broker field"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 500 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-AUDIT-LOGGER Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "module": "builtin:ErrorHandler",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 500 }
+      }
+    },
+    {
+      "id": 17,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblAutomationFailures"
+      },
+      "mapper": {
+        "fldScenarioName": "M-CONCIERGE-ASSIGNMENT",
+        "fldErrorMessage": "{{error.message}}",
+        "fldErrorCode": "{{error.code}}",
+        "fldFailedAt": "{{now}}",
+        "fldEnvironment": "Production",
+        "fldPayload": "{{toString(1.body)}}",
+        "fldRetryCount": "1",
+        "fldStatus": "OPEN"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 18,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":red_circle: *M-CONCIERGE-ASSIGNMENT FAILURE*\nError: {{error.message}}\nRecord: {{1.body.record_id}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

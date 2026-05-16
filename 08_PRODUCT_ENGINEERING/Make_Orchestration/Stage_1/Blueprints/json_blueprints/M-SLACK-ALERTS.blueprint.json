@@ -1,0 +1,356 @@
+{
+  "name": "M-SLACK-ALERTS",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-SLACK-ALERTS Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Alert Type: EMERGENCY",
+                "conditions": {
+                  "a": "{{upper(1.body.alert_type)}}",
+                  "b": "EMERGENCY",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -450 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-emergency-ops",
+                "text": ":rotating_light: *EMERGENCY — IMMEDIATE ACTION REQUIRED* :rotating_light:\nBooking: `{{1.body.booking_id}}`\nClient: {{1.body.client_name}}\nCity: {{1.body.city}}\nBrand: {{1.body.brand}}\nDetails: {{1.body.message}}\nAll automations for this booking have been PAUSED.\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -450 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "{{1.body.founder_slack_id}}",
+                "text": ":rotating_light: *EMERGENCY ALERT — Will, action required immediately.*\nBooking: `{{1.body.booking_id}}`\nClient: {{1.body.client_name}}\nCity: {{1.body.city}}\nDetails: {{1.body.message}}\nFounder Decision created in Airtable.\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -450 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "EMERGENCY Alert"
+        },
+        {
+          "flow": [
+            {
+              "id": 6,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Alert Type: SEV-1",
+                "conditions": {
+                  "a": "{{upper(1.body.alert_type)}}",
+                  "b": "SEV-1",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -150 }
+              }
+            },
+            {
+              "id": 7,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":red_circle: *SEV-1 — System Failure*\nScenario: {{1.body.scenario_name}}\nError: {{1.body.message}}\nContext: {{1.body.context}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\nAction: Manual recovery required. Will has been notified."
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 8,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "{{1.body.founder_slack_id}}",
+                "text": ":red_circle: *SEV-1 Alert — Manual recovery needed.*\nScenario: {{1.body.scenario_name}}\nError: {{1.body.message}}\nContext: {{1.body.context}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "SEV-1 Alert"
+        },
+        {
+          "flow": [
+            {
+              "id": 9,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Alert Type: SEV-2",
+                "conditions": {
+                  "a": "{{upper(1.body.alert_type)}}",
+                  "b": "SEV-2",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 150 }
+              }
+            },
+            {
+              "id": 10,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":large_orange_circle: *SEV-2 — Automation Failure Requires Attention*\nScenario: {{1.body.scenario_name}}\nError: {{1.body.message}}\nRetry Count: {{1.body.retry_count}}\nContext: {{1.body.context}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\nAction: Review Automation Failures in Airtable."
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "SEV-2 Alert"
+        },
+        {
+          "flow": [
+            {
+              "id": 11,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Alert Type: APPROVAL_REQUIRED",
+                "conditions": {
+                  "a": "{{upper(1.body.alert_type)}}",
+                  "b": "APPROVAL_REQUIRED",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 450 }
+              }
+            },
+            {
+              "id": 12,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "{{1.body.founder_slack_id}}",
+                "text": ":white_check_mark: *Founder Decision Required*\nRequest Type: {{1.body.request_type}}\nUrgency: {{1.body.urgency}}\nContext: {{1.body.message}}\nRecord: `{{1.body.approval_queue_id}}`\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\nAction: Review in Airtable Approval Queue."
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 450 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Approval Required Alert"
+        },
+        {
+          "flow": [
+            {
+              "id": 13,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "Alert Type: NEW_LEAD",
+                "conditions": {
+                  "a": "{{upper(1.body.alert_type)}}",
+                  "b": "NEW_LEAD",
+                  "o": "text:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 750 }
+              }
+            },
+            {
+              "id": 14,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-ops-alerts",
+                "text": ":wave: *New Lead — {{1.body.brand}}*\nName: {{1.body.client_name}}\nCity: {{1.body.city}}\nEvent Date: {{1.body.event_date}}\nGroup Size: {{1.body.group_size}}\nAirtable: `{{1.body.record_id}}`\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 750 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "New Lead Alert"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-SLACK-ALERTS",
+          "action": "SLACK_ALERT_SENT",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-SLACK-ALERTS",
+          "target_table": "N/A",
+          "target_record_id": "{{1.body.record_id}}",
+          "autonomy_tier": "A",
+          "brand": "{{1.body.brand}}",
+          "city": "{{1.body.city}}",
+          "base_id": "{{1.body.base_id}}",
+          "idempotency_key": "AUDIT-SLACK-{{1.body.idempotency_key}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Slack alert sent: {{1.body.alert_type}}",
+          "destination": "Slack"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 1000 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-AUDIT-LOGGER Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

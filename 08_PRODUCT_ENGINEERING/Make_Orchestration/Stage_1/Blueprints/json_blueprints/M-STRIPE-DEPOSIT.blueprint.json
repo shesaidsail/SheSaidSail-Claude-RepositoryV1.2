@@ -1,0 +1,345 @@
+{
+  "name": "M-STRIPE-DEPOSIT",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-STRIPE-DEPOSIT — Stripe Webhook Receiver" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Stripe Event Type: payment_intent.succeeded",
+        "conditions": {
+          "a": "{{1.body.type}}",
+          "b": "payment_intent.succeeded",
+          "o": "text:equal"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Metadata: payment_type = deposit",
+        "conditions": {
+          "a": "{{1.body.data.object.metadata.payment_type}}",
+          "b": "deposit",
+          "o": "text:equal"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 4,
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.data.object.metadata.base_id}}",
+        "table": "tblBookings"
+      },
+      "mapper": {
+        "filterByFormula": "AND({fldStripePaymentIntentID} = '{{1.body.data.object.id}}', {fldEnvironment} = 'Production')",
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Idempotency — Payment not already processed",
+        "conditions": {
+          "a": "{{if(length(4.records) > 0; if(4.records[].fldStatus = 'DEPOSIT_PAID'; false; true); true)}}",
+          "b": true,
+          "o": "boolean:equal"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.data.object.metadata.base_id}}",
+        "table": "tblBookings",
+        "id": "{{1.body.data.object.metadata.booking_record_id}}"
+      },
+      "mapper": {
+        "fldStatus": "DEPOSIT_PAID",
+        "fldDepositAmount": "{{divide(1.body.data.object.amount_received; 100)}}",
+        "fldDepositCurrency": "{{upper(1.body.data.object.currency)}}",
+        "fldDepositPaidAt": "{{now}}",
+        "fldStripePaymentIntentID": "{{1.body.data.object.id}}",
+        "fldStripeChargeID": "{{1.body.data.object.latest_charge}}",
+        "fldPaymentMethod": "{{1.body.data.object.payment_method_types[]}}",
+        "fldSourceSystem": "Stripe",
+        "fldUpdatedAt": "{{now}}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.data.object.metadata.base_id}}",
+        "table": "tblBookings",
+        "id": "{{1.body.data.object.metadata.booking_record_id}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Automations not paused and no emergency flag",
+        "conditions": {
+          "and": [
+            {
+              "a": "{{7.fldEmergencyFlag}}",
+              "b": true,
+              "o": "boolean:notEqual"
+            },
+            {
+              "a": "{{7.fldAutomationsPaused}}",
+              "b": true,
+              "o": "boolean:notEqual"
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "designer": { "x": 2100, "y": 0 }
+      }
+    },
+    {
+      "id": 9,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "connection": "RECONNECT_GMAIL_CONNECTION"
+      },
+      "mapper": {
+        "to": "{{7.fldClientEmail}}",
+        "from": "hello@shesaidsail.com",
+        "subject": "{{if(7.fldBrand = 'SSS'; 'Deposit Received — She Said Sail 🌊'; 'Deposit Confirmed — Mare Executive')}}",
+        "body": "Hi {{7.fldClientFirstName}},\n\nWe've received your deposit of ${{formatNumber(divide(1.body.data.object.amount_received; 100); 2)}} {{upper(1.body.data.object.currency)}}.\n\nYour booking reference is: {{7.fldRecordID}}\nCharter Date: {{formatDate(7.fldCharterDate; 'MMMM D, YYYY')}}\nCity: {{7.fldCity}}\n\nOur team will be in touch shortly to confirm your full charter details.\n\n{{if(7.fldBrand = 'SSS'; 'Warm regards,\nThe She Said Sail Team'; 'With warmth,\nMare Executive')}}",
+        "isHtml": false
+      },
+      "metadata": {
+        "designer": { "x": 2400, "y": -150 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Gmail — hello@shesaidsail.com" }
+          }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":moneybag: *Deposit Received — {{7.fldBrand}}*\nBooking: `{{7.fldRecordID}}`\nClient: {{7.fldClientFirstName}} {{7.fldClientLastName}}\nAmount: ${{formatNumber(divide(1.body.data.object.amount_received; 100); 2)}} {{upper(1.body.data.object.currency)}}\nCharter Date: {{formatDate(7.fldCharterDate; 'YYYY-MM-DD')}}\nCity: {{7.fldCity}}\nStripe PI: `{{1.body.data.object.id}}`\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+      },
+      "metadata": {
+        "designer": { "x": 2400, "y": 150 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer {{1.body.data.object.metadata.auth_token}}" }
+        ],
+        "body": {
+          "scenario_name": "M-STRIPE-DEPOSIT",
+          "action": "DEPOSIT_PAYMENT_PROCESSED",
+          "actor_type": "AUTOMATION",
+          "actor_id": "M-STRIPE-DEPOSIT",
+          "target_table": "Bookings",
+          "target_record_id": "{{1.body.data.object.metadata.booking_record_id}}",
+          "autonomy_tier": "A",
+          "brand": "{{7.fldBrand}}",
+          "city": "{{7.fldCity}}",
+          "base_id": "{{1.body.data.object.metadata.base_id}}",
+          "idempotency_key": "AUDIT-DEPOSIT-{{1.body.data.object.id}}",
+          "outcome_status": "SUCCESS",
+          "output_summary": "Deposit payment processed — booking status updated to DEPOSIT_PAID",
+          "destination": "Bookings table + Gmail + Slack"
+        },
+        "timeout": 30
+      },
+      "metadata": {
+        "designer": { "x": 2700, "y": 0 },
+        "parameters": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "M-AUDIT-LOGGER Webhook URL",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "module": "builtin:ErrorHandler",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 500 }
+      }
+    },
+    {
+      "id": 13,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.data.object.metadata.base_id}}",
+        "table": "tblAutomationFailures"
+      },
+      "mapper": {
+        "fldScenarioName": "M-STRIPE-DEPOSIT",
+        "fldErrorMessage": "{{error.message}}",
+        "fldErrorCode": "{{error.code}}",
+        "fldFailedAt": "{{now}}",
+        "fldEnvironment": "Production",
+        "fldPayload": "{{toString(1.body)}}",
+        "fldRetryCount": "1",
+        "fldStatus": "OPEN",
+        "fldStripeEventID": "{{1.body.id}}"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":red_circle: *M-STRIPE-DEPOSIT FAILURE*\nError: {{error.message}}\nStripe Event: {{1.body.id}}\nPayment Intent: {{1.body.data.object.id}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\nACTION REQUIRED: Manually verify deposit in Stripe and update Airtable."
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

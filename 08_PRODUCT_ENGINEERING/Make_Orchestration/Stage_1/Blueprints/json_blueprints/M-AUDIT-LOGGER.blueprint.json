@@ -1,0 +1,243 @@
+{
+  "name": "M-AUDIT-LOGGER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-AUDIT-LOGGER Inbound Webhook" }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          },
+          {
+            "name": "maxResults",
+            "type": "number",
+            "label": "Maximum number of results"
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblAuditLog"
+              },
+              "mapper": {
+                "fldAuditEventID": "AUD-{{formatDate(now; 'YYYY')}}-{{1.body.sequence_id}}",
+                "fldTimestamp": "{{now}}",
+                "fldScenarioName": "{{1.body.scenario_name}}",
+                "fldAction": "{{1.body.action}}",
+                "fldActorType": "{{1.body.actor_type}}",
+                "fldActorID": "{{1.body.actor_id}}",
+                "fldTargetTable": "{{1.body.target_table}}",
+                "fldTargetRecordID": "{{1.body.target_record_id}}",
+                "fldAutonomyTier": "{{1.body.autonomy_tier}}",
+                "fldBrand": "{{1.body.brand}}",
+                "fldCity": "{{1.body.city}}",
+                "fldEnvironment": "Production",
+                "fldSourceSystem": "Make",
+                "fldPayloadHash": "{{sha256(toString(1.body))}}",
+                "fldIdempotencyKey": "{{1.body.idempotency_key}}",
+                "fldPromptVersionID": "{{1.body.prompt_version_id}}",
+                "fldOutcomeStatus": "{{1.body.outcome_status}}",
+                "fldOutputSummary": "{{1.body.output_summary}}",
+                "fldDestination": "{{1.body.destination}}"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" },
+                    "base": { "label": "She Said Sail — Production" },
+                    "table": { "label": "Audit Log" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Write Audit Record"
+        },
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "{{1.body.base_id}}",
+                "table": "tblAuditLog"
+              },
+              "mapper": {
+                "filterByFormula": "AND({fldIdempotencyKey} = '{{1.body.idempotency_key}}', {fldEnvironment} = 'Production')",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail Production" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "No duplicate — idempotency check passed",
+                "conditions": {
+                  "a": "{{length(4.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 150 }
+              }
+            },
+            {
+              "id": 6,
+              "module": "slack:CreateMessage",
+              "version": 2,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-audit-log",
+                "text": ":warning: *Duplicate Audit Event Blocked*\nIdempotency Key: `{{1.body.idempotency_key}}`\nScenario: {{1.body.scenario_name}}\nAction: {{1.body.action}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Idempotency Check — Duplicate Block"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "module": "builtin:ErrorHandler",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Any error",
+        "conditions": {
+          "a": "{{success}}",
+          "b": false,
+          "o": "boolean:equal"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 300 }
+      }
+    },
+    {
+      "id": 8,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "{{1.body.base_id}}",
+        "table": "tblAutomationFailures"
+      },
+      "mapper": {
+        "fldScenarioName": "M-AUDIT-LOGGER",
+        "fldErrorMessage": "{{error.message}}",
+        "fldErrorCode": "{{error.code}}",
+        "fldFailedAt": "{{now}}",
+        "fldEnvironment": "Production",
+        "fldPayload": "{{toString(1.body)}}",
+        "fldRetryCount": "1",
+        "fldStatus": "OPEN"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 300 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail Production" }
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "module": "slack:CreateMessage",
+      "version": 2,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":red_circle: *M-AUDIT-LOGGER FAILURE*\nError: {{error.message}}\nScenario: {{1.body.scenario_name}}\nTimestamp: {{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}} UTC\nAction required: Review Automation Failures table."
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 300 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Slack — She Said Sail Workspace" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 4,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "name": "M03 M-LEAD-INTAKE",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M03-LEAD-INTAKE Webhook" }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg",
+        "typecast": false
+      },
+      "mapper": {
+        "filterByFormula": "AND({Email} = '{{1.lead_data.email}}', {Status} != 'CLOSED')",
+        "maxRecords": 5,
+        "fields": ["Email", "Status", "Notes", "Record_ID"]
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      },
+      "routes": [
+        {
+          "label": "New Lead",
+          "filter": {
+            "name": "New Lead — No Existing Open Record",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(2.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg",
+                "typecast": false
+              },
+              "mapper": {
+                "fields": {
+                  "First_Name": "{{1.lead_data.first_name}}",
+                  "Last_Name": "{{1.lead_data.last_name}}",
+                  "Email": "{{1.lead_data.email}}",
+                  "Phone": "{{1.lead_data.phone}}",
+                  "City": "{{1.lead_data.city}}",
+                  "Date_Requested": "{{1.lead_data.date_requested}}",
+                  "Party_Size": "{{1.lead_data.party_size}}",
+                  "Budget_Range": "{{1.lead_data.budget_range}}",
+                  "Notes": "{{1.lead_data.notes}}",
+                  "Package_Interest": "{{1.lead_data.package_interest}}",
+                  "Brand": "{{1.brand}}",
+                  "Source_System": "{{1.source}}",
+                  "Status": "NEW",
+                  "Environment": "{{1.environment}}",
+                  "Created_At": "{{1.timestamp}}",
+                  "Agent_Status": "HUMAN_REVIEW",
+                  "Idempotency_Key": "{{1.idempotency_key}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Requests" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"scenario_id\": \"M-LEAD-INTAKE\",\n  \"event_type\": \"LEAD_CREATED\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{4.id}}\",\n  \"email\": \"{{1.lead_data.email}}\",\n  \"timestamp\": \"{{1.timestamp}}\",\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"{{1.idempotency_key}}\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -150 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST LEAD_CREATED audit event to M-AUDIT-LOGGER webhook. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL after import."
+              }
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"alert_type\": \"NEW_LEAD\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{4.id}}\",\n  \"urgency\": \"MEDIUM\",\n  \"message\": \"New lead received from {{1.source}} for brand {{1.brand}}\",\n  \"timestamp\": \"{{1.timestamp}}\",\n  \"metadata\": {\n    \"lead_name\": \"{{1.lead_data.first_name}} {{1.lead_data.last_name}}\",\n    \"city\": \"{{1.lead_data.city}}\",\n    \"date_requested\": \"{{1.lead_data.date_requested}}\",\n    \"budget_range\": \"{{1.lead_data.budget_range}}\",\n    \"package_interest\": \"{{1.lead_data.package_interest}}\",\n    \"source\": \"{{1.source}}\",\n    \"environment\": \"{{1.environment}}\",\n    \"party_size\": \"{{1.lead_data.party_size}}\"\n  }\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": -150 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST NEW_LEAD alert to M-SLACK-ALERTS webhook. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-SLACK-ALERTS webhook URL after import."
+              }
+            }
+          ]
+        },
+        {
+          "label": "Duplicate Lead",
+          "filter": {
+            "name": "Duplicate — Existing Open Record Found",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(2.records)}}",
+                  "b": "0",
+                  "o": "number:greater"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 7,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg",
+                "typecast": false
+              },
+              "mapper": {
+                "recordId": "{{2.records[].id}}",
+                "fields": {
+                  "Updated_At": "{{1.timestamp}}",
+                  "Source_System": "{{1.source}}",
+                  "Notes": "{{2.records[].fields.Notes}}\n\n[Re-submitted {{1.timestamp}} via {{1.source}}]: {{1.lead_data.notes}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Requests" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 8,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"scenario_id\": \"M-LEAD-INTAKE\",\n  \"event_type\": \"LEAD_DUPLICATE\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{2.records[].id}}\",\n  \"email\": \"{{1.lead_data.email}}\",\n  \"timestamp\": \"{{1.timestamp}}\",\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"{{1.idempotency_key}}\",\n  \"duplicate_source\": \"{{1.source}}\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 150 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST LEAD_DUPLICATE audit event to M-AUDIT-LOGGER webhook. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL after import."
+              }
+            },
+            {
+              "id": 9,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"alert_type\": \"NEW_LEAD\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{2.records[].id}}\",\n  \"urgency\": \"LOW\",\n  \"message\": \"Duplicate lead re-submitted from {{1.source}} for brand {{1.brand}} — existing record updated\",\n  \"timestamp\": \"{{1.timestamp}}\",\n  \"metadata\": {\n    \"lead_name\": \"{{1.lead_data.first_name}} {{1.lead_data.last_name}}\",\n    \"city\": \"{{1.lead_data.city}}\",\n    \"date_requested\": \"{{1.lead_data.date_requested}}\",\n    \"budget_range\": \"{{1.lead_data.budget_range}}\",\n    \"source\": \"{{1.source}}\",\n    \"environment\": \"{{1.environment}}\",\n    \"duplicate\": true\n  }\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": 150 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST duplicate NEW_LEAD alert to M-SLACK-ALERTS webhook. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-SLACK-ALERTS webhook URL after import."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dlt": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

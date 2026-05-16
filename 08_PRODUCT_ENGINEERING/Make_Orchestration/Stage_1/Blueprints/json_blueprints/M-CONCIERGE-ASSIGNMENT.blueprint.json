@@ -1,0 +1,446 @@
+{
+  "name": "M05 M-CONCIERGE-ASSIGNMENT",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M05-CONCIERGE-ASSIGNMENT Webhook" }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ],
+        "notes": "Receives POST from Airtable automation or upstream Make scenario when Request.Status = AVAILABILITY_CONFIRMED. Expected fields: request_id, brand, city, date_requested, client_name, package_interest, environment."
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg"
+      },
+      "mapper": {
+        "recordId": "{{1.request_id}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Requests" }
+          }
+        },
+        "notes": "Fetch the full Request record to verify current status and gather all fields before assigning a concierge. Downstream modules reference {{2.fields.*}}."
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "CONCIERGE_OPERATORS_TABLE_ID",
+        "typecast": false
+      },
+      "mapper": {
+        "filterByFormula": "AND({City} = '{{1.city}}', {Brand} = '{{1.brand}}', {Status} = 'ACTIVE', {Available} = TRUE())",
+        "maxRecords": 1,
+        "fields": ["Name", "Email", "City", "Brand", "Status", "Available", "Phone"]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Concierge_Operators — REBIND TABLE ID AFTER IMPORT" }
+          }
+        },
+        "notes": "Search for the first ACTIVE + Available concierge matching both City and Brand. Returns at most 1 record. CONCIERGE_OPERATORS_TABLE_ID must be replaced with the actual Airtable table ID after import."
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "notes": "Branch on whether a matching concierge was found. Route 1 = Concierge Found (count > 0). Route 2 = No Concierge Available (count = 0)."
+      },
+      "routes": [
+        {
+          "label": "Concierge Found",
+          "filter": {
+            "name": "Concierge Found — Match Exists",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(3.records)}}",
+                  "b": "0",
+                  "o": "number:greater"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 5,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg",
+                "typecast": false
+              },
+              "mapper": {
+                "recordId": "{{1.request_id}}",
+                "fields": {
+                  "Assigned_Concierge": ["{{first(3.records).id}}"],
+                  "Status": "CONCIERGE_ASSIGNED",
+                  "Assigned_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -280 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Requests" }
+                  }
+                },
+                "notes": "Write the matched concierge as a linked record, set Status = CONCIERGE_ASSIGNED, stamp Assigned_At timestamp. Assigned_Concierge is a linked-record field — value is passed as an array."
+              }
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"alert_type\": \"CONCIERGE_ASSIGNED\",\n  \"brand\": \"{{1.brand}}\",\n  \"urgency\": \"LOW\",\n  \"message\": \"Concierge {{first(3.records).fields.Name}} assigned to {{1.client_name}} for {{1.date_requested}} in {{1.city}}\",\n  \"metadata\": {\n    \"request_id\": \"{{1.request_id}}\",\n    \"concierge_id\": \"{{first(3.records).id}}\",\n    \"concierge_name\": \"{{first(3.records).fields.Name}}\",\n    \"concierge_email\": \"{{first(3.records).fields.Email}}\",\n    \"city\": \"{{1.city}}\",\n    \"package_interest\": \"{{1.package_interest}}\",\n    \"date_requested\": \"{{1.date_requested}}\",\n    \"environment\": \"{{1.environment}}\"\n  },\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": -280 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST CONCIERGE_ASSIGNED alert to M-SLACK-ALERTS webhook. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-SLACK-ALERTS webhook URL after import."
+              }
+            },
+            {
+              "id": 7,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "connection": "RECONNECT_GMAIL_CONNECTION"
+              },
+              "mapper": {
+                "to": "{{first(3.records).fields.Email}}",
+                "subject": "New Assignment - {{1.client_name}} | {{1.date_requested}}",
+                "bodyType": "html",
+                "content": "<p>Hello {{first(3.records).fields.Name}},</p>\n<p>You have been assigned a new charter request. Please review the details below and follow up with the client within <strong>2 hours</strong>.</p>\n<hr />\n<h3>Request Details</h3>\n<table cellpadding=\"6\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px;\">\n  <tr><td><strong>Client Name:</strong></td><td>{{1.client_name}}</td></tr>\n  <tr><td><strong>Date Requested:</strong></td><td>{{1.date_requested}}</td></tr>\n  <tr><td><strong>City:</strong></td><td>{{1.city}}</td></tr>\n  <tr><td><strong>Brand:</strong></td><td>{{1.brand}}</td></tr>\n  <tr><td><strong>Package Interest:</strong></td><td>{{1.package_interest}}</td></tr>\n  <tr><td><strong>Request ID:</strong></td><td>{{1.request_id}}</td></tr>\n  <tr><td><strong>Assigned At:</strong></td><td>{{formatDate(now, 'MMMM D, YYYY [at] h:mm A z')}}</td></tr>\n</table>\n<hr />\n<p>Log in to Airtable to view the full request record, update the status as you progress, and add any internal notes.</p>\n<p>If you have any questions or are unable to service this request, please reply to this email or contact the operations team immediately.</p>\n<p>Thank you,<br />\nShe Said Sail + Mare Executive — Automation System</p>"
+              },
+              "metadata": {
+                "designer": { "x": 1800, "y": -280 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Gmail — She Said Sail Ops" }
+                  }
+                },
+                "notes": "Send assignment notification email directly to concierge operator. Connection must be rebound to RECONNECT_GMAIL_CONNECTION after import."
+              }
+            }
+          ]
+        },
+        {
+          "label": "No Concierge Available",
+          "filter": {
+            "name": "No Concierge Available — Zero Results",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(3.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 8,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg",
+                "typecast": false
+              },
+              "mapper": {
+                "recordId": "{{1.request_id}}",
+                "fields": {
+                  "Status": "NEEDS_MANUAL_ASSIGNMENT"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 280 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Requests" }
+                  }
+                },
+                "notes": "No concierge found for this city/brand combination. Flag Request for manual ops intervention by setting Status = NEEDS_MANUAL_ASSIGNMENT."
+              }
+            },
+            {
+              "id": 9,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"alert_type\": \"AUTOMATION_ERROR\",\n  \"brand\": \"{{1.brand}}\",\n  \"urgency\": \"HIGH\",\n  \"message\": \"No concierge available for {{1.city}} {{1.brand}} on {{1.date_requested}}. Manual assignment required.\",\n  \"metadata\": {\n    \"request_id\": \"{{1.request_id}}\",\n    \"client_name\": \"{{1.client_name}}\",\n    \"city\": \"{{1.city}}\",\n    \"brand\": \"{{1.brand}}\",\n    \"date_requested\": \"{{1.date_requested}}\",\n    \"package_interest\": \"{{1.package_interest}}\",\n    \"environment\": \"{{1.environment}}\"\n  },\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1500, "y": 280 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "POST HIGH-urgency AUTOMATION_ERROR alert to M-SLACK-ALERTS. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-SLACK-ALERTS webhook URL after import."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "serializeUrl": false,
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": false,
+        "contentType": "application/json",
+        "data": "{\n  \"scenario_id\": \"M-CONCIERGE-ASSIGNMENT\",\n  \"event_type\": \"{{if(length(3.records) > 0, 'CONCIERGE_ASSIGNED', 'ASSIGNMENT_FAILED')}}\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.request_id}}\",\n  \"table_name\": \"Requests\",\n  \"action\": \"{{if(length(3.records) > 0, 'CONCIERGE_ASSIGNED', 'NEEDS_MANUAL_ASSIGNMENT')}}\",\n  \"actor\": \"make-automation\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\",\n  \"payload\": {\n    \"city\": \"{{1.city}}\",\n    \"client_name\": \"{{1.client_name}}\",\n    \"date_requested\": \"{{1.date_requested}}\",\n    \"package_interest\": \"{{1.package_interest}}\",\n    \"concierge_found\": {{if(length(3.records) > 0, 'true', 'false')}},\n    \"concierge_id\": \"{{first(3.records).id}}\",\n    \"concierge_name\": \"{{first(3.records).fields.Name}}\"\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-CONCIERGE-ASSIGNMENT-{{1.request_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "expect": {
+            "method": { "label": "POST" },
+            "bodyType": { "label": "Raw" },
+            "contentType": { "label": "JSON (application/json)" }
+          }
+        },
+        "parameters": [
+          { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+        ],
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "bodyType", "type": "select", "label": "Body type" },
+          { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+          { "name": "contentType", "type": "select", "label": "Content type" },
+          { "name": "data", "type": "string", "label": "Request content" }
+        ],
+        "notes": "POST audit event to M-AUDIT-LOGGER. Runs after Router regardless of which route was taken. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL after import."
+      }
+    },
+    {
+      "id": 11,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "serializeUrl": false,
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": false,
+        "contentType": "application/json",
+        "data": "{\n  \"scenario_id\": \"M-CONCIERGE-ASSIGNMENT\",\n  \"event_type\": \"SCENARIO_ERROR\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.request_id}}\",\n  \"table_name\": \"Requests\",\n  \"action\": \"SCENARIO_ERROR\",\n  \"actor\": \"make-automation\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\",\n  \"payload\": {\n    \"error_message\": \"{{error.message}}\",\n    \"error_module\": \"{{error.module}}\",\n    \"city\": \"{{1.city}}\",\n    \"client_name\": \"{{1.client_name}}\",\n    \"date_requested\": \"{{1.date_requested}}\"\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-CONCIERGE-ASSIGNMENT-ERR-{{1.request_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 450 },
+        "restore": {
+          "expect": {
+            "method": { "label": "POST" },
+            "bodyType": { "label": "Raw" },
+            "contentType": { "label": "JSON (application/json)" }
+          }
+        },
+        "parameters": [
+          { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+        ],
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "bodyType", "type": "select", "label": "Body type" },
+          { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+          { "name": "contentType", "type": "select", "label": "Content type" },
+          { "name": "data", "type": "string", "label": "Request content" }
+        ],
+        "notes": "ERROR HANDLER — POST SCENARIO_ERROR to M-AUDIT-LOGGER. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL after import.",
+        "handler": true
+      },
+      "filter": {
+        "name": "On Error — Audit Log",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "module": "slack:postMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "ops-alerts",
+        "text": ":rotating_light: *M05-CONCIERGE-ASSIGNMENT Error*\n*Brand:* {{1.brand}}\n*Request ID:* {{1.request_id}}\n*Client:* {{1.client_name}}\n*City:* {{1.city}}\n*Date Requested:* {{1.date_requested}}\n*Package:* {{1.package_interest}}\n*Error:* {{error.message}}\n*Failed Module:* {{error.module}}\n*Timestamp:* {{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\n*Environment:* {{1.environment}}\n> Manual review required — check Airtable and reassign if needed."
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 450 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "She Said Sail Slack" }
+          }
+        },
+        "parameters": [
+          { "name": "connection", "type": "account:slack", "label": "Connection" }
+        ],
+        "expect": [
+          { "name": "channel", "type": "string", "label": "Channel" },
+          { "name": "text", "type": "string", "label": "Text" }
+        ],
+        "notes": "ERROR HANDLER — Send Slack alert to ops-alerts when any upstream module fails. Must rebind RECONNECT_SLACK_CONNECTION after import.",
+        "handler": true
+      },
+      "filter": {
+        "name": "On Error — Slack Alert",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dlt": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

@@ -1,0 +1,491 @@
+{
+  "name": "M08 M-BOOKING-CONFIRMATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M08-BOOKING-CONFIRMATION Webhook" }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ],
+        "notes": "Called by M-BOOKING-CREATION after a deposit payment is processed, or can be triggered standalone for manual confirmation sends. Accepts booking_id and communication fields."
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL"
+      },
+      "mapper": {
+        "recordId": "{{1.booking_id}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Bookings" }
+          }
+        },
+        "notes": "Fetch the full Booking record to get authoritative charter details, concierge assignment, package details, Agreement_Signed flag, and Total_Amount. All downstream communication uses these values to prevent stale data."
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      },
+      "routes": [
+        {
+          "label": "SSS Confirmation",
+          "filter": {
+            "name": "Brand = SSS",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.brand}}",
+                  "b": "SSS",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "connection": "RECONNECT_GMAIL_CONNECTION"
+              },
+              "mapper": {
+                "from": "hello@shesaidsail.com",
+                "to": "{{1.client_email}}",
+                "subject": "Your She Said Sail Charter is Confirmed — {{formatDate(2.fields.Charter_Date, 'MMMM D, YYYY')}}",
+                "html": true,
+                "content": "<html><body style=\"font-family: Georgia, serif; color: #2c2c2c; max-width: 600px; margin: 0 auto; padding: 24px;\">\n<img src=\"https://shesaidsail.com/assets/logo.png\" alt=\"She Said Sail\" style=\"height: 48px; margin-bottom: 24px;\" />\n<h1 style=\"color: #1a4d6e; font-size: 24px;\">Your Charter is Confirmed!</h1>\n<p>Hi {{ifempty(2.fields.Client_First_Name, 1.client_name)}},</p>\n<p>Wonderful news — your <strong>She Said Sail</strong> charter is officially confirmed. Here are your charter details:</p>\n<table style=\"width: 100%; border-collapse: collapse; margin: 16px 0;\">\n  <tr><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0; font-weight: bold;\">Charter Date</td><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0;\">{{formatDate(2.fields.Charter_Date, 'dddd, MMMM D, YYYY')}}</td></tr>\n  <tr><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0; font-weight: bold;\">Departure City</td><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0;\">{{ifempty(2.fields.City, 1.city)}}</td></tr>\n  <tr><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0; font-weight: bold;\">Package</td><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0;\">{{ifempty(2.fields.Package_Name, 1.package_name)}}</td></tr>\n  <tr><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0; font-weight: bold;\">Deposit Paid</td><td style=\"padding: 8px; border-bottom: 1px solid #e0e0e0;\">${{ifempty(2.fields.Deposit_Amount, 1.deposit_amount)}}</td></tr>\n  <tr><td style=\"padding: 8px; font-weight: bold;\">Balance Due</td><td style=\"padding: 8px;\">${{2.fields.Balance_Due}} — due 30 days before departure</td></tr>\n</table>\n<h2 style=\"color: #1a4d6e; font-size: 18px; margin-top: 24px;\">Meet Your Concierge</h2>\n<p>{{ifempty(2.fields.Concierge_Name, ifempty(1.concierge_name, 'Your concierge'))}} will be your dedicated point of contact for everything leading up to your charter. Expect a personal welcome message within 24–48 hours.</p>\n<p>Questions in the meantime? Reply directly to this email or reach your concierge at <a href=\"mailto:{{ifempty(2.fields.Concierge_Email, ifempty(1.concierge_email, 'hello@shesaidsail.com'))}}\">{{ifempty(2.fields.Concierge_Email, ifempty(1.concierge_email, 'hello@shesaidsail.com'))}}</a>.</p>\n<h2 style=\"color: #1a4d6e; font-size: 18px; margin-top: 24px;\">What Happens Next</h2>\n<ol style=\"line-height: 1.8;\">\n  <li>Your concierge will reach out to confirm crew preferences and any special requests.</li>\n  <li>We'll send your charter agreement for e-signature (if not yet signed).</li>\n  <li>Your balance of ${{2.fields.Balance_Due}} is due 30 days before your charter date.</li>\n  <li>You'll receive a full departure brief 48–72 hours before your charter.</li>\n</ol>\n<p style=\"margin-top: 24px;\">For urgent matters, contact us at <a href=\"mailto:hello@shesaidsail.com\">hello@shesaidsail.com</a> or reply to this email.</p>\n<p style=\"margin-top: 32px;\">Fair winds,<br/><strong>The She Said Sail Team</strong></p>\n<hr style=\"border: none; border-top: 1px solid #e0e0e0; margin: 32px 0;\" />\n<p style=\"font-size: 11px; color: #999;\">She Said Sail | hello@shesaidsail.com | This email was sent to {{1.client_email}}</p>\n</body></html>"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Gmail — hello@shesaidsail.com" }
+                  }
+                },
+                "expect": [
+                  { "name": "from", "type": "text", "label": "From" },
+                  { "name": "to", "type": "text", "label": "To" },
+                  { "name": "subject", "type": "text", "label": "Subject" },
+                  { "name": "content", "type": "text", "label": "Email Content" }
+                ],
+                "notes": "Sends SSS-branded confirmation email from hello@shesaidsail.com. Uses Airtable record values (module 2) as authoritative source with payload fields as fallback. RECONNECT_GMAIL_CONNECTION after import."
+              }
+            },
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "https://api.quosms.com/v1/messages",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" },
+                  { "name": "Authorization", "value": "Bearer RECONNECT_SMS_CONNECTION" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"to\": \"{{1.client_phone}}\",\n  \"from\": \"SheSaidSail\",\n  \"body\": \"Hi {{ifempty(2.fields.Client_First_Name, 1.client_name)}}! Your She Said Sail charter on {{formatDate(2.fields.Charter_Date, 'MMM D')}} is confirmed. {{ifempty(2.fields.Concierge_Name, 'Your concierge')}} will be in touch within 48 hours. Questions? Reply here or email hello@shesaidsail.com\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": -300 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "SMS via Quo SMS API. RECONNECT_SMS_CONNECTION in Authorization header — rebind to Quo SMS bearer token after import. Only fires if client_phone is present."
+              },
+              "filter": {
+                "name": "SSS SMS — Phone Present",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{1.client_phone}}",
+                      "b": "",
+                      "o": "text:notequal"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "ME Confirmation",
+          "filter": {
+            "name": "Brand = ME",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.brand}}",
+                  "b": "ME",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 6,
+              "module": "gmail:ActionSendEmail",
+              "version": 1,
+              "parameters": {
+                "connection": "RECONNECT_GMAIL_CONNECTION"
+              },
+              "mapper": {
+                "from": "hello@mareexecutive.com",
+                "to": "{{1.client_email}}",
+                "subject": "Your Mare Executive Charter is Confirmed — {{formatDate(2.fields.Charter_Date, 'MMMM D, YYYY')}}",
+                "html": true,
+                "content": "<html><body style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 24px;\">\n<img src=\"https://mareexecutive.com/assets/logo.png\" alt=\"Mare Executive\" style=\"height: 48px; margin-bottom: 24px;\" />\n<h1 style=\"color: #0a2540; font-size: 24px; letter-spacing: -0.5px;\">Your Charter is Confirmed</h1>\n<p>Dear {{ifempty(2.fields.Client_First_Name, 1.client_name)}},</p>\n<p>We are pleased to confirm your <strong>Mare Executive</strong> charter reservation. Your charter details are as follows:</p>\n<table style=\"width: 100%; border-collapse: collapse; margin: 16px 0;\">\n  <tr><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666;\">Charter Date</td><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4;\">{{formatDate(2.fields.Charter_Date, 'dddd, MMMM D, YYYY')}}</td></tr>\n  <tr><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666;\">Departure Port</td><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4;\">{{ifempty(2.fields.City, 1.city)}}</td></tr>\n  <tr><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666;\">Package</td><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4;\">{{ifempty(2.fields.Package_Name, 1.package_name)}}</td></tr>\n  <tr><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666;\">Deposit Received</td><td style=\"padding: 10px 8px; border-bottom: 1px solid #d4d4d4;\">${{ifempty(2.fields.Deposit_Amount, 1.deposit_amount)}}</td></tr>\n  <tr><td style=\"padding: 10px 8px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666;\">Balance Due</td><td style=\"padding: 10px 8px;\">${{2.fields.Balance_Due}} — due 30 days prior to departure</td></tr>\n</table>\n<h2 style=\"color: #0a2540; font-size: 17px; margin-top: 28px;\">Your Charter Manager</h2>\n<p>{{ifempty(2.fields.Concierge_Name, ifempty(1.concierge_name, 'Your charter manager'))}} has been assigned as your dedicated contact for all charter arrangements. You will receive a personal introduction within 24–48 hours.</p>\n<p>For immediate assistance, please contact us at <a href=\"mailto:{{ifempty(2.fields.Concierge_Email, ifempty(1.concierge_email, 'hello@mareexecutive.com'))}}\">{{ifempty(2.fields.Concierge_Email, ifempty(1.concierge_email, 'hello@mareexecutive.com'))}}</a>.</p>\n<h2 style=\"color: #0a2540; font-size: 17px; margin-top: 28px;\">Next Steps</h2>\n<ol style=\"line-height: 2;\">\n  <li>Your charter manager will contact you to confirm preferences and special requirements.</li>\n  <li>A charter agreement will be sent for your review and signature.</li>\n  <li>The balance of ${{2.fields.Balance_Due}} is due 30 days before departure.</li>\n  <li>A full charter brief will be provided 48–72 hours before your departure.</li>\n</ol>\n<p style=\"margin-top: 32px;\">With warm regards,<br/><strong>Mare Executive</strong></p>\n<hr style=\"border: none; border-top: 1px solid #d4d4d4; margin: 32px 0;\" />\n<p style=\"font-size: 11px; color: #999;\">Mare Executive | hello@mareexecutive.com | Sent to {{1.client_email}}</p>\n</body></html>"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Gmail — hello@mareexecutive.com" }
+                  }
+                },
+                "expect": [
+                  { "name": "from", "type": "text", "label": "From" },
+                  { "name": "to", "type": "text", "label": "To" },
+                  { "name": "subject", "type": "text", "label": "Subject" },
+                  { "name": "content", "type": "text", "label": "Email Content" }
+                ],
+                "notes": "Sends ME-branded confirmation email from hello@mareexecutive.com. Uses Airtable record values (module 2) as authoritative source. ME brand uses more formal tone and different color palette. RECONNECT_GMAIL_CONNECTION after import."
+              }
+            },
+            {
+              "id": 7,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "https://api.quosms.com/v1/messages",
+                "serializeUrl": false,
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" },
+                  { "name": "Authorization", "value": "Bearer RECONNECT_SMS_CONNECTION" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "contentType": "application/json",
+                "data": "{\n  \"to\": \"{{1.client_phone}}\",\n  \"from\": \"MareExecutive\",\n  \"body\": \"Dear {{ifempty(2.fields.Client_First_Name, 1.client_name)}}, your Mare Executive charter on {{formatDate(2.fields.Charter_Date, 'MMM D')}} is confirmed. {{ifempty(2.fields.Concierge_Name, 'Your charter manager')}} will be in touch within 48 hours. For assistance: hello@mareexecutive.com\"\n}"
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 300 },
+                "restore": {
+                  "expect": {
+                    "method": { "label": "POST" },
+                    "bodyType": { "label": "Raw" },
+                    "contentType": { "label": "JSON (application/json)" }
+                  }
+                },
+                "parameters": [
+                  { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+                ],
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "bodyType", "type": "select", "label": "Body type" },
+                  { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+                  { "name": "contentType", "type": "select", "label": "Content type" },
+                  { "name": "data", "type": "string", "label": "Request content" }
+                ],
+                "notes": "SMS via Quo SMS API. RECONNECT_SMS_CONNECTION in Authorization header — rebind to Quo SMS bearer token after import. Only fires if client_phone is present."
+              },
+              "filter": {
+                "name": "ME SMS — Phone Present",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{1.client_phone}}",
+                      "b": "",
+                      "o": "text:notequal"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL",
+        "typecast": false
+      },
+      "mapper": {
+        "recordId": "{{1.booking_id}}",
+        "fields": {
+          "Confirmation_Sent_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}",
+          "Status": "{{if(2.fields.Agreement_Signed = true, 'CONFIRMED', if(2.fields.Total_Amount > 5000, 'AGREEMENT_PENDING', 'CONFIRMED'))}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Bookings" }
+          }
+        },
+        "notes": "Update Booking with Confirmation_Sent_At timestamp. Status advances to CONFIRMED if agreement is already signed, or to AGREEMENT_PENDING if total > $5,000 and agreement not yet signed."
+      }
+    },
+    {
+      "id": 9,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "serializeUrl": false,
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": false,
+        "contentType": "application/json",
+        "data": "{\n  \"alert_type\": \"BOOKING_CONFIRMED\",\n  \"brand\": \"{{1.brand}}\",\n  \"booking_id\": \"{{1.booking_id}}\",\n  \"client_name\": \"{{ifempty(2.fields.Client_First_Name, 1.client_name)}}\",\n  \"client_email\": \"{{1.client_email}}\",\n  \"charter_date\": \"{{2.fields.Charter_Date}}\",\n  \"city\": \"{{ifempty(2.fields.City, 1.city)}}\",\n  \"package_name\": \"{{ifempty(2.fields.Package_Name, 1.package_name)}}\",\n  \"deposit_amount\": \"{{ifempty(2.fields.Deposit_Amount, 1.deposit_amount)}}\",\n  \"urgency\": \"MEDIUM\",\n  \"message\": \"Booking confirmed: {{ifempty(2.fields.Client_First_Name, 1.client_name)}} | {{formatDate(2.fields.Charter_Date, 'MMM D, YYYY')}} | {{ifempty(2.fields.City, 1.city)}} | {{ifempty(2.fields.Package_Name, 1.package_name)}} | ${{ifempty(2.fields.Deposit_Amount, 1.deposit_amount)}} deposit received\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\"\n}"
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 },
+        "restore": {
+          "expect": {
+            "method": { "label": "POST" },
+            "bodyType": { "label": "Raw" },
+            "contentType": { "label": "JSON (application/json)" }
+          }
+        },
+        "parameters": [
+          { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+        ],
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "bodyType", "type": "select", "label": "Body type" },
+          { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+          { "name": "contentType", "type": "select", "label": "Content type" },
+          { "name": "data", "type": "string", "label": "Request content" }
+        ],
+        "notes": "POST to M-SLACK-ALERTS. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with the M-SLACK-ALERTS webhook URL after import."
+      }
+    },
+    {
+      "id": 10,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "serializeUrl": false,
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": false,
+        "contentType": "application/json",
+        "data": "{\n  \"scenario_id\": \"M-BOOKING-CONFIRMATION\",\n  \"event_type\": \"CONFIRMATION_SENT\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"CONFIRMATION_EMAIL_AND_SMS_SENT\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": {\n    \"client_email\": \"{{1.client_email}}\",\n    \"client_phone\": \"{{1.client_phone}}\",\n    \"charter_date\": \"{{2.fields.Charter_Date}}\",\n    \"new_status\": \"{{if(2.fields.Agreement_Signed = true, 'CONFIRMED', if(2.fields.Total_Amount > 5000, 'AGREEMENT_PENDING', 'CONFIRMED'))}}\",\n    \"sms_sent\": \"{{if(1.client_phone != '', true, false)}}\"\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-BOOKING-CONFIRMATION-CONFIRMATION_SENT-{{1.booking_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}"
+      },
+      "metadata": {
+        "designer": { "x": 2100, "y": 0 },
+        "restore": {
+          "expect": {
+            "method": { "label": "POST" },
+            "bodyType": { "label": "Raw" },
+            "contentType": { "label": "JSON (application/json)" }
+          }
+        },
+        "parameters": [
+          { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+        ],
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "bodyType", "type": "select", "label": "Body type" },
+          { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+          { "name": "contentType", "type": "select", "label": "Content type" },
+          { "name": "data", "type": "string", "label": "Request content" }
+        ],
+        "notes": "POST to M-AUDIT-LOGGER. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with the M-AUDIT-LOGGER webhook URL after import."
+      }
+    },
+    {
+      "id": 11,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_WEBHOOK_URL_AFTER_IMPORT",
+        "serializeUrl": false,
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": false,
+        "contentType": "application/json",
+        "data": "{\n  \"scenario_id\": \"M-BOOKING-CONFIRMATION\",\n  \"event_type\": \"SCENARIO_ERROR\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"SCENARIO_ERROR\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": {\n    \"error_message\": \"{{error.message}}\",\n    \"error_module\": \"{{error.module}}\",\n    \"client_email\": \"{{1.client_email}}\",\n    \"booking_id\": \"{{1.booking_id}}\"\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-BOOKING-CONFIRMATION-SCENARIO_ERROR-{{1.booking_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 500 },
+        "restore": {
+          "expect": {
+            "method": { "label": "POST" },
+            "bodyType": { "label": "Raw" },
+            "contentType": { "label": "JSON (application/json)" }
+          }
+        },
+        "parameters": [
+          { "name": "handleErrors", "type": "boolean", "label": "Evaluate all states as errors" }
+        ],
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "bodyType", "type": "select", "label": "Body type" },
+          { "name": "parseResponse", "type": "boolean", "label": "Parse response" },
+          { "name": "contentType", "type": "select", "label": "Content type" },
+          { "name": "data", "type": "string", "label": "Request content" }
+        ],
+        "notes": "Error handler — audit log. Replace INSERT_WEBHOOK_URL_AFTER_IMPORT with M-AUDIT-LOGGER webhook URL after import."
+      },
+      "filter": {
+        "name": "On Error — Audit Log",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "module": "slack:postMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "ops-alerts",
+        "text": ":rotating_light: *M08-BOOKING-CONFIRMATION Error — URGENT*\n*Scenario:* M-BOOKING-CONFIRMATION\n*Error:* {{error.message}}\n*Module:* {{error.module}}\n*Booking ID:* {{1.booking_id}}\n*Brand:* {{1.brand}}\n*Client Email:* {{1.client_email}}\n*Charter Date:* {{1.charter_date}}\n*Timestamp:* {{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\n\n:warning: *Action Required* — Confirmation email may not have been sent. Verify and send manually if needed."
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 500 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "She Said Sail Slack" }
+          }
+        },
+        "parameters": [
+          { "name": "connection", "type": "account:slack", "label": "Connection" }
+        ],
+        "expect": [
+          { "name": "channel", "type": "string", "label": "Channel" },
+          { "name": "text", "type": "string", "label": "Text" }
+        ]
+      },
+      "filter": {
+        "name": "On Error — Slack Urgent Alert",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dlt": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

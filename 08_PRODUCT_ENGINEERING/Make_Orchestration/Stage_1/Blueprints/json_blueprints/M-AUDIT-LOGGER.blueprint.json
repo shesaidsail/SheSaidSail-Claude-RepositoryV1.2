@@ -1,0 +1,252 @@
+{
+  "name": "M02 M-AUDIT-LOGGER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M02-AUDIT-LOGGER Webhook" }
+          }
+        },
+        "parameters": [
+          { "name": "hook", "type": "hook:gateway-webhook", "label": "Webhook" },
+          { "name": "maxResults", "type": "number", "label": "Maximum number of results" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblrMpTfMk8q1eNHp",
+        "typecast": false
+      },
+      "mapper": {
+        "filterByFormula": "AND({Idempotency_Key} = '{{1.idempotency_key}}')",
+        "maxRecords": 1
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+            "table": { "label": "Audit_Log" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblrMpTfMk8q1eNHp",
+                "typecast": false
+              },
+              "mapper": {
+                "fields": {
+                  "Scenario_ID": "{{1.scenario_id}}",
+                  "Event_Type": "{{1.event_type}}",
+                  "Brand": "{{1.brand}}",
+                  "Record_ID": "{{1.record_id}}",
+                  "Table_Name": "{{1.table_name}}",
+                  "Action": "{{1.action}}",
+                  "Actor": "{{1.actor}}",
+                  "Timestamp": "{{1.timestamp}}",
+                  "Payload_JSON": "{{toString(1.payload)}}",
+                  "Environment": "{{1.environment}}",
+                  "Idempotency_Key": "{{1.idempotency_key}}",
+                  "Source_System": "Make"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Audit_Log" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Write Audit Log",
+          "filter": {
+            "name": "Idempotency Pass — Always Write",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(2.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 5,
+              "module": "airtable:SearchRecords",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "AUTOMATION_HEALTH_TABLE_ID",
+                "typecast": false
+              },
+              "mapper": {
+                "filterByFormula": "AND({Scenario_ID} = '{{1.scenario_id}}')",
+                "maxRecords": 1
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Automation_Health — REBIND TABLE ID AFTER IMPORT" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 6,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "AUTOMATION_HEALTH_TABLE_ID",
+                "typecast": false
+              },
+              "mapper": {
+                "recordId": "{{first(5.records).id}}",
+                "fields": {
+                  "Last_Run_At": "{{1.timestamp}}",
+                  "Last_Run_Status": "{{1.event_type}}",
+                  "Error_Count": "{{if(1.event_type = 'SCENARIO_ERROR', plus(ifempty(first(5.records).fields.Error_Count, 0), 1), first(5.records).fields.Error_Count)}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1200, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary (appdZ49WqgjRXxA1R)" },
+                    "table": { "label": "Automation_Health — REBIND TABLE ID AFTER IMPORT" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Update Automation Health",
+          "filter": {
+            "name": "Health Event Filter",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.event_type}}",
+                  "b": "SCENARIO_COMPLETE",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.event_type}}",
+                  "b": "SCENARIO_ERROR",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "module": "slack:postMessage",
+      "version": 4,
+      "parameters": {
+        "connection": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "ops-alerts",
+        "text": ":rotating_light: *M02-AUDIT-LOGGER Error*\n*Scenario:* M-AUDIT-LOGGER\n*Error:* {{error.message}}\n*Module:* {{error.module}}\n*Timestamp:* {{now}}\n*Idempotency Key:* {{1.idempotency_key}}\n*Event Type:* {{1.event_type}}\n*Brand:* {{1.brand}}"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 300 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "She Said Sail Slack" }
+          }
+        },
+        "parameters": [
+          { "name": "connection", "type": "account:slack", "label": "Connection" }
+        ],
+        "expect": [
+          { "name": "channel", "type": "string", "label": "Channel" },
+          { "name": "text", "type": "string", "label": "Text" }
+        ]
+      },
+      "filter": {
+        "name": "On Error",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dlt": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

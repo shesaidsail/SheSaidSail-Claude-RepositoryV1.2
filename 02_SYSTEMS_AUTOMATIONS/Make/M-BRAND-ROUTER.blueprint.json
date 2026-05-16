@@ -1,0 +1,398 @@
+{
+  "name": "M-BRAND-ROUTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "RECONNECT_WEBHOOK_ID",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": -200,
+          "y": 0
+        },
+        "restore": {
+          "hook": {
+            "label": "M-BRAND-ROUTER Inbound Webhook — SSS/ME Lead Router"
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "routes": [
+        {
+          "label": "Route 0 — Idempotency: Brand Already Set",
+          "filter": {
+            "name": "Brand Already Set — Skip Routing",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.Brand}}",
+                  "b": "",
+                  "o": "text:notequal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "slack:createMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channelId": "RECONNECT_OPS_ALERTS_CHANNEL_ID",
+                "text": "[M01] Brand already set — routing skipped (idempotency). Brand: {{1.Brand}} | Record: {{1.recordId}} | Lead_Source: {{1.Lead_Source}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 300,
+                  "y": -200
+                },
+                "restore": {
+                  "parameters": {
+                    "connection": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  },
+                  "mapper": {
+                    "channelId": {
+                      "label": "#ops-alerts — RECONNECT_CHANNEL_ID_REQUIRED"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "Route 1 — Mare Executive",
+          "filter": {
+            "name": "ME Signals Detected",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.Lead_Source}}",
+                  "b": "Mare Executive",
+                  "o": "text:contain"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.Website_Source}}",
+                  "b": "Website (Mare Executive)",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.Landing_Page}}",
+                  "b": "mare",
+                  "o": "text:contain"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.Notes}}",
+                  "b": "Brand: ME",
+                  "o": "text:contain"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": false,
+                "useNewZLibDeCompress": true
+              },
+              "mapper": {
+                "url": "https://api.airtable.com/v0/appdZ49WqgjRXxA1R/Requests/{{1.recordId}}",
+                "method": "PATCH",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer RECONNECT_AIRTABLE_CONNECTION"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": true,
+                "authUser": "",
+                "authPass": "",
+                "timeout": "30",
+                "shareCookies": false,
+                "ca": "",
+                "rejectUnauthorized": true,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "gzip": true,
+                "useMtls": false,
+                "contentType": "application/json",
+                "data": "{\"fields\":{\"Brand\":\"Mare Executive\"}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 300,
+                  "y": 0
+                },
+                "restore": {}
+              }
+            },
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": false,
+                "useNewZLibDeCompress": true
+              },
+              "mapper": {
+                "url": "https://api.anthropic.com/v1/messages",
+                "method": "POST",
+                "headers": [
+                  {
+                    "name": "x-api-key",
+                    "value": "RECONNECT_ANTHROPIC_KEY"
+                  },
+                  {
+                    "name": "anthropic-version",
+                    "value": "2023-06-01"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": true,
+                "authUser": "",
+                "authPass": "",
+                "timeout": "30",
+                "shareCookies": false,
+                "ca": "",
+                "rejectUnauthorized": true,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "gzip": true,
+                "useMtls": false,
+                "contentType": "application/json",
+                "data": "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":1024,\"system\":\"RECONNECT_ME_SYSTEM_PROMPT\",\"messages\":[{\"role\":\"user\",\"content\":\"Brand routing confirmed: Mare Executive. RecordId: {{1.recordId}} | Lead_Source: {{1.Lead_Source}} | Website_Source: {{1.Website_Source}} | Landing_Page: {{1.Landing_Page}}\"}]}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 500,
+                  "y": 0
+                },
+                "restore": {}
+              }
+            },
+            {
+              "id": 6,
+              "module": "slack:createMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channelId": "RECONNECT_OPS_ALERTS_CHANNEL_ID",
+                "text": "[M01] Brand routed: Mare Executive | Record: {{1.recordId}} | Channel: {{1.Lead_Source}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 700,
+                  "y": 0
+                },
+                "restore": {
+                  "parameters": {
+                    "connection": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  },
+                  "mapper": {
+                    "channelId": {
+                      "label": "#ops-alerts — RECONNECT_CHANNEL_ID_REQUIRED"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "Route 2 — She Said Sail (Default Fallback)",
+          "flow": [
+            {
+              "id": 7,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": false,
+                "useNewZLibDeCompress": true
+              },
+              "mapper": {
+                "url": "https://api.airtable.com/v0/appdZ49WqgjRXxA1R/Requests/{{1.recordId}}",
+                "method": "PATCH",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer RECONNECT_AIRTABLE_CONNECTION"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": true,
+                "authUser": "",
+                "authPass": "",
+                "timeout": "30",
+                "shareCookies": false,
+                "ca": "",
+                "rejectUnauthorized": true,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "gzip": true,
+                "useMtls": false,
+                "contentType": "application/json",
+                "data": "{\"fields\":{\"Brand\":\"She Said Sail\"}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 300,
+                  "y": 200
+                },
+                "restore": {}
+              }
+            },
+            {
+              "id": 8,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": false,
+                "useNewZLibDeCompress": true
+              },
+              "mapper": {
+                "url": "https://api.anthropic.com/v1/messages",
+                "method": "POST",
+                "headers": [
+                  {
+                    "name": "x-api-key",
+                    "value": "RECONNECT_ANTHROPIC_KEY"
+                  },
+                  {
+                    "name": "anthropic-version",
+                    "value": "2023-06-01"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": true,
+                "authUser": "",
+                "authPass": "",
+                "timeout": "30",
+                "shareCookies": false,
+                "ca": "",
+                "rejectUnauthorized": true,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "gzip": true,
+                "useMtls": false,
+                "contentType": "application/json",
+                "data": "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":1024,\"system\":\"RECONNECT_SSS_SYSTEM_PROMPT\",\"messages\":[{\"role\":\"user\",\"content\":\"Brand routing confirmed: She Said Sail (default). RecordId: {{1.recordId}} | Lead_Source: {{1.Lead_Source}} | Website_Source: {{1.Website_Source}} | Landing_Page: {{1.Landing_Page}}\"}]}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 500,
+                  "y": 200
+                },
+                "restore": {}
+              }
+            },
+            {
+              "id": 9,
+              "module": "slack:createMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channelId": "RECONNECT_OPS_ALERTS_CHANNEL_ID",
+                "text": "[M01] Brand routed: She Said Sail | Record: {{1.recordId}} | Channel: {{1.Lead_Source}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 700,
+                  "y": 200
+                },
+                "restore": {
+                  "parameters": {
+                    "connection": {
+                      "label": "RECONNECT_SLACK_CONNECTION"
+                    }
+                  },
+                  "mapper": {
+                    "channelId": {
+                      "label": "#ops-alerts — RECONNECT_CHANNEL_ID_REQUIRED"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

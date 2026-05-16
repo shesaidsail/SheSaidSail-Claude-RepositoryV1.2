@@ -1,0 +1,570 @@
+{
+  "name": "M-BOOKING-CREATION — Stripe Deposit Webhook to Airtable Booking",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "M-BOOKING-CREATION Stripe Webhook",
+              "data": { "editable": true }
+            }
+          }
+        },
+        "notes": "Stripe sends payment_intent.succeeded events to this webhook. Configure Stripe signature validation in the Stripe dashboard: copy this webhook URL into your Stripe endpoint, set event type to payment_intent.succeeded, and copy the signing secret. Make's native Stripe module handles signature verification when using the Stripe trigger — if using this raw CustomWebHook approach, add a Stripe-Signature header check in a downstream HTTP validation step or switch to the native stripe:TriggerNewEvent module after import."
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "id": "route_sandbox_guard",
+          "label": "Sandbox Guard",
+          "filter": {
+            "name": "Sandbox — Log and Stop",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.data.object.metadata.environment}}",
+                  "b": "sandbox",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false },
+              "mapper": {
+                "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "body": "{\n  \"scenario_id\": \"M-BOOKING-CREATION\",\n  \"event_type\": \"SANDBOX_WEBHOOK_RECEIVED\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"record_id\": \"{{1.data.object.metadata.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"SANDBOX_GUARD_BLOCKED\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": { \"stripe_payment_intent_id\": \"{{1.data.object.id}}\", \"environment\": \"sandbox\" },\n  \"environment\": \"sandbox\",\n  \"idempotency_key\": \"M-BOOKING-CREATION-SANDBOX-{{1.data.object.id}}\"\n}",
+                "parseResponse": false
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -200 },
+                "restore": {},
+                "notes": "POST to M-AUDIT-LOGGER. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with M-AUDIT-LOGGER webhook URL. Sandbox webhook receipt is logged but flow terminates here — no booking record is created."
+              }
+            }
+          ]
+        },
+        {
+          "id": "route_production",
+          "label": "Production",
+          "filter": {
+            "name": "Production — Continue Processing",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.data.object.metadata.environment}}",
+                  "b": "production",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.data.object.metadata.environment}}",
+                  "b": "",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:SearchRecords",
+              "version": 3,
+              "parameters": {
+                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tbl72omPibBkn2hZL",
+                "typecast": false
+              },
+              "mapper": {
+                "filterByFormula": "AND({Stripe_Payment_Intent_ID} = '{{1.data.object.id}}', NOT({Status} = 'VOID'))",
+                "maxRecords": 1,
+                "fields": ["Stripe_Payment_Intent_ID", "Status", "Booking_ID"]
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 100 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Airtable — She Said Sail" },
+                    "base": { "label": "She Said Sail — Primary" },
+                    "table": { "label": "Bookings" }
+                  }
+                },
+                "notes": "Idempotency check — if this Stripe Payment Intent ID already exists in Bookings, the webhook was already processed (Stripe retry scenario). Route downstream to skip duplicate."
+              }
+            },
+            {
+              "id": 5,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": {},
+              "metadata": {
+                "designer": { "x": 900, "y": 100 }
+              },
+              "routes": [
+                {
+                  "id": "route_already_processed",
+                  "label": "Already Processed",
+                  "filter": {
+                    "name": "Duplicate Webhook — Already Processed",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:greater"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 6,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false },
+                      "mapper": {
+                        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" }
+                        ],
+                        "bodyType": "raw",
+                        "contentType": "application/json",
+                        "body": "{\n  \"scenario_id\": \"M-BOOKING-CREATION\",\n  \"event_type\": \"DUPLICATE_WEBHOOK\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"record_id\": \"{{first(4.records).id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"DUPLICATE_STRIPE_WEBHOOK_SKIPPED\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": { \"stripe_payment_intent_id\": \"{{1.data.object.id}}\", \"existing_booking_id\": \"{{first(4.records).id}}\" },\n  \"environment\": \"{{1.data.object.metadata.environment}}\",\n  \"idempotency_key\": \"M-BOOKING-CREATION-DUPLICATE-{{1.data.object.id}}\"\n}",
+                        "parseResponse": false
+                      },
+                      "metadata": {
+                        "designer": { "x": 1200, "y": -100 },
+                        "restore": {},
+                        "notes": "POST to M-AUDIT-LOGGER with DUPLICATE_WEBHOOK event. Idempotency guard triggered — Stripe retried a webhook we already processed. No booking changes made."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "route_new_payment",
+                  "label": "New Payment",
+                  "filter": {
+                    "name": "New Payment — Proceed",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{length(4.records)}}",
+                          "b": "0",
+                          "o": "number:equal"
+                        }
+                      ]
+                    ]
+                  },
+                  "flow": [
+                    {
+                      "id": 7,
+                      "module": "airtable:SearchRecords",
+                      "version": 3,
+                      "parameters": {
+                        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                        "base": "appdZ49WqgjRXxA1R",
+                        "table": "tblTlSB9CO4dTGodg",
+                        "typecast": false
+                      },
+                      "mapper": {
+                        "filterByFormula": "OR(RECORD_ID() = '{{1.data.object.metadata.booking_id}}', {Email} = '{{1.data.object.customer_details.email}}')",
+                        "maxRecords": 1,
+                        "sort": [{ "field": "Created_At", "direction": "desc" }],
+                        "fields": [
+                          "Email", "Status", "First_Name", "Last_Name",
+                          "City", "Charter_Date", "Package_Interest",
+                          "Brand", "Party_Size", "Budget_Range"
+                        ]
+                      },
+                      "metadata": {
+                        "designer": { "x": 1200, "y": 100 },
+                        "restore": {
+                          "parameters": {
+                            "connection": { "label": "Airtable — She Said Sail" },
+                            "base": { "label": "She Said Sail — Primary" },
+                            "table": { "label": "Requests" }
+                          }
+                        },
+                        "notes": "Look up Request by booking_id from Stripe metadata (preferred) or fall back to client email match. Sort by Created_At desc to get most recent if multiple results."
+                      }
+                    },
+                    {
+                      "id": 8,
+                      "module": "airtable:SearchRecords",
+                      "version": 3,
+                      "parameters": {
+                        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                        "base": "appdZ49WqgjRXxA1R",
+                        "table": "tblr84vRIWC5HmKvo",
+                        "typecast": false
+                      },
+                      "mapper": {
+                        "filterByFormula": "AND({Email} = '{{1.data.object.customer_details.email}}')",
+                        "maxRecords": 1,
+                        "fields": ["Email", "First_Name", "Last_Name", "Phone", "Brand"]
+                      },
+                      "metadata": {
+                        "designer": { "x": 1500, "y": 100 },
+                        "restore": {
+                          "parameters": {
+                            "connection": { "label": "Airtable — She Said Sail" },
+                            "base": { "label": "She Said Sail — Primary" },
+                            "table": { "label": "Clients" }
+                          }
+                        },
+                        "notes": "Find existing Client record by email. If no client found (length = 0), the booking create route will proceed with an empty Client_ID — manual linking may be required. Future: auto-create client if not found."
+                      }
+                    },
+                    {
+                      "id": 9,
+                      "module": "builtin:BasicRouter",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {},
+                      "metadata": {
+                        "designer": { "x": 1800, "y": 100 }
+                      },
+                      "routes": [
+                        {
+                          "id": "route_booking_exists",
+                          "label": "Booking Exists — Update",
+                          "filter": {
+                            "name": "Booking Record ID Present in Metadata",
+                            "conditions": [
+                              [
+                                {
+                                  "a": "{{1.data.object.metadata.booking_id}}",
+                                  "b": "",
+                                  "o": "text:notequal"
+                                }
+                              ]
+                            ]
+                          },
+                          "flow": [
+                            {
+                              "id": 10,
+                              "module": "airtable:ActionUpdateRecord",
+                              "version": 3,
+                              "parameters": {
+                                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                                "base": "appdZ49WqgjRXxA1R",
+                                "table": "tbl72omPibBkn2hZL",
+                                "typecast": false
+                              },
+                              "mapper": {
+                                "recordId": "{{1.data.object.metadata.booking_id}}",
+                                "fields": {
+                                  "Status": "DEPOSIT_PAID",
+                                  "Deposit_Paid_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}",
+                                  "Stripe_Payment_Intent_ID": "{{1.data.object.id}}",
+                                  "Stripe_Amount_Received": "{{divide(1.data.object.amount, 100)}}",
+                                  "Environment": "{{1.data.object.metadata.environment}}"
+                                }
+                              },
+                              "metadata": {
+                                "designer": { "x": 2100, "y": -100 },
+                                "restore": {
+                                  "parameters": {
+                                    "connection": { "label": "Airtable — She Said Sail" },
+                                    "base": { "label": "She Said Sail — Primary" },
+                                    "table": { "label": "Bookings" }
+                                  }
+                                },
+                                "notes": "Update existing Booking record with deposit payment data. Status advances to DEPOSIT_PAID."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "route_create_booking",
+                          "label": "Create Booking",
+                          "filter": {
+                            "name": "No Booking ID — Create New Booking Record",
+                            "conditions": [
+                              [
+                                {
+                                  "a": "{{1.data.object.metadata.booking_id}}",
+                                  "b": "",
+                                  "o": "text:equal"
+                                }
+                              ]
+                            ]
+                          },
+                          "flow": [
+                            {
+                              "id": 11,
+                              "module": "airtable:ActionCreateRecord",
+                              "version": 3,
+                              "parameters": {
+                                "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                                "base": "appdZ49WqgjRXxA1R",
+                                "table": "tbl72omPibBkn2hZL",
+                                "typecast": false
+                              },
+                              "mapper": {
+                                "fields": {
+                                  "Status": "DEPOSIT_PAID",
+                                  "Brand": "{{1.data.object.metadata.brand}}",
+                                  "Client_ID": [
+                                    "{{first(8.records).id}}"
+                                  ],
+                                  "Request_ID": [
+                                    "{{first(7.records).id}}"
+                                  ],
+                                  "City": "{{first(7.records).fields.City}}",
+                                  "Charter_Date": "{{first(7.records).fields.Charter_Date}}",
+                                  "Package_ID": "{{first(7.records).fields.Package_Interest}}",
+                                  "Deposit_Amount": "{{divide(1.data.object.amount, 100)}}",
+                                  "Deposit_Paid_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}",
+                                  "Stripe_Payment_Intent_ID": "{{1.data.object.id}}",
+                                  "Stripe_Amount_Received": "{{divide(1.data.object.amount, 100)}}",
+                                  "Environment": "{{1.data.object.metadata.environment}}",
+                                  "Source_System": "Stripe",
+                                  "Created_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}"
+                                }
+                              },
+                              "metadata": {
+                                "designer": { "x": 2100, "y": 300 },
+                                "restore": {
+                                  "parameters": {
+                                    "connection": { "label": "Airtable — She Said Sail" },
+                                    "base": { "label": "She Said Sail — Primary" },
+                                    "table": { "label": "Bookings" }
+                                  }
+                                },
+                                "notes": "Client_ID and Request_ID are Linked Record fields — pass as single-element arrays. Package_ID links to the Package record referenced on the Request. Booking_ID is a formula field auto-generated by Airtable."
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 12,
+                      "module": "airtable:ActionUpdateRecord",
+                      "version": 3,
+                      "parameters": {
+                        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+                        "base": "appdZ49WqgjRXxA1R",
+                        "table": "tblTlSB9CO4dTGodg",
+                        "typecast": false
+                      },
+                      "mapper": {
+                        "recordId": "{{first(7.records).id}}",
+                        "fields": {
+                          "Status": "DEPOSIT_PAID",
+                          "Linked_Booking_ID": [
+                            "{{ifempty(1.data.object.metadata.booking_id, ifempty(11.id, 10.id))}}"
+                          ],
+                          "Updated_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}"
+                        }
+                      },
+                      "metadata": {
+                        "designer": { "x": 2400, "y": 100 },
+                        "restore": {
+                          "parameters": {
+                            "connection": { "label": "Airtable — She Said Sail" },
+                            "base": { "label": "She Said Sail — Primary" },
+                            "table": { "label": "Requests" }
+                          }
+                        },
+                        "notes": "Update the originating Request record: set Status to DEPOSIT_PAID and link to the resolved Booking record. Linked_Booking_ID resolves from: (1) metadata.booking_id if update path, (2) module 11 id if create path, (3) module 10 id fallback."
+                      }
+                    },
+                    {
+                      "id": 13,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false },
+                      "mapper": {
+                        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" }
+                        ],
+                        "bodyType": "raw",
+                        "contentType": "application/json",
+                        "body": "{\n  \"booking_id\": \"{{ifempty(1.data.object.metadata.booking_id, ifempty(11.id, 10.id))}}\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"client_email\": \"{{1.data.object.customer_details.email}}\",\n  \"client_name\": \"{{first(7.records).fields.First_Name}} {{first(7.records).fields.Last_Name}}\",\n  \"client_phone\": \"{{first(8.records).fields.Phone}}\",\n  \"charter_date\": \"{{first(7.records).fields.Charter_Date}}\",\n  \"city\": \"{{first(7.records).fields.City}}\",\n  \"package_name\": \"{{first(7.records).fields.Package_Interest}}\",\n  \"deposit_amount\": \"{{divide(1.data.object.amount, 100)}}\",\n  \"deposit_paid_at\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"concierge_name\": \"\",\n  \"concierge_email\": \"\",\n  \"environment\": \"{{1.data.object.metadata.environment}}\"\n}",
+                        "parseResponse": false
+                      },
+                      "metadata": {
+                        "designer": { "x": 2700, "y": 100 },
+                        "restore": {},
+                        "notes": "Trigger M-BOOKING-CONFIRMATION. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with the M-BOOKING-CONFIRMATION webhook URL after both scenarios are imported. Concierge fields are left empty here — M-BOOKING-CONFIRMATION resolves them via the Airtable ActionGetRecord fetch."
+                      }
+                    },
+                    {
+                      "id": 14,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false },
+                      "mapper": {
+                        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" }
+                        ],
+                        "bodyType": "raw",
+                        "contentType": "application/json",
+                        "body": "{\n  \"scenario_id\": \"M-BOOKING-CREATION\",\n  \"event_type\": \"{{if(1.data.object.metadata.booking_id != '', 'BOOKING_UPDATED', 'BOOKING_CREATED')}}\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"record_id\": \"{{ifempty(1.data.object.metadata.booking_id, ifempty(11.id, 10.id))}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"DEPOSIT_PAYMENT_PROCESSED\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": {\n    \"stripe_payment_intent_id\": \"{{1.data.object.id}}\",\n    \"amount_received\": \"{{divide(1.data.object.amount, 100)}}\",\n    \"client_email\": \"{{1.data.object.customer_details.email}}\",\n    \"request_id\": \"{{first(7.records).id}}\"\n  },\n  \"environment\": \"{{1.data.object.metadata.environment}}\",\n  \"idempotency_key\": \"M-BOOKING-CREATION-{{if(1.data.object.metadata.booking_id != '', 'BOOKING_UPDATED', 'BOOKING_CREATED')}}-{{ifempty(1.data.object.metadata.booking_id, ifempty(11.id, 10.id))}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}",
+                        "parseResponse": false
+                      },
+                      "metadata": {
+                        "designer": { "x": 3000, "y": 100 },
+                        "restore": {},
+                        "notes": "POST to M-AUDIT-LOGGER. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with the M-AUDIT-LOGGER webhook URL. event_type is BOOKING_CREATED on create path or BOOKING_UPDATED on update path."
+                      }
+                    },
+                    {
+                      "id": 15,
+                      "module": "http:ActionSendData",
+                      "version": 3,
+                      "parameters": { "handleErrors": false },
+                      "mapper": {
+                        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                        "method": "POST",
+                        "headers": [
+                          { "name": "Content-Type", "value": "application/json" }
+                        ],
+                        "bodyType": "raw",
+                        "contentType": "application/json",
+                        "body": "{\n  \"alert_type\": \"BOOKING_CREATED\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"booking_id\": \"{{ifempty(1.data.object.metadata.booking_id, ifempty(11.id, 10.id))}}\",\n  \"client_name\": \"{{first(7.records).fields.First_Name}} {{first(7.records).fields.Last_Name}}\",\n  \"client_email\": \"{{1.data.object.customer_details.email}}\",\n  \"charter_date\": \"{{first(7.records).fields.Charter_Date}}\",\n  \"city\": \"{{first(7.records).fields.City}}\",\n  \"deposit_amount\": \"{{divide(1.data.object.amount, 100)}}\",\n  \"stripe_payment_intent_id\": \"{{1.data.object.id}}\",\n  \"urgency\": \"HIGH\",\n  \"message\": \"Deposit payment received for {{1.data.object.metadata.brand}} booking — {{first(7.records).fields.First_Name}} {{first(7.records).fields.Last_Name}} | {{first(7.records).fields.City}} | {{first(7.records).fields.Charter_Date}} | ${{divide(1.data.object.amount, 100)}} deposit\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"metadata\": {\n    \"environment\": \"{{1.data.object.metadata.environment}}\",\n    \"request_id\": \"{{first(7.records).id}}\"\n  }\n}",
+                        "parseResponse": false
+                      },
+                      "metadata": {
+                        "designer": { "x": 3300, "y": 100 },
+                        "restore": {},
+                        "notes": "POST to M-SLACK-ALERTS. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with the M-SLACK-ALERTS webhook URL."
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\n  \"scenario_id\": \"M-BOOKING-CREATION\",\n  \"event_type\": \"SCENARIO_ERROR\",\n  \"brand\": \"{{1.data.object.metadata.brand}}\",\n  \"record_id\": \"{{1.data.object.metadata.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"SCENARIO_ERROR\",\n  \"actor\": \"Make-Autonomous\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\",\n  \"payload\": {\n    \"error_message\": \"{{error.message}}\",\n    \"error_module\": \"{{error.module}}\",\n    \"stripe_payment_intent_id\": \"{{1.data.object.id}}\"\n  },\n  \"environment\": \"{{1.data.object.metadata.environment}}\",\n  \"idempotency_key\": \"M-BOOKING-CREATION-SCENARIO_ERROR-{{1.data.object.id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 500 },
+        "restore": {},
+        "notes": "Error handler — audit log. Attach to error handler route in Make scenario settings (Scenario > Settings > Error handling). Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with M-AUDIT-LOGGER webhook URL."
+      },
+      "filter": {
+        "name": "On Error — Audit Log",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "module": "slack:ActionPostMessage",
+      "version": 4,
+      "parameters": {
+        "__IMTCONN__": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":rotating_light: *M-BOOKING-CREATION Error*\n*Scenario:* M-BOOKING-CREATION\n*Error:* {{error.message}}\n*Module:* {{error.module}}\n*Stripe Payment Intent:* {{1.data.object.id}}\n*Brand:* {{1.data.object.metadata.brand}}\n*Client Email:* {{1.data.object.customer_details.email}}\n*Amount:* ${{divide(1.data.object.amount, 100)}}\n*Timestamp:* {{formatDate(now, 'YYYY-MM-DDTHH:mm:ss[Z]')}}\n\n:warning: *Action Required* — Deposit received but booking not created. Verify Stripe payment and create booking manually if needed."
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 500 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": { "label": "Slack Connection" }
+          }
+        },
+        "expect": [
+          { "name": "channel", "type": "text", "label": "Channel ID or name" },
+          { "name": "text", "type": "text", "label": "Text" }
+        ]
+      },
+      "filter": {
+        "name": "On Error — Slack Alert",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

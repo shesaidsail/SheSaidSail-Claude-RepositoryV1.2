@@ -1,0 +1,177 @@
+{
+  "_meta": {
+    "scenario": "M-SLACK-ALERTS",
+    "version": "1.0",
+    "description": "Test payloads for M-SLACK-ALERTS webhook. Send via POST to the generated webhook URL with Content-Type: application/json. Each key is a named test scenario.",
+    "usage": "Select the scenario key you want to test and POST that object's value to the webhook."
+  },
+
+  "new_lead_sss": {
+    "_description": "SSS brand new lead alert. Expect: message in #sss-leads with sailboat icon, all metadata fields rendered.",
+    "alert_type": "NEW_LEAD",
+    "brand": "SSS",
+    "message": "New lead received from Webflow for brand SSS",
+    "record_id": "recABC123TestLeadSSS001",
+    "urgency": "MEDIUM",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "city": "Miami",
+      "date_requested": "2026-08-10",
+      "budget_range": "$8,000–$12,000",
+      "package_interest": "Premium Sunset Charter",
+      "source": "Webflow",
+      "party_size": 6,
+      "duplicate": false
+    },
+    "timestamp": "2026-05-16T14:30:00Z"
+  },
+
+  "new_lead_mare_executive": {
+    "_description": "MARE EXECUTIVE brand new lead alert. Expect: message in #me-leads (NOT #sss-leads). Confirms brand-based channel routing.",
+    "alert_type": "NEW_LEAD",
+    "brand": "MARE_EXECUTIVE",
+    "message": "New lead received from API for brand MARE_EXECUTIVE",
+    "record_id": "recDEF456TestLeadME002",
+    "urgency": "MEDIUM",
+    "metadata": {
+      "lead_name": "Alessandro Ferrante",
+      "city": "Cannes",
+      "date_requested": "2026-09-05",
+      "budget_range": "$25,000–$40,000",
+      "package_interest": "Executive Full-Day Charter",
+      "source": "API",
+      "party_size": 12,
+      "duplicate": false
+    },
+    "timestamp": "2026-05-16T15:00:00Z"
+  },
+
+  "new_lead_duplicate": {
+    "_description": "Duplicate lead alert (LOW urgency). Expect: message in #sss-leads with urgency=LOW. Confirms duplicate flag is visible in message.",
+    "alert_type": "NEW_LEAD",
+    "brand": "SSS",
+    "message": "Duplicate lead re-submitted from Manual for brand SSS — existing record updated",
+    "record_id": "recABC123TestLeadSSS001",
+    "urgency": "LOW",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "city": "Miami",
+      "date_requested": "2026-08-10",
+      "budget_range": "$8,000–$12,000",
+      "source": "Manual",
+      "party_size": 6,
+      "duplicate": true
+    },
+    "timestamp": "2026-05-16T16:00:00Z"
+  },
+
+  "booking_created": {
+    "_description": "Booking created alert. Expect: :new: *Booking Created* message in #sss-bookings.",
+    "alert_type": "BOOKING_CREATED",
+    "brand": "SSS",
+    "message": "New booking created for Marina Delacroix — Aug 10 charter party of 6.",
+    "record_id": "recGHI789TestBooking003",
+    "urgency": "MEDIUM",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "charter_date": "2026-08-10",
+      "party_size": 6,
+      "package": "Premium Sunset Charter"
+    },
+    "timestamp": "2026-05-16T14:45:00Z"
+  },
+
+  "booking_confirmed": {
+    "_description": "Booking confirmed alert. Expect: :white_check_mark: *Booking Confirmed* message in #sss-bookings.",
+    "alert_type": "BOOKING_CONFIRMED",
+    "brand": "SSS",
+    "message": "Booking confirmed for Marina Delacroix — contract signed and deposit requested.",
+    "record_id": "recGHI789TestBooking003",
+    "urgency": "HIGH",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "charter_date": "2026-08-10",
+      "confirmation_method": "DocuSign"
+    },
+    "timestamp": "2026-05-16T15:30:00Z"
+  },
+
+  "deposit_received": {
+    "_description": "Deposit received alert. Expect: :moneybag: *Deposit Received* message in #sss-bookings.",
+    "alert_type": "DEPOSIT_RECEIVED",
+    "brand": "SSS",
+    "message": "Deposit of $4,000 received for Marina Delacroix booking via Stripe.",
+    "record_id": "recGHI789TestBooking003",
+    "urgency": "HIGH",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "deposit_amount": "$4,000",
+      "payment_method": "Stripe",
+      "stripe_payment_intent": "pi_test_abc123"
+    },
+    "timestamp": "2026-05-16T16:15:00Z"
+  },
+
+  "stripe_link_sent": {
+    "_description": "Stripe payment link sent alert. Expect: :link: *Stripe Payment Link Sent* message in #sss-bookings.",
+    "alert_type": "STRIPE_LINK_SENT",
+    "brand": "SSS",
+    "message": "Stripe payment link sent to marina.delacroix.test.new@example.com for $4,000 deposit.",
+    "record_id": "recGHI789TestBooking003",
+    "urgency": "MEDIUM",
+    "metadata": {
+      "lead_name": "Marina Delacroix",
+      "email": "marina.delacroix.test.new@example.com",
+      "stripe_link_url": "https://buy.stripe.com/test_abc123",
+      "amount": "$4,000"
+    },
+    "timestamp": "2026-05-16T15:10:00Z"
+  },
+
+  "concierge_assigned": {
+    "_description": "Concierge assigned alert. Expect: :bust_in_silhouette: *Concierge Assigned* message in #sss-ops (NOT #sss-ops-alerts).",
+    "alert_type": "CONCIERGE_ASSIGNED",
+    "brand": "SSS",
+    "message": "Concierge Sophie Laurent assigned to Marina Delacroix booking. Charter date: Aug 10.",
+    "record_id": "recGHI789TestBooking003",
+    "urgency": "LOW",
+    "metadata": {
+      "concierge_name": "Sophie Laurent",
+      "lead_name": "Marina Delacroix",
+      "charter_date": "2026-08-10"
+    },
+    "timestamp": "2026-05-16T17:00:00Z"
+  },
+
+  "automation_error": {
+    "_description": "Automation error alert. Expect: :rotating_light: *Automation Error* message in #sss-ops-alerts (NOT #sss-ops).",
+    "alert_type": "AUTOMATION_ERROR",
+    "brand": "SSS",
+    "message": "M-BOOKING-CREATION failed to create booking record. Airtable returned 422 Unprocessable Entity. Retry 3 of 3 exhausted.",
+    "record_id": "recJKL000TestRequest009",
+    "urgency": "HIGH",
+    "metadata": {
+      "failing_scenario": "M-BOOKING-CREATION",
+      "error_code": 422,
+      "airtable_table": "tbl72omPibBkn2hZL",
+      "retry_count": 3
+    },
+    "timestamp": "2026-05-16T18:00:00Z"
+  },
+
+  "emergency": {
+    "_description": "Emergency alert. Expect: :rotating_light: message in #sss-emergency-ops AND a direct Slack DM to Will (WILL_SLACK_USER_ID_PLACEHOLDER).",
+    "alert_type": "EMERGENCY",
+    "brand": "SSS",
+    "message": "Stripe webhook processing halted. All payment events unprocessed for 30 minutes. Immediate intervention required.",
+    "record_id": "recMNO111SystemAlert010",
+    "urgency": "CRITICAL",
+    "metadata": {
+      "system": "Stripe",
+      "duration_minutes": 30,
+      "affected_scenarios": ["M-STRIPE-DEPOSIT"],
+      "last_successful_event": "2026-05-16T17:30:00Z"
+    },
+    "timestamp": "2026-05-16T18:00:00Z"
+  }
+}

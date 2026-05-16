@@ -1,0 +1,312 @@
+{
+  "name": "M-STRIPE-DEPOSIT — She Said Sail + Mare Executive",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "M-STRIPE-DEPOSIT Webhook",
+              "data": { "editable": true }
+            }
+          }
+        },
+        "notes": "Receives POST when Booking.Status = DEPOSIT_READY. Expected fields: booking_id, brand, client_email, client_phone, client_name, deposit_amount_cents (integer), charter_date, city, package_name, environment."
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:ActionGetRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL"
+      },
+      "mapper": {
+        "recordId": "{{1.booking_id}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary" },
+            "table": { "label": "Bookings" }
+          }
+        },
+        "notes": "Fetch the full Booking record to verify current state and access all stored field values. Downstream modules reference {{2.fields.*}} for any fields not present in the webhook payload."
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblwDw2hkKW5moSr9",
+        "typecast": false
+      },
+      "mapper": {
+        "filterByFormula": "AND({Package_Name} = '{{1.package_name}}')",
+        "maxRecords": 1,
+        "fields": ["Package_Name", "Description", "Price", "Duration_Hours", "Brand", "City"]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary" },
+            "table": { "label": "Packages" }
+          }
+        },
+        "notes": "Retrieve package details (description, duration) to populate deposit email body and Stripe product description. Uses Package_Name from webhook payload for the filter."
+      }
+    },
+    {
+      "id": 4,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true,
+        "connection": "RECONNECT_STRIPE_CONNECTION"
+      },
+      "mapper": {
+        "url": "https://api.stripe.com/v1/payment_links",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+        ],
+        "bodyType": "application/x-www-form-urlencoded",
+        "body": "line_items[0][price_data][currency]=usd&line_items[0][price_data][unit_amount]={{1.deposit_amount_cents}}&line_items[0][price_data][product_data][name]=Deposit+-+{{encodeURL(1.package_name)}}+%7C+{{encodeURL(1.charter_date)}}+%7C+{{encodeURL(1.brand)}}&line_items[0][price_data][product_data][description]=Charter+deposit+for+{{encodeURL(1.client_name)}}+-+{{encodeURL(first(3.records).fields.Description)}}&line_items[0][quantity]=1&after_completion[type]=redirect&after_completion[redirect][url]=https%3A%2F%2Fshesaidsail.com%2Fbooking-confirmed&metadata[booking_id]={{1.booking_id}}&metadata[brand]={{1.brand}}&metadata[environment]={{1.environment}}&metadata[type]=deposit&metadata[client_name]={{encodeURL(1.client_name)}}&metadata[charter_date]={{encodeURL(1.charter_date)}}",
+        "parseResponse": true
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Stripe — She Said Sail" },
+            "method": { "label": "POST" }
+          }
+        },
+        "notes": "Create a Stripe Payment Link for the deposit amount. Sends amount in cents (integer). Sets metadata: booking_id, brand, environment, type=deposit. Success URL redirects to shesaidsail.com/booking-confirmed. Response fields: {{4.id}} (payment link ID) and {{4.url}} (shareable URL). handleErrors=true so Stripe API errors bubble to error handler."
+      }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "connection": "RECONNECT_AIRTABLE_CONNECTION",
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL",
+        "typecast": false
+      },
+      "mapper": {
+        "recordId": "{{1.booking_id}}",
+        "fields": {
+          "Deposit_Link": "{{4.url}}",
+          "Stripe_Payment_Link_ID": "{{4.id}}",
+          "Status": "DEPOSIT_SENT",
+          "Deposit_Sent_At": "{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+          "Deposit_Amount": "{{1.deposit_amount_cents / 100}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Airtable — She Said Sail" },
+            "base": { "label": "She Said Sail — Primary" },
+            "table": { "label": "Bookings" }
+          }
+        },
+        "notes": "Write the Stripe Payment Link URL and ID to the Booking record, set Status = DEPOSIT_SENT, stamp Deposit_Sent_At, and store the deposit dollar amount (cents divided by 100). Runs only if module 4 (Stripe) succeeded."
+      }
+    },
+    {
+      "id": 6,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "connection": "RECONNECT_GMAIL_CONNECTION"
+      },
+      "mapper": {
+        "to": "{{1.client_email}}",
+        "subject": "Your {{1.brand}} Charter Deposit Link — {{1.charter_date}}",
+        "bodyType": "html",
+        "content": "<p>Hi {{1.client_name}},</p>\n<p>Thank you for choosing <strong>{{1.brand}}</strong>! To secure your upcoming charter, please complete your deposit payment using the secure link below.</p>\n<hr />\n<h3>Charter Booking Details</h3>\n<table cellpadding=\"6\" cellspacing=\"0\" border=\"0\" style=\"font-size:14px;\">\n  <tr><td><strong>Package:</strong></td><td>{{1.package_name}}</td></tr>\n  <tr><td><strong>Charter Date:</strong></td><td>{{1.charter_date}}</td></tr>\n  <tr><td><strong>City:</strong></td><td>{{1.city}}</td></tr>\n  <tr><td><strong>Brand:</strong></td><td>{{1.brand}}</td></tr>\n  <tr><td><strong>Deposit Amount:</strong></td><td><strong>${{divide(1.deposit_amount_cents, 100)}}</strong></td></tr>\n</table>\n<hr />\n<p style=\"text-align:center;\">\n  <a href=\"{{4.url}}\" style=\"display:inline-block;background-color:#0A2342;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;\">Pay Deposit Now — ${{divide(1.deposit_amount_cents, 100)}}</a>\n</p>\n<p>If the button above does not work, copy and paste this link into your browser:<br />\n<a href=\"{{4.url}}\">{{4.url}}</a></p>\n<hr />\n<p><em>This secure deposit link will reserve your booking. The remaining balance will be due closer to your charter date — details will be provided separately by your concierge.</em></p>\n<p>We look forward to welcoming you aboard!</p>\n<p>Warm regards,<br />\nThe {{1.brand}} Team</p>"
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "restore": {
+          "parameters": {
+            "connection": { "label": "Gmail — She Said Sail Ops" }
+          }
+        },
+        "notes": "Send deposit request email to client with embedded Stripe payment link. Uses {{4.url}} from the Stripe module response. Connection must be rebound to RECONNECT_GMAIL_CONNECTION after import."
+      }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://api.quosms.com/v1/messages",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" },
+          { "name": "Authorization", "value": "Bearer RECONNECT_SMS_CONNECTION" }
+        ],
+        "body": "{\n  \"to\": \"{{1.client_phone}}\",\n  \"from\": \"SheSaidSail\",\n  \"body\": \"Hi {{1.client_name}}, your {{1.brand}} charter deposit of ${{divide(1.deposit_amount_cents, 100)}} for {{1.charter_date}} is ready. Pay securely here: {{4.url}} — Questions? Reply to your confirmation email. Reply STOP to unsubscribe.\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 },
+        "restore": {},
+        "notes": "Send SMS to client phone via Quo SMS API with deposit link. Replace RECONNECT_SMS_CONNECTION in the Authorization header with the actual Quo SMS bearer token after import. The base URL https://api.quosms.com/v1/messages is a placeholder — confirm the production endpoint."
+      }
+    },
+    {
+      "id": 8,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\n  \"scenario_id\": \"M-STRIPE-DEPOSIT\",\n  \"event_type\": \"DEPOSIT_LINK_SENT\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"DEPOSIT_LINK_SENT\",\n  \"actor\": \"make-automation\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\",\n  \"payload\": {\n    \"client_name\": \"{{1.client_name}}\",\n    \"client_email\": \"{{1.client_email}}\",\n    \"client_phone\": \"{{1.client_phone}}\",\n    \"charter_date\": \"{{1.charter_date}}\",\n    \"package_name\": \"{{1.package_name}}\",\n    \"city\": \"{{1.city}}\",\n    \"deposit_amount_cents\": {{1.deposit_amount_cents}},\n    \"deposit_amount_dollars\": {{divide(1.deposit_amount_cents, 100)}},\n    \"stripe_payment_link_id\": \"{{4.id}}\",\n    \"stripe_payment_link_url\": \"{{4.url}}\"\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-STRIPE-DEPOSIT-{{1.booking_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 2100, "y": 0 },
+        "restore": {},
+        "notes": "POST DEPOSIT_LINK_SENT audit event to M-AUDIT-LOGGER webhook. Includes Stripe link ID and URL for traceability. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL."
+      }
+    },
+    {
+      "id": 9,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\n  \"alert_type\": \"STRIPE_LINK_SENT\",\n  \"brand\": \"{{1.brand}}\",\n  \"urgency\": \"LOW\",\n  \"message\": \"Deposit link sent to {{1.client_name}} for {{1.charter_date}} - ${{divide(1.deposit_amount_cents, 100)}}\",\n  \"metadata\": {\n    \"booking_id\": \"{{1.booking_id}}\",\n    \"client_name\": \"{{1.client_name}}\",\n    \"client_email\": \"{{1.client_email}}\",\n    \"charter_date\": \"{{1.charter_date}}\",\n    \"package_name\": \"{{1.package_name}}\",\n    \"city\": \"{{1.city}}\",\n    \"deposit_amount_cents\": {{1.deposit_amount_cents}},\n    \"stripe_link_id\": \"{{4.id}}\",\n    \"stripe_link_url\": \"{{4.url}}\",\n    \"environment\": \"{{1.environment}}\"\n  },\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 2400, "y": 0 },
+        "restore": {},
+        "notes": "POST STRIPE_LINK_SENT confirmation alert to M-SLACK-ALERTS webhook. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with live M-SLACK-ALERTS webhook URL."
+      }
+    },
+    {
+      "id": 10,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\n  \"scenario_id\": \"M-STRIPE-DEPOSIT\",\n  \"event_type\": \"SCENARIO_ERROR\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.booking_id}}\",\n  \"table_name\": \"Bookings\",\n  \"action\": \"SCENARIO_ERROR\",\n  \"actor\": \"make-automation\",\n  \"timestamp\": \"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\",\n  \"payload\": {\n    \"error_message\": \"{{error.message}}\",\n    \"error_module\": \"{{error.module}}\",\n    \"client_name\": \"{{1.client_name}}\",\n    \"client_email\": \"{{1.client_email}}\",\n    \"charter_date\": \"{{1.charter_date}}\",\n    \"package_name\": \"{{1.package_name}}\",\n    \"deposit_amount_cents\": {{1.deposit_amount_cents}}\n  },\n  \"environment\": \"{{1.environment}}\",\n  \"idempotency_key\": \"M-STRIPE-DEPOSIT-ERR-{{1.booking_id}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 2100, "y": 420 },
+        "restore": {},
+        "notes": "ERROR HANDLER — POST SCENARIO_ERROR to M-AUDIT-LOGGER. Fires only when error variable is non-empty. Replace INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT with live M-AUDIT-LOGGER webhook URL.",
+        "handler": true
+      },
+      "filter": {
+        "name": "On Error — Audit Log",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "module": "slack:ActionPostMessage",
+      "version": 4,
+      "parameters": {
+        "__IMTCONN__": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":rotating_light: *M-STRIPE-DEPOSIT Error*\n*Brand:* {{1.brand}}\n*Booking ID:* {{1.booking_id}}\n*Client:* {{1.client_name}} ({{1.client_email}})\n*Charter Date:* {{1.charter_date}}\n*Package:* {{1.package_name}}\n*Deposit:* ${{divide(1.deposit_amount_cents, 100)}}\n*Error:* {{error.message}}\n*Failed Module:* {{error.module}}\n*Timestamp:* {{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\n*Environment:* {{1.environment}}\n> Stripe payment link may NOT have been created. Manual follow-up required."
+      },
+      "metadata": {
+        "designer": { "x": 2400, "y": 420 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": { "label": "Slack Connection" }
+          }
+        },
+        "expect": [
+          { "name": "channel", "type": "text", "label": "Channel ID or name" },
+          { "name": "text", "type": "text", "label": "Text" }
+        ],
+        "notes": "ERROR HANDLER — Send Slack alert to #sss-ops-alerts when any upstream module fails. Includes note that Stripe link may not have been created. Must rebind RECONNECT_SLACK_CONNECTION after import.",
+        "handler": true
+      },
+      "filter": {
+        "name": "On Error — Slack Alert",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

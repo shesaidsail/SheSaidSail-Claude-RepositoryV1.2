@@ -1,0 +1,168 @@
+{
+  "_comment": "M-BOOKING-CREATION test payloads — these simulate Stripe payment_intent.succeeded webhook bodies. POST a scenario object to the M-BOOKING-CREATION webhook URL. See M-BOOKING-CREATION.spec.md § Test Steps for the full procedure.",
+  "webhook_placeholder": "https://hook.us1.make.com/REPLACE_WITH_YOUR_M_BOOKING_CREATION_HOOK_ID",
+  "curl_example": "curl -X POST \"https://hook.us1.make.com/REPLACE_WITH_YOUR_M_BOOKING_CREATION_HOOK_ID\" -H \"Content-Type: application/json\" -d '<paste one of the scenario objects below>'",
+  "scenarios": {
+    "1_happy_path_create_booking": {
+      "_description": "Happy path — Create path: no booking_id in metadata. Stripe deposit succeeds for a new booking. Expect: new Booking record created in tbl72omPibBkn2hZL with Status=DEPOSIT_PAID, Request updated with Status=DEPOSIT_PAID and Linked_Booking_ID, M-BOOKING-CONFIRMATION triggered, BOOKING_CREATED audit event, HIGH urgency Slack alert.",
+      "_test_prerequisites": "An open Request record must exist in tblTlSB9CO4dTGodg with Email = 'jane.smith@example.com'. A Client record must exist in tblr84vRIWC5HmKvo with Email = 'jane.smith@example.com'. No existing Booking should have Stripe_Payment_Intent_ID = 'pi_test_create_001'.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_test_create_001",
+          "object": "payment_intent",
+          "amount": 150000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "",
+            "brand": "SSS",
+            "environment": "production",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "jane.smith@example.com",
+            "name": "Jane Smith"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400000
+        }
+      },
+      "livemode": false
+    },
+    "2_happy_path_update_booking": {
+      "_description": "Happy path — Update path: booking_id is present in metadata. A Booking record already exists (pre-created during quote/availability stage). Expect: existing Booking record updated (Status=DEPOSIT_PAID, Stripe fields set). M-BOOKING-CONFIRMATION triggered. BOOKING_UPDATED audit event.",
+      "_test_prerequisites": "Replace 'recBOOKINGRECORDID001' with a real Booking record ID from tbl72omPibBkn2hZL (Status should be DEPOSIT_SENT). No existing Booking should have Stripe_Payment_Intent_ID = 'pi_test_update_001'.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_test_update_001",
+          "object": "payment_intent",
+          "amount": 250000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "recBOOKINGRECORDID001",
+            "brand": "ME",
+            "environment": "production",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "marco.rossi@example.com",
+            "name": "Marco Rossi"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400100
+        }
+      },
+      "livemode": false
+    },
+    "3_duplicate_webhook_retry": {
+      "_description": "Idempotency guard test — Stripe retry simulation. This payload has the same Stripe Payment Intent ID as scenario 1. Expect: Route A fires (Already Processed), NO new Booking created, DUPLICATE_WEBHOOK audit event sent to M-AUDIT-LOGGER. Scenario returns 200 but does not modify Airtable.",
+      "_test_prerequisites": "Run scenario 1 first so that Stripe_Payment_Intent_ID 'pi_test_create_001' exists in the Bookings table.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_test_create_001",
+          "object": "payment_intent",
+          "amount": 150000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "",
+            "brand": "SSS",
+            "environment": "production",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "jane.smith@example.com",
+            "name": "Jane Smith"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400050
+        }
+      },
+      "livemode": false
+    },
+    "4_sandbox_guard": {
+      "_description": "Sandbox guard test — environment=sandbox. Expect: Route 1 (Sandbox Guard) fires, SANDBOX_WEBHOOK_RECEIVED audit event sent, NO Booking created or modified. Scenario returns 200.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_sandbox_test_001",
+          "object": "payment_intent",
+          "amount": 75000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "",
+            "brand": "SSS",
+            "environment": "sandbox",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "sandbox.tester@example.com",
+            "name": "Sandbox Tester"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400200
+        }
+      },
+      "livemode": false
+    },
+    "5_me_brand_create_booking": {
+      "_description": "Mare Executive brand — Create path. Tests brand routing for ME. Expect: new Booking created with Brand=ME, M-BOOKING-CONFIRMATION triggered with brand=ME (will send ME-branded email), BOOKING_CREATED audit event.",
+      "_test_prerequisites": "An open Request record must exist in tblTlSB9CO4dTGodg with Email = 'sofia.ferrari@example.com'. A Client record must exist in tblr84vRIWC5HmKvo with the same email.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_test_me_create_001",
+          "object": "payment_intent",
+          "amount": 500000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "",
+            "brand": "ME",
+            "environment": "production",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "sofia.ferrari@example.com",
+            "name": "Sofia Ferrari"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400300
+        }
+      },
+      "livemode": false
+    },
+    "6_missing_metadata_environment": {
+      "_description": "Environment field is empty/missing in metadata — should route to Production path (Route 2 condition includes empty string). Expect: normal booking creation flow proceeds. Verifies the OR condition in Route 2 filter.",
+      "_test_prerequisites": "A Request and Client record must exist for 'test.noenvironment@example.com'.",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_test_noenv_001",
+          "object": "payment_intent",
+          "amount": 100000,
+          "currency": "usd",
+          "status": "succeeded",
+          "metadata": {
+            "booking_id": "",
+            "brand": "SSS",
+            "environment": "",
+            "type": "deposit"
+          },
+          "customer_details": {
+            "email": "test.noenvironment@example.com",
+            "name": "No Environment Test"
+          },
+          "payment_method_types": ["card"],
+          "created": 1747400400
+        }
+      },
+      "livemode": false
+    }
+  }
+}

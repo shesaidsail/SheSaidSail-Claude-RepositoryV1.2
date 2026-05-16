@@ -1,0 +1,256 @@
+{
+  "name": "M-BRAND-ROUTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "M-BRAND-ROUTER Webhook" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "builtin:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "brand_config",
+                "scope": "roundtrip",
+                "value": {
+                  "brand_name": "She Said Sail",
+                  "brand_email": "hello@shesaidsail.com",
+                  "brand_slack_channel": "#sss-leads",
+                  "airtable_base": "appdZ49WqgjRXxA1R",
+                  "package_table": "tblwDw2hkKW5moSr9"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -200 }
+              }
+            },
+            {
+              "id": 4,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "body": "{{toJSON(mergeCollections(1, map(3, 'brand_config')))}}"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -200 },
+                "restore": {
+                  "parameters": {
+                    "method": { "label": "POST" }
+                  }
+                },
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "body", "type": "text", "label": "Body" }
+                ],
+                "notes": "POST to M-LEAD-INTAKE webhook — SSS brand path"
+              }
+            }
+          ],
+          "label": "SSS Brand",
+          "filter": {
+            "name": "Brand = SSS",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.brand}}",
+                  "b": "SSS",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 5,
+              "module": "builtin:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "brand_config",
+                "scope": "roundtrip",
+                "value": {
+                  "brand_name": "Mare Executive",
+                  "brand_email": "hello@mareexecutive.com",
+                  "brand_slack_channel": "#me-leads",
+                  "airtable_base": "appdZ49WqgjRXxA1R",
+                  "package_table": "tblwDw2hkKW5moSr9"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 200 }
+              }
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+                "method": "POST",
+                "headers": [
+                  { "name": "Content-Type", "value": "application/json" }
+                ],
+                "body": "{{toJSON(mergeCollections(1, map(5, 'brand_config')))}}"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 200 },
+                "restore": {
+                  "parameters": {
+                    "method": { "label": "POST" }
+                  }
+                },
+                "expect": [
+                  { "name": "url", "type": "url", "label": "URL" },
+                  { "name": "method", "type": "select", "label": "Method" },
+                  { "name": "headers", "type": "array", "label": "Headers" },
+                  { "name": "body", "type": "text", "label": "Body" }
+                ],
+                "notes": "POST to M-LEAD-INTAKE webhook — ME brand path"
+              }
+            }
+          ],
+          "label": "ME Brand",
+          "filter": {
+            "name": "Brand = ME",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.brand}}",
+                  "b": "ME",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\"scenario_id\":\"M-BRAND-ROUTER\",\"event_type\":\"BRAND_ROUTED\",\"brand\":\"{{1.brand}}\",\"record_id\":\"\",\"table_name\":\"\",\"action\":\"ROUTED_TO_LEAD_INTAKE\",\"actor\":\"make-automation\",\"timestamp\":\"{{formatDate(now, 'YYYY-MM-DDTHH:mm:ssZ')}}\",\"payload\":{\"source\":\"{{1.source}}\",\"lead_data\":{{toJSON(1.lead_data)}}},\"environment\":\"{{1.environment}}\",\"idempotency_key\":\"M-BRAND-ROUTER-{{1.brand}}-{{formatDate(now, 'YYYYMMDDHHmmss')}}-{{1.source}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "method": { "label": "POST" }
+          }
+        },
+        "expect": [
+          { "name": "url", "type": "url", "label": "URL" },
+          { "name": "method", "type": "select", "label": "Method" },
+          { "name": "headers", "type": "array", "label": "Headers" },
+          { "name": "body", "type": "text", "label": "Body" }
+        ],
+        "notes": "POST audit event to M-AUDIT-LOGGER webhook"
+      }
+    },
+    {
+      "id": 8,
+      "module": "slack:ActionPostMessage",
+      "version": 4,
+      "parameters": {
+        "__IMTCONN__": "RECONNECT_SLACK_CONNECTION"
+      },
+      "mapper": {
+        "channel": "#sss-ops-alerts",
+        "text": ":rotating_light: *M-BRAND-ROUTER Error*\n*Error:* {{error.message}}\n*Module:* {{error.module}}\n*Brand Received:* {{1.brand}}\n*Source:* {{1.source}}\n*Environment:* {{1.environment}}\n*Timestamp:* {{now}}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 300 },
+        "restore": {
+          "parameters": {
+            "__IMTCONN__": { "label": "Slack Connection" }
+          }
+        },
+        "expect": [
+          { "name": "channel", "type": "text", "label": "Channel ID or name" },
+          { "name": "text", "type": "text", "label": "Text" }
+        ]
+      },
+      "filter": {
+        "name": "On Error",
+        "conditions": [
+          [
+            {
+              "a": "{{error}}",
+              "b": "",
+              "o": "text:notequal"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

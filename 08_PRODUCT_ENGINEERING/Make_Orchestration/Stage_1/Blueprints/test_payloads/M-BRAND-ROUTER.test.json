@@ -1,0 +1,117 @@
+{
+  "_comment": "M-BRAND-ROUTER test payloads — POST any of the objects in 'scenarios' to the webhook URL. See M-BRAND-ROUTER.spec.md § Test Steps for the full test procedure.",
+  "webhook_placeholder": "https://hook.us1.make.com/REPLACE_WITH_YOUR_HOOK_ID",
+  "scenarios": {
+    "1_sss_webflow_form": {
+      "_description": "Happy-path SSS route: simulates a Webflow form submission for She Said Sail. Expect Route 1 to execute, brand_config set to SSS values, HTTP POST to M-LEAD-INTAKE, and audit event logged.",
+      "brand": "SSS",
+      "source": "webflow-form",
+      "lead_data": {
+        "first_name": "Sarah",
+        "last_name": "Mitchell",
+        "email": "sarah.mitchell@example.com",
+        "phone": "+1-415-555-9876",
+        "preferred_dates": "2026-07-15 to 2026-07-22",
+        "yacht_interest": "Lagoon 50 Catamaran",
+        "group_size": 8,
+        "destination": "British Virgin Islands",
+        "budget_range": "15000-25000",
+        "experience_level": "Intermediate",
+        "message": "Looking for a 7-night crewed catamaran charter for a bachelorette trip. Flexible on exact yacht.",
+        "newsletter_opt_in": true
+      },
+      "timestamp": "2026-05-16T10:00:00Z",
+      "environment": "test"
+    },
+    "2_me_api_submission": {
+      "_description": "Happy-path ME route: simulates an API call for Mare Executive. Expect Route 2 to execute, brand_config set to ME values, HTTP POST to M-LEAD-INTAKE (ME), and audit event logged.",
+      "brand": "ME",
+      "source": "api",
+      "lead_data": {
+        "first_name": "Alessandro",
+        "last_name": "Ferrari",
+        "email": "a.ferrari@example.com",
+        "phone": "+39-335-123-4567",
+        "preferred_dates": "2026-08-20 to 2026-08-27",
+        "yacht_interest": "Princess 75",
+        "group_size": 6,
+        "destination": "Amalfi Coast",
+        "budget_range": "30000-50000",
+        "experience_level": "Experienced",
+        "message": "Interested in a luxury motor yacht for a corporate retreat.",
+        "newsletter_opt_in": false
+      },
+      "timestamp": "2026-05-16T10:05:00Z",
+      "environment": "test"
+    },
+    "3_sss_manual_test": {
+      "_description": "Minimal SSS payload: tests that the router works with the bare-minimum required fields. Expect Route 1 to fire and lead_data forwarded as-is.",
+      "brand": "SSS",
+      "source": "manual",
+      "lead_data": {
+        "email": "test-minimal@example.com",
+        "message": "Minimal test submission"
+      },
+      "timestamp": "2026-05-16T10:10:00Z",
+      "environment": "test"
+    },
+    "4_me_staging": {
+      "_description": "ME brand staging environment test: verifies environment field is passed through correctly to M-LEAD-INTAKE and M-AUDIT-LOGGER.",
+      "brand": "ME",
+      "source": "webflow-form",
+      "lead_data": {
+        "first_name": "Test",
+        "last_name": "User",
+        "email": "staging-test@example.com",
+        "phone": "+1-800-000-0000",
+        "preferred_dates": "2026-10-01 to 2026-10-08",
+        "yacht_interest": "Azimut 68",
+        "group_size": 4,
+        "destination": "French Riviera",
+        "budget_range": "20000-35000",
+        "experience_level": "Beginner",
+        "message": "Staging environment test — please disregard."
+      },
+      "timestamp": "2026-05-16T10:15:00Z",
+      "environment": "staging"
+    },
+    "5_unknown_brand_edge_case": {
+      "_description": "Edge case: brand field is not SSS or ME. Expect neither route to fire. Scenario completes without error and without calling M-LEAD-INTAKE. The audit event (module 7) still fires. No Slack alert expected.",
+      "brand": "UNKNOWN",
+      "source": "api",
+      "lead_data": {
+        "email": "unknown-brand@example.com",
+        "message": "Testing unrecognised brand handling."
+      },
+      "timestamp": "2026-05-16T10:20:00Z",
+      "environment": "test"
+    },
+    "6_sss_production": {
+      "_description": "SSS production-environment test: use only after full staging validation. All downstream calls will target live M-LEAD-INTAKE and M-AUDIT-LOGGER. Creates a real record — delete after verifying.",
+      "brand": "SSS",
+      "source": "webflow-form",
+      "lead_data": {
+        "first_name": "Production",
+        "last_name": "Verification",
+        "email": "ops-verify@shesaidsail.com",
+        "phone": "+1-415-555-0001",
+        "preferred_dates": "2026-12-01 to 2026-12-08",
+        "yacht_interest": "Leopard 45",
+        "group_size": 2,
+        "destination": "Caribbean",
+        "budget_range": "8000-12000",
+        "experience_level": "Experienced",
+        "message": "PRODUCTION SMOKE TEST — delete this record after verification.",
+        "newsletter_opt_in": false
+      },
+      "timestamp": "2026-05-16T12:00:00Z",
+      "environment": "production"
+    }
+  },
+  "curl_example": "curl -X POST \"https://hook.us1.make.com/REPLACE_WITH_YOUR_HOOK_ID\" -H \"Content-Type: application/json\" -d '<paste one of the scenario objects above>'",
+  "expected_outcomes": {
+    "sss_routes": "Route 1 fires. brand_config.brand_name = 'She Said Sail'. Module 4 POSTs to M-LEAD-INTAKE. Module 7 POSTs audit event to M-AUDIT-LOGGER.",
+    "me_routes": "Route 2 fires. brand_config.brand_name = 'Mare Executive'. Module 6 POSTs to M-LEAD-INTAKE. Module 7 POSTs audit event to M-AUDIT-LOGGER.",
+    "audit_log_field": "Airtable Audit Log (tblrMpTfMk8q1eNHp) should gain a record with Scenario_ID='M-BRAND-ROUTER', Event_Type='BRAND_ROUTED', Brand matching the payload."
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "_comment": "M-AUDIT-LOGGER test payloads — POST any of the objects in 'scenarios' to the webhook URL. Each represents a distinct test case. See M-AUDIT-LOGGER.spec.md § Test Steps for the full test procedure.",
+  "webhook_placeholder": "https://hook.us1.make.com/REPLACE_WITH_YOUR_HOOK_ID",
+  "scenarios": {
+    "1_standard_audit_event": {
+      "_description": "Happy-path test: write a standard audit event. Expect a new Airtable record in tblrMpTfMk8q1eNHp.",
+      "scenario_id": "M-BRAND-ROUTER",
+      "event_type": "BRAND_ROUTED",
+      "brand": "SSS",
+      "record_id": "",
+      "table_name": "",
+      "action": "ROUTED_TO_LEAD_INTAKE",
+      "actor": "make-automation",
+      "timestamp": "2026-05-16T10:00:00Z",
+      "payload": {
+        "source": "webflow-form",
+        "lead_data": {
+          "first_name": "Jane",
+          "last_name": "Doe",
+          "email": "jane.doe@example.com",
+          "phone": "+1-555-123-4567",
+          "preferred_dates": "2026-08-01 to 2026-08-08",
+          "yacht_interest": "Sunseeker 76",
+          "group_size": 6,
+          "message": "Interested in a week-long charter in the BVI."
+        }
+      },
+      "environment": "test",
+      "idempotency_key": "M-BRAND-ROUTER-BRAND_ROUTED-TEST-20260516-100000"
+    },
+    "2_idempotency_duplicate": {
+      "_description": "Duplicate key test: POST identical idempotency_key as scenario 1. Expect NO new Airtable record (idempotency check blocks write). Scenario should still return 200.",
+      "scenario_id": "M-BRAND-ROUTER",
+      "event_type": "BRAND_ROUTED",
+      "brand": "SSS",
+      "record_id": "",
+      "table_name": "",
+      "action": "ROUTED_TO_LEAD_INTAKE",
+      "actor": "make-automation",
+      "timestamp": "2026-05-16T10:00:05Z",
+      "payload": {
+        "source": "webflow-form",
+        "lead_data": {
+          "email": "jane.doe@example.com"
+        }
+      },
+      "environment": "test",
+      "idempotency_key": "M-BRAND-ROUTER-BRAND_ROUTED-TEST-20260516-100000"
+    },
+    "3_scenario_complete_health_update": {
+      "_description": "SCENARIO_COMPLETE event: triggers Route 2 (Update Automation Health). Expect Last_Run_At and Last_Run_Status updated on the Automation_Health row for 'M-LEAD-INTAKE'. Error_Count should remain unchanged.",
+      "scenario_id": "M-LEAD-INTAKE",
+      "event_type": "SCENARIO_COMPLETE",
+      "brand": "SSS",
+      "record_id": "recABC123XYZ",
+      "table_name": "Requests",
+      "action": "RECORD_CREATED",
+      "actor": "make-automation",
+      "timestamp": "2026-05-16T10:05:00Z",
+      "payload": {
+        "request_id": "recABC123XYZ",
+        "status": "New"
+      },
+      "environment": "test",
+      "idempotency_key": "M-LEAD-INTAKE-SCENARIO_COMPLETE-recABC123XYZ-20260516-100500"
+    },
+    "4_scenario_error_health_update": {
+      "_description": "SCENARIO_ERROR event: triggers Route 2. Expect Error_Count to increment by 1 on the Automation_Health row for 'M-LEAD-INTAKE'. Last_Run_Status should be 'SCENARIO_ERROR'.",
+      "scenario_id": "M-LEAD-INTAKE",
+      "event_type": "SCENARIO_ERROR",
+      "brand": "ME",
+      "record_id": "",
+      "table_name": "Requests",
+      "action": "RECORD_CREATE_FAILED",
+      "actor": "make-automation",
+      "timestamp": "2026-05-16T10:10:00Z",
+      "payload": {
+        "error_message": "Airtable API rate limit exceeded",
+        "failed_module": "airtable:ActionCreateRecord",
+        "source": "api"
+      },
+      "environment": "test",
+      "idempotency_key": "M-LEAD-INTAKE-SCENARIO_ERROR-20260516-101000"
+    },
+    "5_me_brand_audit_event": {
+      "_description": "ME brand path: standard audit event for Mare Executive. Confirms brand field is stored correctly.",
+      "scenario_id": "M-BRAND-ROUTER",
+      "event_type": "BRAND_ROUTED",
+      "brand": "ME",
+      "record_id": "",
+      "table_name": "",
+      "action": "ROUTED_TO_LEAD_INTAKE",
+      "actor": "make-automation",
+      "timestamp": "2026-05-16T10:15:00Z",
+      "payload": {
+        "source": "api",
+        "lead_data": {
+          "first_name": "Marco",
+          "last_name": "Rossi",
+          "email": "marco.rossi@example.com",
+          "phone": "+39-02-1234567",
+          "preferred_dates": "2026-09-10 to 2026-09-17",
+          "yacht_interest": "Ferretti 780",
+          "group_size": 4,
+          "message": "Interested in a Mediterranean cruise."
+        }
+      },
+      "environment": "test",
+      "idempotency_key": "M-BRAND-ROUTER-BRAND_ROUTED-ME-20260516-101500"
+    }
+  },
+  "curl_example": "curl -X POST \"https://hook.us1.make.com/REPLACE_WITH_YOUR_HOOK_ID\" -H \"Content-Type: application/json\" -d '<paste one of the scenario objects above>'"
+}

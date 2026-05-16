@@ -1,0 +1,318 @@
+{
+  "name": "M-SLACK-ALERTS — She Said Sail / Mare Executive Centralized Slack Dispatcher",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "GENERATED_BY_MAKE_AFTER_IMPORT",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "M-SLACK-ALERTS Webhook",
+              "data": { "editable": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 300, "y": 0 }
+      },
+      "routes": [
+        {
+          "id": "route_lead_alerts",
+          "label": "Lead Alerts",
+          "filter": {
+            "name": "NEW_LEAD alert type",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "NEW_LEAD",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 3,
+              "module": "slack:ActionPostMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "{{if(1.brand = 'MARE_EXECUTIVE', '#me-leads', '#sss-leads')}}",
+                "text": ":sailboat: *New Lead* | *{{1.metadata.lead_name}}*\n>*Brand:* {{1.brand}}\n>*City:* {{1.metadata.city}}\n>*Date Requested:* {{1.metadata.date_requested}}\n>*Budget:* {{1.metadata.budget_range}}\n>*Package Interest:* {{1.metadata.package_interest}}\n>*Source:* {{1.metadata.source}}\n>*Record ID:* {{1.record_id}}\n>*Urgency:* {{1.urgency}}",
+                "username": "She Said Sail Bot",
+                "icon_emoji": ":sailboat:"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "route_booking_alerts",
+          "label": "Booking Alerts",
+          "filter": {
+            "name": "Booking-related alert types",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "BOOKING_CREATED",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "BOOKING_CONFIRMED",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "DEPOSIT_RECEIVED",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "STRIPE_LINK_SENT",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 4,
+              "module": "builtin:SetVariable",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "booking_message",
+                "value": "{{switch(1.alert_type, 'BOOKING_CREATED', ':new: *Booking Created* | Record: ' + 1.record_id + '\n>' + 1.message, 'BOOKING_CONFIRMED', ':white_check_mark: *Booking Confirmed* | Record: ' + 1.record_id + '\n>' + 1.message, 'DEPOSIT_RECEIVED', ':moneybag: *Deposit Received* | Record: ' + 1.record_id + '\n>' + 1.message, 'STRIPE_LINK_SENT', ':link: *Stripe Payment Link Sent* | Record: ' + 1.record_id + '\n>' + 1.message, ':bell: *Booking Update* | ' + 1.alert_type + ' | Record: ' + 1.record_id + '\n>' + 1.message)}}"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -100 }
+              }
+            },
+            {
+              "id": 5,
+              "module": "slack:ActionPostMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-bookings",
+                "text": "{{4.booking_message}}\n>*Brand:* {{1.brand}}\n>*Urgency:* {{1.urgency}}\n>*Timestamp:* {{1.timestamp}}",
+                "username": "She Said Sail Bot",
+                "icon_emoji": ":calendar:"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": -100 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "route_ops_alerts",
+          "label": "Ops Alerts",
+          "filter": {
+            "name": "Ops and automation alert types",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "CONCIERGE_ASSIGNED",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "AUTOMATION_ERROR",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 6,
+              "module": "slack:ActionPostMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "{{if(1.alert_type = 'AUTOMATION_ERROR', '#sss-ops-alerts', '#sss-ops')}}",
+                "text": "{{switch(1.alert_type, 'CONCIERGE_ASSIGNED', ':bust_in_silhouette: *Concierge Assigned* | Record: ' + 1.record_id, 'AUTOMATION_ERROR', ':rotating_light: *Automation Error* | Record: ' + 1.record_id, ':bell: *Ops Alert* | ' + 1.alert_type + ' | Record: ' + 1.record_id)}}\n>*Brand:* {{1.brand}}\n>*Message:* {{1.message}}\n>*Urgency:* {{1.urgency}}\n>*Timestamp:* {{1.timestamp}}",
+                "username": "She Said Sail Bot",
+                "icon_emoji": "{{if(1.alert_type = 'AUTOMATION_ERROR', ':rotating_light:', ':bust_in_silhouette:')}}"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 100 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "route_emergency",
+          "label": "Emergency",
+          "filter": {
+            "name": "EMERGENCY alert type",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.alert_type}}",
+                  "b": "EMERGENCY",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 7,
+              "module": "slack:ActionPostMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "#sss-emergency-ops",
+                "text": ":rotating_light::rotating_light: *EMERGENCY ALERT* :rotating_light::rotating_light:\n>*Brand:* {{1.brand}}\n>*Record:* {{1.record_id}}\n>*Message:* {{1.message}}\n>*Urgency:* {{1.urgency}}\n>*Timestamp:* {{1.timestamp}}\n>*Details:* {{1.metadata}}",
+                "username": "She Said Sail EMERGENCY Bot",
+                "icon_emoji": ":rotating_light:"
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            },
+            {
+              "id": 8,
+              "module": "slack:ActionPostMessage",
+              "version": 4,
+              "parameters": {
+                "connection": "RECONNECT_SLACK_CONNECTION"
+              },
+              "mapper": {
+                "channel": "WILL_SLACK_USER_ID_PLACEHOLDER",
+                "text": ":rotating_light: *EMERGENCY — Direct Alert*\n>*Brand:* {{1.brand}}\n>*Record:* {{1.record_id}}\n>*Message:* {{1.message}}\n>*Urgency:* {{1.urgency}}\n>*Timestamp:* {{1.timestamp}}\n\nPlease check #sss-emergency-ops immediately.",
+                "username": "She Said Sail EMERGENCY Bot",
+                "icon_emoji": ":rotating_light:"
+              },
+              "metadata": {
+                "designer": { "x": 900, "y": 300 },
+                "restore": {
+                  "parameters": {
+                    "connection": { "label": "Slack — She Said Sail Workspace" }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": true },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\n  \"scenario_id\": \"M-SLACK-ALERTS\",\n  \"event_type\": \"ALERT_SENT\",\n  \"alert_type\": \"{{1.alert_type}}\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.record_id}}\",\n  \"urgency\": \"{{1.urgency}}\",\n  \"timestamp\": \"{{1.timestamp}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {}
+      }
+    },
+    {
+      "id": 10,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "INSERT_MAKE_WEBHOOK_URL_AFTER_IMPORT",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\n  \"scenario_id\": \"M-SLACK-ALERTS\",\n  \"event_type\": \"SCENARIO_ERROR\",\n  \"alert_type\": \"{{1.alert_type}}\",\n  \"brand\": \"{{1.brand}}\",\n  \"record_id\": \"{{1.record_id}}\",\n  \"error_message\": \"M-SLACK-ALERTS failed to dispatch alert\",\n  \"timestamp\": \"{{1.timestamp}}\"\n}",
+        "parseResponse": false
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 200 },
+        "restore": {},
+        "notes": "Error handler — fires on scenario execution failure. Routes to M-AUDIT-LOGGER SCENARIO_ERROR event."
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us1.make.com"
+  }
+}

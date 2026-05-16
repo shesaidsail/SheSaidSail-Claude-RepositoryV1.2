@@ -1,0 +1,113 @@
+{
+  "_meta": {
+    "scenario": "M-LEAD-INTAKE",
+    "version": "1.1",
+    "description": "Test payloads for M-LEAD-INTAKE webhook. Send via POST to the generated webhook URL with Content-Type: application/json.",
+    "usage": "Select the scenario key you want to test and POST that object's value to the webhook."
+  },
+
+  "scenario_new_lead_sss": {
+    "_description": "Happy path — new SSS lead from Webflow, no existing record. Expect: Airtable record created (Status=NEW, Agent_Status=HUMAN_REVIEW), LEAD_CREATED audit event, NEW_LEAD Slack alert with urgency=MEDIUM in #sss-leads.",
+    "brand": "SSS",
+    "source": "Webflow",
+    "lead_data": {
+      "first_name": "Marina",
+      "last_name": "Delacroix",
+      "email": "marina.delacroix.test.new@example.com",
+      "phone": "+1-310-555-0192",
+      "city": "Miami",
+      "date_requested": "2026-08-10",
+      "party_size": 6,
+      "budget_range": "$8,000–$12,000",
+      "notes": "Looking for a sunset sailing package with catering. Celebrating a bachelorette party.",
+      "package_interest": "Premium Sunset Charter"
+    },
+    "timestamp": "2026-05-16T14:30:00Z",
+    "environment": "production",
+    "idempotency_key": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  },
+
+  "scenario_new_lead_mare_executive": {
+    "_description": "New MARE EXECUTIVE lead from API. Expect: Airtable record created, LEAD_CREATED audit event, NEW_LEAD Slack alert in #me-leads (not #sss-leads).",
+    "brand": "MARE_EXECUTIVE",
+    "source": "API",
+    "lead_data": {
+      "first_name": "Alessandro",
+      "last_name": "Ferrante",
+      "email": "alex.ferrante.test.new@example.com",
+      "phone": "+39-02-555-0847",
+      "city": "Cannes",
+      "date_requested": "2026-09-05",
+      "party_size": 12,
+      "budget_range": "$25,000–$40,000",
+      "notes": "Corporate retreat. Need full catering, AV equipment, and concierge services.",
+      "package_interest": "Executive Full-Day Charter"
+    },
+    "timestamp": "2026-05-16T15:00:00Z",
+    "environment": "production",
+    "idempotency_key": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+  },
+
+  "scenario_duplicate_lead": {
+    "_description": "Duplicate submission — same email as scenario_new_lead_sss. Expect: NO new Airtable record. Existing record Notes and Updated_At updated. LEAD_DUPLICATE audit event. NEW_LEAD Slack alert with urgency=LOW and metadata.duplicate=true.",
+    "brand": "SSS",
+    "source": "Manual",
+    "lead_data": {
+      "first_name": "Marina",
+      "last_name": "Delacroix",
+      "email": "marina.delacroix.test.new@example.com",
+      "phone": "+1-310-555-0192",
+      "city": "Miami",
+      "date_requested": "2026-08-10",
+      "party_size": 6,
+      "budget_range": "$8,000–$12,000",
+      "notes": "Following up — also interested in the all-inclusive add-on.",
+      "package_interest": "Premium Sunset Charter"
+    },
+    "timestamp": "2026-05-16T16:00:00Z",
+    "environment": "production",
+    "idempotency_key": "c3d4e5f6-a7b8-9012-cdef-012345678902"
+  },
+
+  "scenario_staging_environment": {
+    "_description": "Staging environment test. Expect: Airtable record created with Environment='staging'. Confirms environment field is written correctly.",
+    "brand": "SSS",
+    "source": "Webflow",
+    "lead_data": {
+      "first_name": "Test",
+      "last_name": "User",
+      "email": "staging.test.lead.unique@example.com",
+      "phone": "+1-555-000-0001",
+      "city": "Los Angeles",
+      "date_requested": "2026-10-01",
+      "party_size": 4,
+      "budget_range": "$3,000–$5,000",
+      "notes": "Staging environment test submission. Do not process.",
+      "package_interest": "Half-Day Charter"
+    },
+    "timestamp": "2026-05-16T17:00:00Z",
+    "environment": "staging",
+    "idempotency_key": "d4e5f6a7-b8c9-0123-defa-123456789003"
+  },
+
+  "scenario_minimal_lead": {
+    "_description": "Minimal payload — only required fields. Tests that optional fields (phone, notes, package_interest) are handled gracefully when empty.",
+    "brand": "SSS",
+    "source": "Manual",
+    "lead_data": {
+      "first_name": "Jordan",
+      "last_name": "Kim",
+      "email": "jordan.kim.minimal.test@example.com",
+      "phone": "",
+      "city": "San Diego",
+      "date_requested": "2026-07-20",
+      "party_size": 2,
+      "budget_range": "$2,000–$4,000",
+      "notes": "",
+      "package_interest": ""
+    },
+    "timestamp": "2026-05-16T18:00:00Z",
+    "environment": "production",
+    "idempotency_key": "e5f6a7b8-c9d0-1234-efab-234567890004"
+  }
+}

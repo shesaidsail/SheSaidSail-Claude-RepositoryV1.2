@@ -1,4 +1,11 @@
+import os
 from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent / ".env")
+except ImportError:
+    pass
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -89,3 +96,49 @@ DEFAULT_MODEL     = "OpenMeteo"
 FORECAST_INTERVAL = 3600   # 1 hour
 METAR_INTERVAL    = 300    # 5 minutes
 KALSHI_INTERVAL   = 120    # 2 minutes
+
+# ---------------------------------------------------------------------------
+# Bankroll management (paper trading)
+# ---------------------------------------------------------------------------
+STARTING_BANKROLL          = float(os.getenv("PAPER_STARTING_BANKROLL", "1000"))   # dollars
+MAX_SINGLE_TRADE_PCT       = 0.05     # 5% hard cap per trade
+MAX_DAILY_LOSS_PCT         = 0.05     # 5% daily loss limit — halt for the day
+MAX_STATION_EXPOSURE_PCT   = 0.20     # 20% max open exposure per station
+MAX_REGIME_EXPOSURE_PCT    = 0.15     # 15% max open exposure per regime
+DRAWDOWN_REDUCE_THRESHOLD  = 0.10     # >10% drawdown → reduce sizing 25%
+DRAWDOWN_HALF_THRESHOLD    = 0.20     # >20% drawdown → reduce sizing 50%
+DRAWDOWN_PAUSE_THRESHOLD   = 0.30     # >30% drawdown → pause trading
+KELLY_FRACTION_NORMAL      = 0.25     # fractional Kelly for standard trades
+KELLY_FRACTION_APLUS       = 0.50     # fractional Kelly for A+ grade (max)
+BASE_RISK_NORMAL_PCT        = 0.01    # 1% base risk for normal/watchlist trades
+BASE_RISK_B_PCT             = 0.02    # 2% base risk for B-grade trades
+BASE_RISK_APLUS_PCT         = 0.04    # 4% base risk for A+ grade trades
+
+# ---------------------------------------------------------------------------
+# Paper trading runtime flags (read from .env at startup)
+# ---------------------------------------------------------------------------
+def _paper_trading_enabled() -> bool:
+    return os.getenv("PAPER_TRADING_ENABLED", "true").lower() == "true"
+
+def _paper_alerts_enabled() -> bool:
+    return os.getenv("PAPER_ALERTS_ENABLED", "true").lower() == "true"
+
+def _paper_alert_open() -> bool:
+    return os.getenv("PAPER_ALERT_OPEN_TRADES", "true").lower() == "true"
+
+def _paper_alert_settlements() -> bool:
+    return os.getenv("PAPER_ALERT_SETTLEMENTS", "true").lower() == "true"
+
+def _paper_alert_daily_summary() -> bool:
+    return os.getenv("PAPER_ALERT_DAILY_SUMMARY", "true").lower() == "true"
+
+def _paper_min_edge_cents() -> float:
+    return float(os.getenv("PAPER_MIN_EDGE_CENTS", "10"))
+
+def _paper_min_confidence() -> str:
+    return os.getenv("PAPER_MIN_CONFIDENCE", "MEDIUM").upper()
+
+def _paper_alert_cooldown_minutes() -> int:
+    return int(os.getenv("PAPER_ALERT_COOLDOWN_MINUTES", "30"))
+
+PAPER_GRADE_WHITELIST = {"A+", "B"}  # grades eligible for paper trade alerts

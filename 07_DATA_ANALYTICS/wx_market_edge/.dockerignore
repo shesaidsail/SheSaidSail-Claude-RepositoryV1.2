@@ -1,0 +1,18 @@
+# Never include credentials or generated data in the Docker image
+.env
+*.db
+*.db-shm
+*.db-wal
+data/
+logs/
+backups/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.git/
+*.egg-info/
+dist/
+build/
+.DS_Store

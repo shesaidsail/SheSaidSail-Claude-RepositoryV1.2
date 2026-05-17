@@ -191,7 +191,26 @@ CREATE TABLE IF NOT EXISTS paper_trades (
     result          TEXT,    -- 'WIN' | 'LOSS' | 'PUSH'
     pnl_cents       REAL,
     closed_at       TEXT,
-    notes           TEXT
+    notes           TEXT,
+    grade           TEXT,    -- 'A+' | 'B' | 'Watchlist' | 'Avoid'
+    stake_dollars   REAL,    -- dollar amount risked on this trade
+    kelly_fraction  REAL,    -- Kelly fraction used (after all adjustments)
+    pnl_dollars     REAL     -- dollar P&L after settlement
+);
+
+-- ── Bankroll history (daily snapshots) ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS bankroll_history (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    snapshot_date   TEXT NOT NULL,
+    bankroll        REAL NOT NULL,
+    peak_bankroll   REAL NOT NULL,
+    drawdown_pct    REAL NOT NULL DEFAULT 0,
+    open_exposure   REAL NOT NULL DEFAULT 0,
+    daily_pnl       REAL NOT NULL DEFAULT 0,
+    trades_today    INTEGER NOT NULL DEFAULT 0,
+    note            TEXT,
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    UNIQUE(snapshot_date)
 );
 
 -- ── Backtest runs ─────────────────────────────────────────────────────────
@@ -295,9 +314,26 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def _migrate(conn: sqlite3.Connection):
+    """Add columns introduced after initial schema deployment."""
+    migrations = [
+        "ALTER TABLE paper_trades ADD COLUMN grade TEXT",
+        "ALTER TABLE paper_trades ADD COLUMN stake_dollars REAL",
+        "ALTER TABLE paper_trades ADD COLUMN kelly_fraction REAL",
+        "ALTER TABLE paper_trades ADD COLUMN pnl_dollars REAL",
+    ]
+    for sql in migrations:
+        try:
+            conn.execute(sql)
+        except sqlite3.OperationalError:
+            pass  # column already exists
+    conn.commit()
+
+
 def init_db() -> sqlite3.Connection:
     conn = get_connection()
     conn.executescript(SCHEMA)
+    _migrate(conn)
     conn.commit()
     return conn
 

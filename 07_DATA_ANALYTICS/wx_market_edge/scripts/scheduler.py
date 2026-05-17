@@ -22,7 +22,8 @@ from ingestion.open_meteo   import refresh_all as refresh_forecasts
 from ingestion.metar        import refresh_all as refresh_metar
 from ingestion.kalshi_auth  import refresh_with_auth as refresh_kalshi
 from alerts.webhook_alerts  import check_and_alert_all, is_configured, _alerts_enabled
-from config import FORECAST_INTERVAL, METAR_INTERVAL, KALSHI_INTERVAL, LOG_DIR
+from config import (FORECAST_INTERVAL, METAR_INTERVAL, KALSHI_INTERVAL, LOG_DIR,
+                    _paper_trading_enabled)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,10 +40,12 @@ class Scheduler:
     def __init__(self, conn):
         self.conn = conn
         self.last_run: dict[str, float] = {
-            "forecast": 0,
-            "metar":    0,
-            "kalshi":   0,
+            "forecast":      0,
+            "metar":         0,
+            "kalshi":        0,
+            "daily_summary": 0,
         }
+        self._last_summary_date: str = ""
 
     def _due(self, task: str, interval: int) -> bool:
         return time.time() - self.last_run[task] >= interval
@@ -70,12 +73,16 @@ class Scheduler:
             try:
                 n = refresh_kalshi(self.conn, verbose=False)
                 log.info(f"Kalshi refresh: {n} market snapshots stored")
-                # After Kalshi refresh, check for alert-worthy signals
-                if n > 0 and _alerts_enabled() and is_configured():
-                    self._check_alerts()
+                if n > 0:
+                    if _alerts_enabled() and is_configured():
+                        self._check_alerts()
+                    if _paper_trading_enabled():
+                        self._auto_paper_trade()
             except Exception as e:
                 log.error(f"Kalshi refresh failed: {e}")
             self.last_run["kalshi"] = time.time()
+
+        self._maybe_daily_summary()
 
     def _check_alerts(self):
         """Grade all current market snapshots and send alerts for A+/B signals."""
@@ -110,6 +117,62 @@ class Scheduler:
                     log.info(f"Alerts fired: {len(sent)} webhook(s) sent")
         except Exception as e:
             log.error(f"Alert check error: {e}")
+
+    def _auto_paper_trade(self):
+        """Grade current signals and auto-open paper trades for qualifying ones."""
+        try:
+            from datetime import datetime, timezone
+            from ingestion.kalshi import get_latest_snapshots
+            from models.edge_calculator import calculate_edge
+            from models.signal_ranker import grade_all
+            from trading.paper_trader import open_trade
+
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            snapshots = get_latest_snapshots(self.conn, date=today)
+            results = []
+            for snap in snapshots:
+                if not snap.get("station_code") or not snap.get("threshold_f"):
+                    continue
+                r = calculate_edge(
+                    station_code  = snap["station_code"],
+                    forecast_date = snap.get("expiry_date") or today,
+                    threshold_f   = snap["threshold_f"],
+                    side          = snap.get("side", "Yes"),
+                    market_price  = snap.get("market_price") or 50,
+                    best_bid      = snap.get("best_bid"),
+                    best_ask      = snap.get("best_ask"),
+                    conn          = self.conn,
+                )
+                results.append(r)
+
+            if results:
+                graded = grade_all(results, self.conn)
+                opened = 0
+                for gr in graded:
+                    if gr.get("grade") in ("A+", "B"):
+                        trade_id = open_trade(gr, self.conn)
+                        if trade_id:
+                            opened += 1
+                if opened:
+                    log.info("Auto paper trades opened: %d", opened)
+        except Exception as e:
+            log.error(f"Auto paper trade error: {e}")
+
+    def _maybe_daily_summary(self):
+        """Fire daily summary alert once per UTC day near midnight."""
+        try:
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            today = now.strftime("%Y-%m-%d")
+            # Only fire between 23:50 and 23:59 UTC, once per day
+            if now.hour == 23 and now.minute >= 50 and today != self._last_summary_date:
+                from alerts.paper_alerts import alert_daily_summary
+                result = alert_daily_summary(self.conn, date=today)
+                if result.get("sent"):
+                    self._last_summary_date = today
+                    log.info("Daily summary alert sent for %s", today)
+        except Exception as e:
+            log.error(f"Daily summary error: {e}")
 
     def run_once(self):
         """Force-run all tasks regardless of interval."""

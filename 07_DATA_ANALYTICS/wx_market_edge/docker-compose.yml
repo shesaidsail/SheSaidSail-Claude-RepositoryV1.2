@@ -1,0 +1,63 @@
+version: "3.9"
+
+# Weather Market Edge Tracker — production compose file
+# All services share one SQLite volume (data/) and logs volume (logs/).
+#
+# Usage:
+#   docker compose up -d          # start everything
+#   docker compose logs -f        # tail all logs
+#   docker compose restart        # restart all services
+#   docker compose down           # stop (data persists in volumes)
+
+x-common: &common
+  build: .
+  env_file: .env
+  restart: unless-stopped
+  volumes:
+    - wx_data:/app/data
+    - wx_logs:/app/logs
+    - wx_backups:/app/backups
+
+services:
+
+  # ── Streamlit dashboard ──────────────────────────────────────────────────
+  dashboard:
+    <<: *common
+    container_name: wx_dashboard
+    command:
+      - streamlit
+      - run
+      - dashboard/app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+      - --server.enableCORS=false
+    ports:
+      - "8501:8501"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Scanner + paper-trade worker ────────────────────────────────────────
+  scanner:
+    <<: *common
+    container_name: wx_scanner
+    command: ["python", "scripts/scheduler.py"]
+    depends_on:
+      - dashboard
+
+  # ── Settlement worker (runs once per hour, settles yesterday's trades) ──
+  settlement:
+    <<: *common
+    container_name: wx_settlement
+    command: ["python", "scripts/settle_worker.py"]
+    depends_on:
+      - dashboard
+
+volumes:
+  wx_data:
+  wx_logs:
+  wx_backups:

@@ -32,8 +32,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Write .env from GitHub secrets (never committed to repo)
-            cat > wx_market_edge/.env <<'ENVEOF'
+            # Write .env from GitHub secrets into the wx_market_edge folder
+            cat > weather-edge-bot/wx_market_edge/.env <<'ENVEOF'
             KALSHI_API_KEY=${{ secrets.KALSHI_API_KEY }}
             KALSHI_API_SECRET=${{ secrets.KALSHI_API_SECRET }}
             MAKE_ALERT_WEBHOOK_URL=${{ secrets.MAKE_ALERT_WEBHOOK_URL }}
@@ -45,7 +45,7 @@ jobs:
             ENVEOF
 
             # Rebuild and restart
-            cd wx_market_edge
+            cd weather-edge-bot/wx_market_edge
             docker compose pull 2>/dev/null || true
             docker compose build --no-cache
             docker compose down --remove-orphans

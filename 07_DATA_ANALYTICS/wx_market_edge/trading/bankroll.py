@@ -35,12 +35,28 @@ def get_current_bankroll(conn: sqlite3.Connection) -> float:
 
 
 def get_peak_bankroll(conn: sqlite3.Connection) -> float:
-    """Historical peak bankroll (for drawdown calculations)."""
-    row = conn.execute("""
-        SELECT COALESCE(MAX(bankroll), ?) AS peak
-        FROM bankroll_history
-    """, (STARTING_BANKROLL,)).fetchone()
-    return max(row["peak"], get_current_bankroll(conn))
+    """Historical peak bankroll — computed from the trade P&L sequence."""
+    # Reconstruct running bankroll from each closed trade in chronological order
+    trades = conn.execute("""
+        SELECT pnl_dollars FROM paper_trades
+        WHERE status='CLOSED' AND pnl_dollars IS NOT NULL
+        ORDER BY closed_at ASC
+    """).fetchall()
+
+    running = STARTING_BANKROLL
+    peak    = STARTING_BANKROLL
+    for t in trades:
+        running += t["pnl_dollars"]
+        if running > peak:
+            peak = running
+
+    # Also honour any snapshot peak that may be higher (e.g. after manual adjustments)
+    snap = conn.execute("""
+        SELECT COALESCE(MAX(peak_bankroll), 0) AS snap_peak FROM bankroll_history
+    """).fetchone()
+    snap_peak = snap["snap_peak"] or 0
+
+    return round(max(peak, snap_peak), 4)
 
 
 def get_drawdown(conn: sqlite3.Connection) -> float:

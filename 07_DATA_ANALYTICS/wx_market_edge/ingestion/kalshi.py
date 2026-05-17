@@ -209,18 +209,28 @@ def refresh_all(conn: sqlite3.Connection, verbose: bool = True) -> int:
 
 def get_latest_snapshots(conn: sqlite3.Connection, date: str | None = None) -> list[dict]:
     """Return most recent snapshot per market ticker."""
-    q = """
-        SELECT ms.*
-        FROM market_snapshots ms
-        INNER JOIN (
-            SELECT market_ticker, MAX(captured_at) AS max_ts
-            FROM market_snapshots
-            GROUP BY market_ticker
-        ) latest ON ms.market_ticker=latest.market_ticker AND ms.captured_at=latest.max_ts
-    """
     if date:
-        q += f" WHERE ms.expiry_date='{date}'"
-    rows = conn.execute(q).fetchall()
+        rows = conn.execute("""
+            SELECT ms.*
+            FROM market_snapshots ms
+            INNER JOIN (
+                SELECT market_ticker, MAX(captured_at) AS max_ts
+                FROM market_snapshots
+                WHERE expiry_date = ?
+                GROUP BY market_ticker
+            ) latest ON ms.market_ticker=latest.market_ticker AND ms.captured_at=latest.max_ts
+            WHERE ms.expiry_date = ?
+        """, (date, date)).fetchall()
+    else:
+        rows = conn.execute("""
+            SELECT ms.*
+            FROM market_snapshots ms
+            INNER JOIN (
+                SELECT market_ticker, MAX(captured_at) AS max_ts
+                FROM market_snapshots
+                GROUP BY market_ticker
+            ) latest ON ms.market_ticker=latest.market_ticker AND ms.captured_at=latest.max_ts
+        """).fetchall()
     return [dict(r) for r in rows]
 
 

@@ -90,6 +90,10 @@ MAX_SPREAD        = 8.0    # cents – maximum bid/ask spread
 MIN_REGIME_N      = 3      # minimum regime sample size for blended use
 DEFAULT_MODEL     = "OpenMeteo"
 
+# Kalshi charges a settlement fee (~3%) on winning-contract profits.
+# We deduct this from fair value so edge reflects real net EV, not gross.
+KALSHI_SETTLEMENT_FEE_PCT = float(os.getenv("KALSHI_SETTLEMENT_FEE_PCT", "3.0"))
+
 # ---------------------------------------------------------------------------
 # Polling intervals (seconds)
 # ---------------------------------------------------------------------------

@@ -68,8 +68,9 @@ def compute_and_store_stats(
         avg  = round(statistics.mean(errors), 4)
         std  = round(statistics.stdev(errors), 4)
         n    = len(errors)
-        r7   = round(statistics.mean(errors[:7]),  4) if len(errors) >= 2 else None
-        r30  = round(statistics.mean(errors[:30]), 4) if len(errors) >= 2 else None
+        # errors list is DESC-sorted (most recent first); take true rolling windows
+        r7   = round(statistics.mean(errors[:7]),  4) if len(errors) >= 7  else None
+        r30  = round(statistics.mean(errors[:30]), 4) if len(errors) >= 30 else None
         conn.execute("""
             INSERT INTO model_stats
                 (station_code, model_name, regime, avg_bias, std_dev, sample_size,

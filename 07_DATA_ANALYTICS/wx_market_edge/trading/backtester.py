@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from scipy.stats import norm
 from models.regime_engine import classify_from_forecast
 from models.confidence_engine import compute_confidence
-from config import MIN_EDGE, MIN_CONFIDENCE, DEFAULT_MODEL, STATIONS
+from config import MIN_EDGE, MIN_CONFIDENCE, DEFAULT_MODEL, STATIONS, KALSHI_SETTLEMENT_FEE_PCT
 
 
 def _win_probability(adj: float, std: float, threshold: float, side: str) -> float:
@@ -113,13 +113,16 @@ def run_backtest(
 
     settled_rows = conn.execute(q, params).fetchall()
 
+    from config import STARTING_BANKROLL, MAX_SINGLE_TRADE_PCT, KELLY_FRACTION_APLUS
+    bt_bankroll = STARTING_BANKROLL
+    cumulative_pnl_d = 0.0
+
     trades = []
     for row in settled_rows:
         date    = row["settlement_date"]
         station = row["station_code"]
         actual  = row["official_high"]
         fc_high = row["temp_max"]
-        regime  = row["regime"] or "UNKNOWN"
 
         if fc_high is None:
             continue
@@ -137,9 +140,9 @@ def run_backtest(
         for threshold in t_list:
             for side in sides:
                 prob = _win_probability(adj, std, float(threshold), side)
-                fair = round(prob * 100, 2)
-                # Simulate mid-market price at 50/50 (no historical Kalshi data)
-                # Use fair-value-based synthetic market for calibration testing
+                # Apply Kalshi settlement fee to net fair value (same as live engine)
+                fair = round(prob * (100 - KALSHI_SETTLEMENT_FEE_PCT), 2)
+                # Synthetic mid-market at 50 (no historical Kalshi orderbook data)
                 market_price = 50.0
                 edge = round(fair - market_price, 2)
 
@@ -148,13 +151,24 @@ def run_backtest(
                 if abs(edge) < min_edge or conf < min_confidence:
                     continue
 
-                # Determine outcome
-                if side == "Yes":
-                    win = actual >= threshold + 1
-                else:
-                    win = actual <= threshold
+                # Dynamic stake from current backtest bankroll (no lookahead: uses cumulative P&L)
+                kelly_raw = max(0.0, (prob * (100 - market_price) / market_price - (1 - prob))) / ((100 - market_price) / market_price)
+                kelly_frac = kelly_raw * KELLY_FRACTION_APLUS
+                stake_pct  = min(max(kelly_frac, 0.01), MAX_SINGLE_TRADE_PCT)
+                stake_d    = round(bt_bankroll * stake_pct, 2)
 
-                pnl = 100 - market_price if win else -market_price
+                # Determine outcome — T+0.5 continuity correction (same as probability engine)
+                if side == "Yes":
+                    win = actual >= threshold + 0.5
+                else:
+                    win = actual < threshold + 0.5
+
+                pnl_cents = 100 - market_price if win else -market_price
+                pnl_d = stake_d * (pnl_cents / market_price) if market_price > 0 else 0.0
+
+                # Update rolling bankroll (dynamic sizing — no lookahead)
+                cumulative_pnl_d += pnl_d
+                bt_bankroll = STARTING_BANKROLL + cumulative_pnl_d
 
                 trades.append({
                     "date":          date,
@@ -173,7 +187,10 @@ def run_backtest(
                     "confidence":    round(conf, 4),
                     "actual_high":   actual,
                     "result":        "WIN" if win else "LOSS",
-                    "pnl":           round(pnl, 2),
+                    "pnl":           round(pnl_cents, 2),
+                    "pnl_dollars":   round(pnl_d, 4),
+                    "stake_dollars": stake_d,
+                    "bankroll_at_trade": round(bt_bankroll - pnl_d, 2),
                 })
 
     if not trades:
@@ -188,20 +205,34 @@ def run_backtest(
     wins   = sum(1 for t in trades if t["result"] == "WIN")
     losses = sum(1 for t in trades if t["result"] == "LOSS")
     total  = len(trades)
-    pnls   = [t["pnl"] for t in trades]
-    total_pnl = sum(pnls)
+    pnls_c = [t["pnl"] for t in trades]
+    pnls_d = [t.get("pnl_dollars", 0) for t in trades]
+    total_pnl = sum(pnls_c)
+    total_pnl_d = sum(pnls_d)
     roi    = total_pnl / (total * 50) * 100 if total else 0
+    roi_d  = total_pnl_d / STARTING_BANKROLL * 100
 
-    # Max drawdown
+    # Max drawdown in dollars (dynamic bankroll)
+    running_d, peak_d, max_dd_d = 0.0, 0.0, 0.0
+    for p in pnls_d:
+        running_d += p
+        peak_d = max(peak_d, running_d)
+        max_dd_d = max(max_dd_d, peak_d - running_d)
+
+    # Max drawdown in cents (for legacy ROI display)
     running, peak, max_dd = 0, 0, 0
-    for p in pnls:
+    for p in pnls_c:
         running += p
         peak = max(peak, running)
         max_dd = max(max_dd, peak - running)
 
-    # Sharpe (daily pnl / std)
+    # Sharpe — use daily dollar P&L grouped by date
+    daily_pnl: dict[str, float] = {}
+    for t in trades:
+        daily_pnl[t["date"]] = daily_pnl.get(t["date"], 0) + t.get("pnl_dollars", 0)
+    daily_series = list(daily_pnl.values())
     try:
-        sharpe = (statistics.mean(pnls) / statistics.stdev(pnls)) * (252 ** 0.5) if len(pnls) >= 2 else 0
+        sharpe = (statistics.mean(daily_series) / statistics.stdev(daily_series)) * (252 ** 0.5) if len(daily_series) >= 2 else 0
     except Exception:
         sharpe = 0
 
@@ -248,14 +279,20 @@ def run_backtest(
     conn.commit()
 
     return {
-        "total_trades": total, "wins": wins, "losses": losses,
-        "win_rate":     round(wins / total, 4),
-        "total_pnl":    round(total_pnl, 2),
-        "roi_pct":      round(roi, 2),
-        "max_drawdown": round(max_dd, 2),
-        "sharpe":       round(sharpe, 3),
-        "by_station":   by_station,
-        "by_regime":    by_regime,
-        "by_threshold": by_thresh,
-        "trades":       trades,
+        "total_trades":    total,
+        "wins":            wins,
+        "losses":          losses,
+        "win_rate":        round(wins / total, 4),
+        "total_pnl":       round(total_pnl, 2),
+        "total_pnl_d":     round(total_pnl_d, 2),
+        "roi_pct":         round(roi, 2),
+        "roi_dollars_pct": round(roi_d, 2),
+        "max_drawdown":    round(max_dd, 2),
+        "max_drawdown_d":  round(max_dd_d, 2),
+        "sharpe":          round(sharpe, 3),
+        "final_bankroll":  round(STARTING_BANKROLL + total_pnl_d, 2),
+        "by_station":      by_station,
+        "by_regime":       by_regime,
+        "by_threshold":    by_thresh,
+        "trades":          trades,
     }

@@ -26,7 +26,7 @@ from models.bias_engine    import blended_bias
 from models.confidence_engine import compute_confidence
 from ingestion.open_meteo  import get_latest_forecast
 from ingestion.metar       import get_latest_obs
-from config                import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, MIN_REGIME_N, DEFAULT_MODEL, STATIONS
+from config                import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, MIN_REGIME_N, DEFAULT_MODEL, STATIONS, KALSHI_SETTLEMENT_FEE_PCT
 
 
 def win_probability(adjusted_forecast: float, std_dev: float,
@@ -139,8 +139,10 @@ def calculate_edge(
     result["adjusted_forecast"] = adj
 
     # 5–7. Probability, fair value, edge
+    # Fair value is discounted by Kalshi's settlement fee (applied to the
+    # winner's profit, so gross_fair * (1 - fee) ≈ prob * (100 - fee_pct))
     prob = win_probability(adj, std, threshold_f, side)
-    fair = round(prob * 100, 2)
+    fair = round(prob * (100 - KALSHI_SETTLEMENT_FEE_PCT), 2)
     edge = round(fair - market_price, 2)
 
     result["model_prob"]  = round(prob, 4)

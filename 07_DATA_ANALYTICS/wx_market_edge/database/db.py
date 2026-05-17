@@ -303,6 +303,37 @@ CREATE TABLE IF NOT EXISTS data_health (
     consecutive_failures INTEGER DEFAULT 0,
     last_error      TEXT
 );
+
+-- ── Market price history (CLV tracking) ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS market_price_snapshots (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    paper_trade_id  INTEGER REFERENCES paper_trades(id),
+    station_code    TEXT REFERENCES stations(icao),
+    market_ticker   TEXT NOT NULL,
+    captured_at     TEXT NOT NULL,
+    market_price    REAL,
+    best_bid        REAL,
+    best_ask        REAL,
+    minutes_after_open INTEGER,  -- 0=entry, 15, 30, 60, etc.
+    UNIQUE(paper_trade_id, minutes_after_open)
+);
+
+-- ── Performance indexes ───────────────────────────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_paper_trades_station    ON paper_trades(station_code);
+CREATE INDEX IF NOT EXISTS idx_paper_trades_regime     ON paper_trades(regime);
+CREATE INDEX IF NOT EXISTS idx_paper_trades_closed_at  ON paper_trades(closed_at);
+CREATE INDEX IF NOT EXISTS idx_paper_trades_status     ON paper_trades(status);
+CREATE INDEX IF NOT EXISTS idx_market_snaps_ticker     ON market_snapshots(market_ticker);
+CREATE INDEX IF NOT EXISTS idx_market_snaps_station    ON market_snapshots(station_code);
+CREATE INDEX IF NOT EXISTS idx_market_snaps_captured   ON market_snapshots(captured_at);
+CREATE INDEX IF NOT EXISTS idx_market_snaps_expiry     ON market_snapshots(expiry_date);
+CREATE INDEX IF NOT EXISTS idx_official_obs_station    ON official_observations(station_code);
+CREATE INDEX IF NOT EXISTS idx_official_obs_ts         ON official_observations(timestamp_utc);
+CREATE INDEX IF NOT EXISTS idx_forecast_runs_station   ON forecast_runs(station_code);
+CREATE INDEX IF NOT EXISTS idx_forecast_runs_date      ON forecast_runs(forecast_date);
+CREATE INDEX IF NOT EXISTS idx_settlements_date        ON daily_settlements(settlement_date);
+CREATE INDEX IF NOT EXISTS idx_settlements_station     ON daily_settlements(station_code);
+CREATE INDEX IF NOT EXISTS idx_webhook_alerts_status   ON webhook_alerts(status, created_at);
 """
 
 
@@ -315,18 +346,29 @@ def get_connection() -> sqlite3.Connection:
 
 
 def _migrate(conn: sqlite3.Connection):
-    """Add columns introduced after initial schema deployment."""
-    migrations = [
-        "ALTER TABLE paper_trades ADD COLUMN grade TEXT",
-        "ALTER TABLE paper_trades ADD COLUMN stake_dollars REAL",
-        "ALTER TABLE paper_trades ADD COLUMN kelly_fraction REAL",
-        "ALTER TABLE paper_trades ADD COLUMN pnl_dollars REAL",
+    """Apply incremental schema migrations idempotently."""
+    column_migrations = [
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN grade TEXT"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN stake_dollars REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN kelly_fraction REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN pnl_dollars REAL"),
+        ("webhook_alerts",  "ALTER TABLE webhook_alerts ADD COLUMN alert_type TEXT"),
     ]
-    for sql in migrations:
+    for _table, sql in column_migrations:
         try:
             conn.execute(sql)
         except sqlite3.OperationalError:
             pass  # column already exists
+
+    # Ensure alert_type column is populated for existing rows that lack it
+    try:
+        conn.execute("""
+            UPDATE webhook_alerts SET alert_type='WEATHER_SIGNAL'
+            WHERE alert_type IS NULL
+        """)
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
 
 

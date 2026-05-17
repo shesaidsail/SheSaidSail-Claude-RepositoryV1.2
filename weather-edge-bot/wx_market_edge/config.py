@@ -116,6 +116,7 @@ KALSHI_INTERVAL   = 120    # 2 minutes
 STARTING_BANKROLL          = float(os.getenv("PAPER_STARTING_BANKROLL", "1000"))   # dollars
 MAX_SINGLE_TRADE_PCT       = 0.05     # 5% hard cap per trade
 MAX_DAILY_LOSS_PCT         = 0.05     # 5% daily loss limit — halt for the day
+MAX_WEEKLY_LOSS_PCT        = float(os.getenv("MAX_WEEKLY_LOSS_PCT", "0.10"))      # 10% weekly loss limit
 MAX_STATION_EXPOSURE_PCT   = 0.20     # 20% max open exposure per station
 MAX_REGIME_EXPOSURE_PCT    = 0.15     # 15% max open exposure per regime
 DRAWDOWN_REDUCE_THRESHOLD  = 0.10     # >10% drawdown → reduce sizing 25%
@@ -126,6 +127,11 @@ KELLY_FRACTION_APLUS       = 0.50     # fractional Kelly for A+ grade (max)
 BASE_RISK_NORMAL_PCT        = 0.01    # 1% base risk for normal/watchlist trades
 BASE_RISK_B_PCT             = 0.02    # 2% base risk for B-grade trades
 BASE_RISK_APLUS_PCT         = 0.04    # 4% base risk for A+ grade trades
+# Stale-trade circuit breaker: void OPEN trades that never settled
+TRADE_VOID_AFTER_DAYS      = int(os.getenv("TRADE_VOID_AFTER_DAYS", "7"))
+# Volatility scaling: reduce stake when recent P&L std/|mean| exceeds this ratio
+VOLATILITY_SCALE_LOOKBACK  = int(os.getenv("VOLATILITY_SCALE_LOOKBACK", "20"))
+VOLATILITY_SCALE_THRESHOLD = float(os.getenv("VOLATILITY_SCALE_THRESHOLD", "2.0"))
 
 # ---------------------------------------------------------------------------
 # Paper trading runtime flags (read from .env at startup)

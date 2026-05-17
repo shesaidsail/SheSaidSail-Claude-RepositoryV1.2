@@ -8,7 +8,7 @@ All values are in dollars (paper money).
 import sys
 import sqlite3
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -18,6 +18,7 @@ from config import (
     DRAWDOWN_HALF_THRESHOLD,
     DRAWDOWN_PAUSE_THRESHOLD,
     MAX_DAILY_LOSS_PCT,
+    MAX_WEEKLY_LOSS_PCT,
 )
 
 
@@ -127,6 +128,41 @@ def is_daily_loss_limit_hit(conn: sqlite3.Connection, date: str | None = None) -
     return abs(daily_pnl) / bankroll >= MAX_DAILY_LOSS_PCT
 
 
+def get_weekly_pnl(conn: sqlite3.Connection, week_start: str | None = None) -> float:
+    """
+    Realised P&L (dollars) for the Monday–Sunday week that contains week_start.
+    Defaults to the current UTC week.
+    """
+    if week_start is None:
+        today = datetime.now(timezone.utc)
+    else:
+        today = datetime.strptime(week_start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+    mon_str = monday.strftime("%Y-%m-%d")
+    sun_str = sunday.strftime("%Y-%m-%d")
+    row = conn.execute("""
+        SELECT COALESCE(SUM(pnl_dollars), 0) AS weekly
+        FROM paper_trades
+        WHERE status='CLOSED'
+          AND pnl_dollars IS NOT NULL
+          AND DATE(closed_at) >= ?
+          AND DATE(closed_at) <= ?
+    """, (mon_str, sun_str)).fetchone()
+    return round(row["weekly"] or 0, 4)
+
+
+def is_weekly_loss_limit_hit(conn: sqlite3.Connection) -> bool:
+    """True if this week's realised losses exceed MAX_WEEKLY_LOSS_PCT of bankroll."""
+    weekly_pnl = get_weekly_pnl(conn)
+    if weekly_pnl >= 0:
+        return False
+    bankroll = get_current_bankroll(conn)
+    if bankroll <= 0:
+        return True
+    return abs(weekly_pnl) / bankroll >= MAX_WEEKLY_LOSS_PCT
+
+
 def get_sizing_multiplier(conn: sqlite3.Connection) -> float:
     """
     Drawdown-based multiplier applied to all bet sizes.
@@ -178,13 +214,15 @@ def log_snapshot(conn: sqlite3.Connection, note: str = "") -> None:
 
 def bankroll_status(conn: sqlite3.Connection) -> dict:
     """Full bankroll state summary dict — used by dashboard and bet_sizer."""
-    current   = get_current_bankroll(conn)
-    peak      = get_peak_bankroll(conn)
-    dd        = get_drawdown(conn)
-    exp       = get_open_exposure(conn)
-    daily_pnl = get_daily_pnl(conn)
-    multiplier = get_sizing_multiplier(conn)
-    daily_halt = is_daily_loss_limit_hit(conn)
+    current      = get_current_bankroll(conn)
+    peak         = get_peak_bankroll(conn)
+    dd           = get_drawdown(conn)
+    exp          = get_open_exposure(conn)
+    daily_pnl    = get_daily_pnl(conn)
+    weekly_pnl   = get_weekly_pnl(conn)
+    multiplier   = get_sizing_multiplier(conn)
+    daily_halt   = is_daily_loss_limit_hit(conn)
+    weekly_halt  = is_weekly_loss_limit_hit(conn)
 
     return {
         "current_bankroll":   current,
@@ -194,8 +232,10 @@ def bankroll_status(conn: sqlite3.Connection) -> dict:
         "open_exposure":      exp,
         "available":          max(0.0, current - exp),
         "daily_pnl":          daily_pnl,
+        "weekly_pnl":         weekly_pnl,
         "sizing_multiplier":  multiplier,
         "daily_halt":         daily_halt,
-        "trading_paused":     multiplier == 0.0 or daily_halt,
+        "weekly_halt":        weekly_halt,
+        "trading_paused":     multiplier == 0.0 or daily_halt or weekly_halt,
         "roi_pct":            round((current - STARTING_BANKROLL) / STARTING_BANKROLL * 100, 2),
     }

@@ -28,6 +28,7 @@ from ingestion.open_meteo  import get_latest_forecast
 from ingestion.metar       import get_latest_obs
 from config                import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, MIN_REGIME_N, DEFAULT_MODEL, STATIONS, MIN_NET_EDGE
 from models.fee_engine     import estimate_fees
+from utils.timezone_utils  import local_hour_from_utc
 
 
 def win_probability(adjusted_forecast: float, std_dev: float,
@@ -126,12 +127,12 @@ def calculate_edge(
     # 2. Classify regime (prefer live METAR, fall back to forecast)
     obs = get_latest_obs(station_code, conn)
     if obs and obs.get("observed_temp") is not None:
-        utc_off = STATIONS.get(station_code, {}).get("utc_offset", -5)
-        try:
-            ts = datetime.strptime(obs["timestamp_utc"], "%Y-%m-%dT%H:%M:%SZ")
-            local_hour = (ts.hour + utc_off) % 24
-        except Exception:
-            local_hour = 12
+        station_cfg = STATIONS.get(station_code, {})
+        local_hour = local_hour_from_utc(
+            obs.get("timestamp_utc", ""),
+            station_cfg.get("tz", "UTC"),
+            fallback_utc_offset=station_cfg.get("utc_offset", -5),
+        )
         regime_r: RegimeResult = classify_from_metar(obs, local_hour)
     else:
         regime_r = classify_from_forecast(fr)

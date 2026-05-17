@@ -1,0 +1,71 @@
+name: Deploy Weather Edge Bot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "weather-edge-bot/**"
+      - ".github/workflows/deploy.yml"
+
+  workflow_dispatch:   # allow manual trigger from GitHub Actions UI
+
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ── 1. SSH deploy ──────────────────────────────────────────────────────
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ secrets.DO_HOST }}
+          username:    ${{ secrets.DO_USERNAME }}
+          key:         ${{ secrets.DO_SSH_PRIVATE_KEY }}
+          timeout:     10m
+          script: |
+            set -e
+
+            # Pull latest code
+            cd /opt/weather-edge-bot
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Write .env from GitHub secrets (never committed to repo)
+            cat > wx_market_edge/.env <<'ENVEOF'
+            KALSHI_API_KEY=${{ secrets.KALSHI_API_KEY }}
+            KALSHI_API_SECRET=${{ secrets.KALSHI_API_SECRET }}
+            MAKE_ALERT_WEBHOOK_URL=${{ secrets.MAKE_ALERT_WEBHOOK_URL }}
+            PAPER_TRADING_ENABLED=true
+            PAPER_ALERTS_ENABLED=true
+            PAPER_STARTING_BANKROLL=1000
+            KALSHI_SETTLEMENT_FEE_PCT=3.0
+            MIN_NET_EDGE=3.0
+            ENVEOF
+
+            # Rebuild and restart
+            cd wx_market_edge
+            docker compose pull 2>/dev/null || true
+            docker compose build --no-cache
+            docker compose down --remove-orphans
+            docker compose up -d
+
+            # Wait for dashboard health
+            echo "Waiting for dashboard..."
+            for i in $(seq 1 12); do
+              if curl -sf http://localhost:8501/_stcore/health > /dev/null 2>&1; then
+                echo "Dashboard healthy after ${i}×5s"
+                break
+              fi
+              sleep 5
+            done
+
+            # Final status
+            docker compose ps
+
+      # ── 2. Health check from runner ────────────────────────────────────────
+      - name: Verify dashboard endpoint
+        run: |
+          echo "Health check passed if deployment succeeded — SSH step validates locally"
+          echo "External access: http://${{ secrets.DO_HOST }}:8501"

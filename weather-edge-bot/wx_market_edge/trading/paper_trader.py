@@ -11,11 +11,11 @@ import sys
 import sqlite3
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, _paper_trading_enabled
+from config import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, _paper_trading_enabled, TRADE_VOID_AFTER_DAYS
 
 log = logging.getLogger("paper_trader")
 
@@ -261,6 +261,104 @@ def _update_learning(settled_trade: dict, conn: sqlite3.Connection):
         """, (station, "REGIME_PROFITABLE",
               f"{station}/{regime}: win rate {win_rate:.0%} over last {total} trades — regime calibrating well"))
         conn.commit()
+
+
+def void_stale_trades(conn: sqlite3.Connection,
+                      max_days: int | None = None) -> list[int]:
+    """
+    Mark OPEN trades older than max_days (default TRADE_VOID_AFTER_DAYS) as VOID.
+    These are trades that never received a settlement — likely the market expired
+    without resolution or the settlement worker missed them.
+    Returns list of voided trade IDs.
+    """
+    days = max_days if max_days is not None else TRADE_VOID_AFTER_DAYS
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = conn.execute("""
+        SELECT id FROM paper_trades
+        WHERE status='OPEN' AND opened_at < ?
+    """, (cutoff,)).fetchall()
+
+    ids = [r["id"] for r in rows]
+    if not ids:
+        return []
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    conn.execute(f"""
+        UPDATE paper_trades
+        SET status='VOID', closed_at=?, notes=COALESCE(notes||' | ','') || 'Auto-voided: no settlement after {days}d'
+        WHERE id IN ({','.join('?'*len(ids))})
+    """, [now] + ids)
+    conn.commit()
+
+    for tid in ids:
+        log.info("Voided stale trade #%d (open ≥%d days)", tid, days)
+    return ids
+
+
+def record_clv_snapshot(conn: sqlite3.Connection) -> int:
+    """
+    For every OPEN paper trade, capture the current market snapshot price
+    and store it in market_price_snapshots at the appropriate time bucket.
+
+    Time buckets: 15, 30, 60, 120, 240, 480, 1440 minutes.
+    Only writes a new snapshot if one doesn't already exist for that bucket.
+    Returns number of snapshots written.
+    """
+    BUCKETS = [15, 30, 60, 120, 240, 480, 1440]
+    now     = datetime.now(timezone.utc)
+    trades  = conn.execute("""
+        SELECT id, market_ticker, station_code, opened_at
+        FROM paper_trades WHERE status='OPEN'
+    """).fetchall()
+
+    written = 0
+    for t in trades:
+        try:
+            opened = datetime.strptime(t["opened_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        elapsed_min = int((now - opened).total_seconds() / 60)
+
+        # Find which bucket we're nearest to (within ±7 minutes)
+        bucket = None
+        for b in BUCKETS:
+            if abs(elapsed_min - b) <= 7:
+                bucket = b
+                break
+        if bucket is None:
+            continue
+
+        # Skip if snapshot for this bucket already recorded
+        existing = conn.execute("""
+            SELECT id FROM market_price_snapshots
+            WHERE paper_trade_id=? AND minutes_after_open=?
+        """, (t["id"], bucket)).fetchone()
+        if existing:
+            continue
+
+        # Get the latest market snapshot for this ticker
+        snap = conn.execute("""
+            SELECT market_price, best_bid, best_ask
+            FROM market_snapshots
+            WHERE market_ticker=?
+            ORDER BY captured_at DESC LIMIT 1
+        """, (t["market_ticker"],)).fetchone()
+        if not snap or snap["market_price"] is None:
+            continue
+
+        ts_str = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        conn.execute("""
+            INSERT OR IGNORE INTO market_price_snapshots
+                (paper_trade_id, station_code, market_ticker, captured_at,
+                 market_price, best_bid, best_ask, minutes_after_open)
+            VALUES (?,?,?,?,?,?,?,?)
+        """, (t["id"], t["station_code"], t["market_ticker"], ts_str,
+              snap["market_price"], snap["best_bid"], snap["best_ask"], bucket))
+        written += 1
+
+    if written:
+        conn.commit()
+    return written
 
 
 def get_open_trades(conn: sqlite3.Connection) -> list[dict]:

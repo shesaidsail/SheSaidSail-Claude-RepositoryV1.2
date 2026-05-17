@@ -18,6 +18,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import statistics as _stats
+
 from config import (
     STARTING_BANKROLL,
     MAX_SINGLE_TRADE_PCT,
@@ -29,6 +31,8 @@ from config import (
     BASE_RISK_B_PCT,
     BASE_RISK_APLUS_PCT,
     MIN_NET_EDGE,
+    VOLATILITY_SCALE_LOOKBACK,
+    VOLATILITY_SCALE_THRESHOLD,
 )
 from trading.bankroll import (
     get_current_bankroll,
@@ -80,8 +84,12 @@ def size_trade(edge_result: dict, conn: sqlite3.Connection) -> dict:
 
     # ── Hard halts ────────────────────────────────────────────────────────
     if status["trading_paused"]:
-        reason = ("daily loss limit hit" if status["daily_halt"]
-                  else f"drawdown {status['drawdown_pct']:.1%} ≥ pause threshold")
+        if status.get("daily_halt"):
+            reason = "daily loss limit hit"
+        elif status.get("weekly_halt"):
+            reason = f"weekly loss limit hit (weekly P&L: ${status.get('weekly_pnl', 0):.2f})"
+        else:
+            reason = f"drawdown {status['drawdown_pct']:.1%} ≥ pause threshold"
         return _rejected(grade, status, reason)
 
     if bankroll <= 0:
@@ -119,6 +127,10 @@ def size_trade(edge_result: dict, conn: sqlite3.Connection) -> dict:
     dd_mult = status["sizing_multiplier"]
     effective_fraction *= dd_mult
 
+    # Volatility scaling: reduce sizing when recent P&L is highly volatile
+    vol_mult = _volatility_multiplier(conn)
+    effective_fraction *= vol_mult
+
     stake = round(bankroll * effective_fraction, 2)
     stake = max(0.01, stake)  # never round to zero
 
@@ -149,6 +161,38 @@ def size_trade(edge_result: dict, conn: sqlite3.Connection) -> dict:
         "reject_reason":     "",
         "bankroll_snapshot": status,
     }
+
+
+def _volatility_multiplier(conn: sqlite3.Connection) -> float:
+    """
+    Scale down stakes when recent P&L is highly volatile relative to its mean.
+    Returns a multiplier in [0.50, 1.0].
+    - If std(pnl) / |mean(pnl)| > VOLATILITY_SCALE_THRESHOLD → 0.50x
+    - Otherwise scales linearly from 1.0 (low vol) down to 0.50x (high vol).
+    Requires at least VOLATILITY_SCALE_LOOKBACK trades; returns 1.0 if fewer.
+    """
+    rows = conn.execute("""
+        SELECT pnl_dollars FROM paper_trades
+        WHERE status='CLOSED' AND pnl_dollars IS NOT NULL
+        ORDER BY closed_at DESC
+        LIMIT ?
+    """, (VOLATILITY_SCALE_LOOKBACK,)).fetchall()
+
+    if len(rows) < max(5, VOLATILITY_SCALE_LOOKBACK // 2):
+        return 1.0
+
+    pnls = [r["pnl_dollars"] for r in rows]
+    mean = _stats.mean(pnls)
+    std  = _stats.stdev(pnls) if len(pnls) >= 2 else 0.0
+
+    if std == 0 or abs(mean) < 0.001:
+        return 1.0
+
+    ratio = std / abs(mean)
+    if ratio >= VOLATILITY_SCALE_THRESHOLD:
+        return 0.50
+    # Linear interpolation from 1.0 (ratio=0) to 0.50 (ratio=threshold)
+    return round(max(0.50, 1.0 - 0.50 * (ratio / VOLATILITY_SCALE_THRESHOLD)), 4)
 
 
 def _rejected(grade: str, status: dict, reason: str) -> dict:

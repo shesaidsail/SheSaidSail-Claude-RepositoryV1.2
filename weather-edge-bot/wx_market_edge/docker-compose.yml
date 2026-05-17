@@ -8,6 +8,7 @@ version: "3.9"
 #   docker compose logs -f        # tail all logs
 #   docker compose restart        # restart all services
 #   docker compose down           # stop (data persists in volumes)
+#   docker compose ps             # check service health
 
 x-common: &common
   build: .
@@ -41,13 +42,14 @@ services:
       retries: 3
       start_period: 15s
 
-  # ── Scanner + paper-trade worker ────────────────────────────────────────
+  # ── Scanner + paper-trade worker (runs every 2 min) ─────────────────────
   scanner:
     <<: *common
     container_name: wx_scanner
     command: ["python", "scripts/scheduler.py"]
     depends_on:
-      - dashboard
+      dashboard:
+        condition: service_healthy
 
   # ── Settlement worker (runs once per hour, settles yesterday's trades) ──
   settlement:
@@ -55,7 +57,26 @@ services:
     container_name: wx_settlement
     command: ["python", "scripts/settle_worker.py"]
     depends_on:
-      - dashboard
+      dashboard:
+        condition: service_healthy
+
+  # ── CLV snapshot + stale-trade void worker ───────────────────────────────
+  clv_worker:
+    <<: *common
+    container_name: wx_clv
+    command: ["python", "scripts/clv_worker.py"]
+    depends_on:
+      dashboard:
+        condition: service_healthy
+
+  # ── Daily report + alert worker ─────────────────────────────────────────
+  daily_report:
+    <<: *common
+    container_name: wx_daily_report
+    command: ["python", "scripts/daily_report.py"]
+    depends_on:
+      dashboard:
+        condition: service_healthy
 
 volumes:
   wx_data:

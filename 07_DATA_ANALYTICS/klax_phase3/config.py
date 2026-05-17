@@ -16,4 +16,7 @@ SETTLEMENT_SNAP_INTERVAL = 300  # seconds between intra-day settlement snapshots
 # PDT = UTC-7 (May–Oct). Change to -8 for PST (Nov–Mar).
 KLAX_UTC_OFFSET_HOURS = -7
 
-METAR_URL = "https://aviationweather.gov/api/data/metar"
+# Primary: authoritative NWS single-station feed
+NWS_METAR_URL = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{station}.TXT"
+# Fallback: AWC JSON API (gives last N hours, useful for backfills)
+AWC_METAR_URL = "https://aviationweather.gov/api/data/metar"

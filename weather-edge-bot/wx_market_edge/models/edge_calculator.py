@@ -172,22 +172,14 @@ def calculate_edge(
     # Expose full fee dict for dashboard detail views
     result["fee_breakdown"]     = fee_info
 
-    # 8. Confidence
-    conf, reasons = compute_confidence(
-        sample_size = fr.get("_sample_size_cached", 0),  # filled by caller if known
-        std_dev     = std,
-        regime      = regime_r.regime,
-        edge        = edge,
-        regime_conf = regime_r.confidence,
-    )
-
-    # Recalculate with actual sample size from DB
+    # 8. Confidence — use gross_edge for the edge factor (pre-fee raw signal strength)
+    gross_edge = fee_info["gross_edge"]
     n_row = conn.execute(
         "SELECT sample_size FROM model_stats WHERE station_code=? AND model_name=? AND regime='ALL'",
         (station_code, model)
     ).fetchone()
     n = n_row["sample_size"] if n_row else 0
-    conf, reasons = compute_confidence(n, std, regime_r.regime, edge, regime_r.confidence)
+    conf, reasons = compute_confidence(n, std, regime_r.regime, gross_edge, regime_r.confidence)
 
     result["confidence"]         = conf
     result["confidence_reasons"] = reasons

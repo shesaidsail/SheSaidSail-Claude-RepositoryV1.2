@@ -61,6 +61,10 @@ def open_trade(edge_result: dict, conn: sqlite3.Connection) -> int | None:
         log.info("Trade rejected by bet_sizer: %s", sizing.get("reject_reason"))
         return None
 
+    if sizing.get("stake_dollars", 0) <= 0:
+        log.info("Trade skipped — bet_sizer returned $0 stake")
+        return None
+
     fee_info = edge_result.get("fee_breakdown", {})
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     cur = conn.execute("""

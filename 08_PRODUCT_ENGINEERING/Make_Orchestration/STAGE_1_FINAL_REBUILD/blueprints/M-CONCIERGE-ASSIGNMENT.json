@@ -25,40 +25,25 @@
     },
     {
       "id": 2,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "SAFETY: Emergency_Flag must be false before assignment",
-        "condition": {
-          "left": "{{1.fields.Emergency_Flag}}",
-          "operator": "notEqual",
-          "right": "true"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 200, "y": 0 } }
-    },
-    {
-      "id": 3,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "SAFETY: Automations_Paused must be false",
-        "condition": {
-          "left": "{{1.fields.Automations_Paused}}",
-          "operator": "notEqual",
-          "right": "true"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 400, "y": 0 } }
-    },
-    {
-      "id": 4,
       "module": "airtable:SearchRecords",
       "version": 3,
+      "filter": {
+        "name": "SAFETY — Skip if Emergency_Flag or Automations_Paused is true",
+        "conditions": [
+          [
+            {
+              "a": "{{1.fields.Emergency_Flag}}",
+              "o": "text:notEqual",
+              "b": "true"
+            },
+            {
+              "a": "{{1.fields.Automations_Paused}}",
+              "o": "text:notEqual",
+              "b": "true"
+            }
+          ]
+        ]
+      },
       "parameters": {
         "base": "appdZ49WqgjRXxA1R",
         "table": "tblX61IB2qjDmac8l",
@@ -68,7 +53,7 @@
         "filterByFormula": "AND({Status} = 'Active', SEARCH(\"{{1.fields.City}}\", {City}))"
       },
       "metadata": {
-        "designer": { "x": 600, "y": 0 },
+        "designer": { "x": 300, "y": 0 },
         "restore": {
           "parameters": {
             "base": { "label": "She Said Sail" },
@@ -78,34 +63,30 @@
       }
     },
     {
-      "id": 5,
+      "id": 3,
       "module": "builtin:BasicRouter",
       "version": 1,
       "parameters": {},
       "mapper": {},
-      "metadata": { "designer": { "x": 800, "y": 0 } },
+      "metadata": { "designer": { "x": 600, "y": 0 } },
       "routes": [
         {
           "flow": [
             {
-              "id": 6,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "label": "Route: Active concierge found for city",
-                "condition": {
-                  "left": "{{4.id}}",
-                  "operator": "exist"
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 1000, "y": -150 } }
-            },
-            {
-              "id": 7,
+              "id": 4,
               "module": "airtable:ActionUpdateRecord",
               "version": 3,
+              "filter": {
+                "name": "Route 1 — Active concierge found for city",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.id}}",
+                      "o": "text:exist"
+                    }
+                  ]
+                ]
+              },
               "parameters": {
                 "base": "appdZ49WqgjRXxA1R",
                 "table": "tbl72omPibBkn2hZL"
@@ -114,13 +95,13 @@
                 "recordId": "{{1.id}}",
                 "fields": {
                   "Concierge_Assigned": true,
-                  "Concierge_Name": "{{4.fields.Name}}",
+                  "Concierge_Name": "{{2.fields.Name}}",
                   "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}",
-                  "Charter Notes": "{{ifempty(1.fields.Charter Notes; \"\")}}\n\n[AUTO-ASSIGNED CONCIERGE: {{4.fields.Name}} — {{formatDate(now; \"YYYY-MM-DD HH:mm\")}} UTC]"
+                  "Charter Notes": "{{ifempty(1.fields.Charter Notes; \"\")}}\n\n[AUTO-ASSIGNED CONCIERGE: {{2.fields.Name}} — {{formatDate(now; \"YYYY-MM-DD HH:mm\")}} UTC]"
                 }
               },
               "metadata": {
-                "designer": { "x": 1200, "y": -150 },
+                "designer": { "x": 900, "y": -150 },
                 "restore": {
                   "parameters": {
                     "base": { "label": "She Said Sail" },
@@ -130,7 +111,7 @@
               }
             },
             {
-              "id": 8,
+              "id": 5,
               "module": "http:ActionSendData",
               "version": 3,
               "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
@@ -138,33 +119,29 @@
                 "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
                 "method": "POST",
                 "headers": [{ "name": "Content-Type", "value": "application/json" }],
-                "body": "{\"triggering_event\": \"Bookings table: Status = DEPOSIT_PAID, Concierge_Assigned = false\", \"source_data\": \"Booking: {{ifempty(1.fields.Booking ID; 1.id)}}, City: {{ifempty(1.fields.City; \"Unknown\")}}, Concierge found: {{4.fields.Name}}\", \"output\": \"Concierge_Assigned = true. Concierge: {{4.fields.Name}}. Charter Notes updated with assignment record.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(1.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(1.fields.City; \"Unknown\")}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings (tbl72omPibBkn2hZL)\", \"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Concierge Assigned — {{4.fields.Name}}\", \"body\": \"{{4.fields.Name}} assigned to booking {{ifempty(1.fields.Booking ID; 1.id)}}. Charter date: {{ifempty(1.fields.Charter Date; \"—\")}}. Brand: {{ifempty(1.fields.Brand; \"SSS\")}}.\", \"booking_id\": \"{{ifempty(1.fields.Booking ID; 1.id)}}\"}"
+                "body": "{\"triggering_event\": \"Bookings table: Status = DEPOSIT_PAID, Concierge_Assigned = false\", \"source_data\": \"Booking: {{ifempty(1.fields.Booking ID; 1.id)}}, City: {{ifempty(1.fields.City; \"Unknown\")}}, Concierge found: {{2.fields.Name}}\", \"output\": \"Concierge_Assigned = true. Concierge: {{2.fields.Name}}. Charter Notes updated with assignment record.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(1.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(1.fields.City; \"Unknown\")}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings (tbl72omPibBkn2hZL)\", \"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Concierge Assigned — {{2.fields.Name}}\", \"body\": \"{{2.fields.Name}} assigned to booking {{ifempty(1.fields.Booking ID; 1.id)}}. Charter date: {{ifempty(1.fields.Charter Date; \"—\")}}. Brand: {{ifempty(1.fields.Brand; \"SSS\")}}.\", \"booking_id\": \"{{ifempty(1.fields.Booking ID; 1.id)}}\"}"
               },
-              "metadata": { "designer": { "x": 1400, "y": -150 } }
+              "metadata": { "designer": { "x": 1200, "y": -150 } }
             }
           ]
         },
         {
           "flow": [
             {
-              "id": 9,
-              "module": "builtin:BasicFilter",
-              "version": 1,
-              "parameters": {
-                "label": "Route: No active concierge found — manual assignment required",
-                "condition": {
-                  "left": "{{4.id}}",
-                  "operator": "notExist"
-                },
-                "throw": false
-              },
-              "mapper": {},
-              "metadata": { "designer": { "x": 1000, "y": 150 } }
-            },
-            {
-              "id": 10,
+              "id": 6,
               "module": "http:ActionSendData",
               "version": 3,
+              "filter": {
+                "name": "Route 2 — No active concierge found — manual assignment required",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.id}}",
+                      "o": "text:notExist"
+                    }
+                  ]
+                ]
+              },
               "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
               "mapper": {
                 "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
@@ -172,7 +149,7 @@
                 "headers": [{ "name": "Content-Type", "value": "application/json" }],
                 "body": "{\"triggering_event\": \"Concierge Assignment — no active concierge found for city\", \"source_data\": \"Booking: {{ifempty(1.fields.Booking ID; 1.id)}}, City: {{ifempty(1.fields.City; \"Unknown\")}}\", \"output\": \"NEEDS_MANUAL_ASSIGNMENT — no active Concierge_Operators record found for city: {{ifempty(1.fields.City; \"Unknown\")}}. Slack alert dispatched.\", \"approval_state\": \"PENDING_HUMAN\", \"brand\": \"{{ifempty(1.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(1.fields.City; \"Unknown\")}}\", \"environment\": \"Production\", \"destination\": \"Slack #sss-ops-alerts\", \"alert_type\": \"OPS\", \"severity\": \"WARNING\", \"title\": \"No Concierge Found — Manual Assignment Required\", \"body\": \"No active concierge operator in Concierge_Operators table for city: {{ifempty(1.fields.City; \"Unknown\")}}. Booking {{ifempty(1.fields.Booking ID; 1.id)}} requires manual concierge assignment. Please assign in Airtable and set Concierge_Assigned = true.\", \"booking_id\": \"{{ifempty(1.fields.Booking ID; 1.id)}}\"}"
               },
-              "metadata": { "designer": { "x": 1200, "y": 150 } }
+              "metadata": { "designer": { "x": 900, "y": 150 } }
             }
           ]
         }
@@ -196,7 +173,7 @@
     "designer": {
       "orphans": []
     },
-    "zone": "us1.make.com",
-    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 1 and 4 to SSS PAT. Module 1: Bookings (tbl72omPibBkn2hZL). Module 4: Concierge_Operators (tblX61IB2qjDmac8l). Module 7: Bookings (tbl72omPibBkn2hZL). (2) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in modules 8 AND 10 (both routes need it). === AIRTABLE PRE-WORK === Verify Concierge_Operators table (tblX61IB2qjDmac8l) exists with fields: Name, Status (Active/Inactive), City. Populate with at least one active record before testing. === AIRTABLE FIELDS REQUIRED IN BOOKINGS TABLE === Create before activation: Concierge_Name (Single line text). SAFETY CHAIN: Module 2 blocks if Emergency_Flag = true. Module 3 blocks if Automations_Paused = true. Both must pass before any assignment occurs. ROUTING: If concierge found → set Concierge_Assigned=true + log success. If not found → alert Slack with WARNING severity, requiring manual assignment. TRIGGER: Bookings table, Status = DEPOSIT_PAID, Concierge_Assigned = 0, Environment = Production. Polls every 15 minutes."
+    "zone": "us2.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 1, 2, 4 to SSS PAT. Module 1: Bookings (tbl72omPibBkn2hZL). Module 2: Concierge_Operators (tblX61IB2qjDmac8l). Module 4: Bookings (tbl72omPibBkn2hZL). (2) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in modules 5 AND 6 (both routes). === AIRTABLE PRE-WORK === Verify Concierge_Operators table (tblX61IB2qjDmac8l) exists with fields: Name, Status (Active/Inactive), City. Populate with at least one active record before testing. SAFETY CHAIN: Module 2 filter blocks if Emergency_Flag = true OR Automations_Paused = true. Both must be false before any assignment occurs. ROUTING: Router module 3 sends to route 1 if concierge found (2.id exists) → UpdateRecord sets Concierge_Assigned=true + OPS-LOGGER INFO. Route 2 fires if no concierge found (2.id notExist) → OPS-LOGGER WARNING requiring manual assignment. TRIGGER: Bookings table, Status = DEPOSIT_PAID, Concierge_Assigned = 0, Environment = Production. Polls every 15 minutes."
   }
 }

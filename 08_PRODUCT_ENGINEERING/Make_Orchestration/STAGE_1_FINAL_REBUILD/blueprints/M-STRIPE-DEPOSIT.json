@@ -6,7 +6,7 @@
       "module": "gateway:CustomWebHook",
       "version": 1,
       "parameters": {
-        "hook": "SSS_STRIPE_DEPOSIT_HOOK",
+        "hook": "PASTE_HOOK_ID_HERE",
         "maxResults": 1
       },
       "mapper": {},
@@ -21,50 +21,76 @@
     },
     {
       "id": 2,
-      "module": "builtin:SetVariables",
-      "version": 1,
-      "parameters": {},
-      "mapper": {
-        "variables": [
-          { "name": "stripe_event_type", "value": "{{1.type}}" },
-          { "name": "payment_intent_id", "value": "{{1.data.object.id}}" },
-          { "name": "amount_received_cents", "value": "{{1.data.object.amount_received}}" },
-          { "name": "amount_received_dollars", "value": "{{divide(toNumber(1.data.object.amount_received); 100)}}" },
-          { "name": "currency", "value": "{{toUpper(1.data.object.currency)}}" },
-          { "name": "customer_email", "value": "{{1.data.object.receipt_email}}" },
-          { "name": "metadata_booking_id", "value": "{{1.data.object.metadata.booking_id}}" },
-          { "name": "metadata_request_id", "value": "{{1.data.object.metadata.request_id}}" }
-        ]
-      },
-      "metadata": { "designer": { "x": 200, "y": 0 } }
-    },
-    {
-      "id": 3,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "SAFETY: Only process payment_intent.succeeded events",
-        "condition": {
-          "left": "{{stripe_event_type}}",
-          "operator": "equal",
-          "right": "payment_intent.succeeded"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 400, "y": 0 } }
-    },
-    {
-      "id": 4,
       "module": "airtable:SearchRecords",
       "version": 3,
+      "filter": {
+        "name": "SAFETY GATE 1 — Only process payment_intent.succeeded events",
+        "conditions": [
+          [
+            {
+              "a": "{{1.type}}",
+              "o": "text:equal",
+              "b": "payment_intent.succeeded"
+            }
+          ]
+        ]
+      },
       "parameters": {
         "base": "appdZ49WqgjRXxA1R",
         "table": "tbl72omPibBkn2hZL",
         "maxRecords": 1
       },
       "mapper": {
-        "filterByFormula": "OR(SEARCH(\"{{payment_intent_id}}\", {Stripe_Payment_Intent_ID}), SEARCH(\"{{payment_intent_id}}\", {Idempotency_Key}), RECORD_ID() = \"{{metadata_booking_id}}\")"
+        "filterByFormula": "OR(SEARCH(\"{{1.data.object.id}}\", {Stripe_Payment_Intent_ID}), SEARCH(\"{{1.data.object.id}}\", {Idempotency_Key}), RECORD_ID() = \"{{1.data.object.metadata.booking_id}}\")"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Bookings" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "filter": {
+        "name": "SAFETY GATE 2 — Booking must exist, not already DEPOSIT_PAID, and not Sandbox",
+        "conditions": [
+          [
+            {
+              "a": "{{2.id}}",
+              "o": "text:exist"
+            },
+            {
+              "a": "{{2.fields.Status}}",
+              "o": "text:notEqual",
+              "b": "DEPOSIT_PAID"
+            },
+            {
+              "a": "{{2.fields.Environment}}",
+              "o": "text:notEqual",
+              "b": "Sandbox"
+            }
+          ]
+        ]
+      },
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL"
+      },
+      "mapper": {
+        "recordId": "{{2.id}}",
+        "fields": {
+          "Status": "DEPOSIT_PAID",
+          "Stripe_Payment_Intent_ID": "{{1.data.object.id}}",
+          "Deposit_Amount": "{{divide(toNumber(1.data.object.amount_received); 100)}}",
+          "Source_System": "Stripe",
+          "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
       },
       "metadata": {
         "designer": { "x": 600, "y": 0 },
@@ -77,71 +103,7 @@
       }
     },
     {
-      "id": 5,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "SAFETY: Booking must exist and not already be DEPOSIT_PAID",
-        "condition": {
-          "left": "{{4.id}}",
-          "operator": "exist",
-          "and": {
-            "left": "{{4.fields.Status}}",
-            "operator": "notEqual",
-            "right": "DEPOSIT_PAID"
-          }
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 800, "y": 0 } }
-    },
-    {
-      "id": 6,
-      "module": "builtin:BasicFilter",
-      "version": 1,
-      "parameters": {
-        "label": "SAFETY: Environment must be Production (not Sandbox)",
-        "condition": {
-          "left": "{{4.fields.Environment}}",
-          "operator": "notEqual",
-          "right": "Sandbox"
-        },
-        "throw": false
-      },
-      "mapper": {},
-      "metadata": { "designer": { "x": 1000, "y": 0 } }
-    },
-    {
-      "id": 7,
-      "module": "airtable:ActionUpdateRecord",
-      "version": 3,
-      "parameters": {
-        "base": "appdZ49WqgjRXxA1R",
-        "table": "tbl72omPibBkn2hZL"
-      },
-      "mapper": {
-        "recordId": "{{4.id}}",
-        "fields": {
-          "Status": "DEPOSIT_PAID",
-          "Stripe_Payment_Intent_ID": "{{payment_intent_id}}",
-          "Deposit_Amount": "{{amount_received_dollars}}",
-          "Source_System": "Stripe",
-          "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
-        }
-      },
-      "metadata": {
-        "designer": { "x": 1200, "y": 0 },
-        "restore": {
-          "parameters": {
-            "base": { "label": "She Said Sail" },
-            "table": { "label": "Bookings" }
-          }
-        }
-      }
-    },
-    {
-      "id": 8,
+      "id": 4,
       "module": "http:ActionSendData",
       "version": 3,
       "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
@@ -149,9 +111,11 @@
         "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
         "method": "POST",
         "headers": [{ "name": "Content-Type", "value": "application/json" }],
-        "body": "{\"triggering_event\": \"Stripe payment_intent.succeeded — deposit confirmed\", \"source_data\": \"Payment Intent: {{payment_intent_id}}, Amount: ${{amount_received_dollars}} {{currency}}, Customer: {{customer_email}}, Booking ID meta: {{metadata_booking_id}}\", \"output\": \"Booking {{ifempty(4.fields.Booking ID; 4.id)}} status updated to DEPOSIT_PAID. Stripe Payment Intent ID stored.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(4.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(4.fields.City; \"Unknown\")}}\", \"environment\": \"{{ifempty(4.fields.Environment; \"Production\")}}\", \"destination\": \"Airtable Bookings (tbl72omPibBkn2hZL)\", \"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Deposit Received — ${{amount_received_dollars}} {{currency}}\", \"body\": \"Stripe deposit confirmed. Booking {{ifempty(4.fields.Booking ID; 4.id)}} updated to DEPOSIT_PAID. Customer: {{customer_email}}.\", \"booking_id\": \"{{ifempty(4.fields.Booking ID; 4.id)}}\"}"
+        "body": "{\"triggering_event\": \"Stripe payment_intent.succeeded — deposit confirmed\", \"source_data\": \"Payment Intent: {{1.data.object.id}}, Amount: ${{divide(toNumber(1.data.object.amount_received); 100)}} {{toUpper(1.data.object.currency)}}, Customer: {{1.data.object.receipt_email}}, Booking ID meta: {{1.data.object.metadata.booking_id}}\", \"output\": \"Booking {{ifempty(2.fields.Booking ID; 2.id)}} status updated to DEPOSIT_PAID. Stripe Payment Intent ID stored.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(2.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(2.fields.City; \"Unknown\")}}\", \"environment\": \"{{ifempty(2.fields.Environment; \"Production\")}}\", \"destination\": \"Airtable Bookings (tbl72omPibBkn2hZL)\", \"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Deposit Received — ${{divide(toNumber(1.data.object.amount_received); 100)}} {{toUpper(1.data.object.currency)}}\", \"body\": \"Stripe deposit confirmed. Booking {{ifempty(2.fields.Booking ID; 2.id)}} updated to DEPOSIT_PAID. Customer: {{1.data.object.receipt_email}}.\", \"booking_id\": \"{{ifempty(2.fields.Booking ID; 2.id)}}\"}"
       },
-      "metadata": { "designer": { "x": 1400, "y": 0 } }
+      "metadata": {
+        "designer": { "x": 900, "y": 0 }
+      }
     }
   ],
   "metadata": {
@@ -171,7 +135,7 @@
     "designer": {
       "orphans": []
     },
-    "zone": "us1.make.com",
-    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 4 and 7 to SSS PAT. Base = appdZ49WqgjRXxA1R, Table = Bookings (tbl72omPibBkn2hZL). (2) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in module 8. (3) === STRIPE SETUP REQUIRED === In Stripe Dashboard > Developers > Webhooks: Add endpoint using THIS scenario's Make webhook URL. Select event: payment_intent.succeeded only. Copy the webhook signing secret and store in your credential vault. (4) === STRIPE TEST MODE === In Stripe Dashboard, ensure you are in TEST MODE during initial testing. Use Stripe's 'Send test webhook' feature to verify this scenario works before going live. SAFETY GATES: Module 3 blocks any event that is not payment_intent.succeeded. Module 5 blocks if booking not found or already DEPOSIT_PAID (idempotency). Module 6 blocks if Environment = Sandbox. AIRTABLE FIELDS WRITTEN: Status=DEPOSIT_PAID, Stripe_Payment_Intent_ID, Deposit_Amount, Last_Automation_Timestamp. NOTE: If Bookings table does not have Stripe_Payment_Intent_ID or Deposit_Amount fields, create them before activation."
+    "zone": "us2.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 2 and 3 to SSS PAT. Base = appdZ49WqgjRXxA1R, Table = Bookings (tbl72omPibBkn2hZL). (2) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in module 4. (3) === STRIPE SETUP REQUIRED === In Stripe Dashboard > Developers > Webhooks: Add endpoint using THIS scenario's Make webhook URL. Select event: payment_intent.succeeded ONLY. (4) === STRIPE TEST MODE === Ensure Stripe is in TEST MODE during all testing. SAFETY GATES — both in module 3 filter (combined): Gate 1 (module 2 filter): Only payment_intent.succeeded events proceed. Gate 2 (module 3 filter): Booking must exist AND not already DEPOSIT_PAID AND not Sandbox. AIRTABLE FIELDS WRITTEN: Status=DEPOSIT_PAID, Stripe_Payment_Intent_ID, Deposit_Amount, Last_Automation_Timestamp."
   }
 }

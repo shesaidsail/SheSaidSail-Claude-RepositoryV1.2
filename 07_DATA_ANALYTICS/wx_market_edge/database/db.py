@@ -195,7 +195,14 @@ CREATE TABLE IF NOT EXISTS paper_trades (
     grade           TEXT,    -- 'A+' | 'B' | 'Watchlist' | 'Avoid'
     stake_dollars   REAL,    -- dollar amount risked on this trade
     kelly_fraction  REAL,    -- Kelly fraction used (after all adjustments)
-    pnl_dollars     REAL     -- dollar P&L after settlement
+    pnl_dollars     REAL,    -- net dollar P&L after settlement and Kalshi fee
+    gross_pnl_dollars REAL,  -- gross dollar P&L before Kalshi fee
+    fee_dollars     REAL,    -- Kalshi settlement fee paid (0 on losses)
+    gross_edge      REAL,    -- edge before fees and spread (¢)
+    net_edge        REAL,    -- net edge after fee + spread (¢)
+    est_fee_cents   REAL,    -- expected fee at entry (¢ per contract)
+    spread_cost_cents REAL,  -- spread cost at entry (¢ per contract)
+    order_type      TEXT DEFAULT 'TAKER'  -- 'TAKER' | 'MAKER'
 );
 
 -- ── Bankroll history (daily snapshots) ────────────────────────────────────
@@ -352,6 +359,13 @@ def _migrate(conn: sqlite3.Connection):
         ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN stake_dollars REAL"),
         ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN kelly_fraction REAL"),
         ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN pnl_dollars REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN gross_pnl_dollars REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN fee_dollars REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN gross_edge REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN net_edge REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN est_fee_cents REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN spread_cost_cents REAL"),
+        ("paper_trades",    "ALTER TABLE paper_trades ADD COLUMN order_type TEXT"),
         ("webhook_alerts",  "ALTER TABLE webhook_alerts ADD COLUMN alert_type TEXT"),
     ]
     for _table, sql in column_migrations:

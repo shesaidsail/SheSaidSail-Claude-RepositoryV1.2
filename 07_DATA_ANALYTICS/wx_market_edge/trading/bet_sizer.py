@@ -28,6 +28,7 @@ from config import (
     BASE_RISK_NORMAL_PCT,
     BASE_RISK_B_PCT,
     BASE_RISK_APLUS_PCT,
+    MIN_NET_EDGE,
 )
 from trading.bankroll import (
     get_current_bankroll,
@@ -75,13 +76,24 @@ def size_trade(edge_result: dict, conn: sqlite3.Connection) -> dict:
     status = bankroll_status(conn)
     bankroll = status["current_bankroll"]
 
+    net_edge = edge_result.get("net_edge")
+
     # ── Hard halts ────────────────────────────────────────────────────────
     if status["trading_paused"]:
-        reason = "daily loss limit hit" if status["daily_halt"] else f"drawdown {status['drawdown_pct']:.1%} ≥ pause threshold"
+        reason = ("daily loss limit hit" if status["daily_halt"]
+                  else f"drawdown {status['drawdown_pct']:.1%} ≥ pause threshold")
         return _rejected(grade, status, reason)
 
     if bankroll <= 0:
         return _rejected(grade, status, "bankroll depleted")
+
+    # ── Fee gate: net edge must be positive after fees + spread ──────────
+    if net_edge is not None and net_edge <= MIN_NET_EDGE:
+        fee_info = edge_result.get("fee_breakdown", {})
+        eroded   = fee_info.get("edge_erosion_pct", 0)
+        return _rejected(grade, status,
+                         f"net edge {net_edge:+.1f}¢ ≤ {MIN_NET_EDGE}¢ threshold "
+                         f"(fees+spread eroded {eroded:.0f}% of gross edge)")
 
     # ── Grade-based Kelly fraction and base risk ───────────────────────────
     if grade == "A+":

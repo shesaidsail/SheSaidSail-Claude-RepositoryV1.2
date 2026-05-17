@@ -26,7 +26,8 @@ from models.bias_engine    import blended_bias
 from models.confidence_engine import compute_confidence
 from ingestion.open_meteo  import get_latest_forecast
 from ingestion.metar       import get_latest_obs
-from config                import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, MIN_REGIME_N, DEFAULT_MODEL, STATIONS, KALSHI_SETTLEMENT_FEE_PCT
+from config                import MIN_EDGE, MIN_CONFIDENCE, MAX_SPREAD, MIN_REGIME_N, DEFAULT_MODEL, STATIONS, MIN_NET_EDGE
+from models.fee_engine     import estimate_fees
 
 
 def win_probability(adjusted_forecast: float, std_dev: float,
@@ -44,11 +45,15 @@ def win_probability(adjusted_forecast: float, std_dev: float,
     raise ValueError("side must be 'Yes' or 'No'")
 
 
-def _signal(edge: float, confidence: float, spread: float | None) -> str:
+def _signal(gross_edge: float, net_edge: float, confidence: float,
+            spread: float | None) -> str:
+    """Signal requires BOTH gross edge ≥ MIN_EDGE AND net edge > MIN_NET_EDGE."""
     spread_ok = (spread is None) or (spread <= MAX_SPREAD)
-    if edge >= MIN_EDGE and confidence >= MIN_CONFIDENCE and spread_ok:
+    if (gross_edge >= MIN_EDGE and net_edge > MIN_NET_EDGE
+            and confidence >= MIN_CONFIDENCE and spread_ok):
         return "BET"
-    if edge <= -MIN_EDGE and confidence >= MIN_CONFIDENCE and spread_ok:
+    if (gross_edge <= -MIN_EDGE and net_edge < -MIN_NET_EDGE
+            and confidence >= MIN_CONFIDENCE and spread_ok):
         return "FADE"
     return "PASS"
 
@@ -89,8 +94,15 @@ def calculate_edge(
         "bias_note":         "",
         "adjusted_forecast": None,
         "model_prob":        None,
-        "fair_value":        None,
-        "edge":              None,
+        "fair_value":        None,     # net fair value (after fee) — primary display field
+        "gross_fair":        None,     # prob × 100 (no fee)
+        "edge":              None,     # gross_edge − spread_cost for backwards compat
+        "gross_edge":        None,     # gross_fair − market_price
+        "net_edge":          None,     # net after fee + spread (signal gating field)
+        "est_fee_cents":     None,
+        "spread_cost_cents": None,
+        "order_type":        None,
+        "is_tradeable":      False,
         "confidence":        0.0,
         "confidence_reasons":[],
         "signal":            "PASS",
@@ -138,16 +150,27 @@ def calculate_edge(
     adj = round(fr["temp_max"] + bias, 2)
     result["adjusted_forecast"] = adj
 
-    # 5–7. Probability, fair value, edge
-    # Fair value is discounted by Kalshi's settlement fee (applied to the
-    # winner's profit, so gross_fair * (1 - fee) ≈ prob * (100 - fee_pct))
+    # 5–7. Probability + full fee-aware breakdown
     prob = win_probability(adj, std, threshold_f, side)
-    fair = round(prob * (100 - KALSHI_SETTLEMENT_FEE_PCT), 2)
-    edge = round(fair - market_price, 2)
+    fee_info = estimate_fees(
+        win_prob        = prob,
+        market_price_mid= market_price,
+        best_bid        = best_bid,
+        best_ask        = best_ask,
+    )
 
-    result["model_prob"]  = round(prob, 4)
-    result["fair_value"]  = fair
-    result["edge"]        = edge
+    result["model_prob"]        = round(prob, 4)
+    result["gross_fair"]        = fee_info["gross_fair"]
+    result["fair_value"]        = fee_info["net_fair"]      # net fair (after fee) is the headline
+    result["gross_edge"]        = fee_info["gross_edge"]
+    result["edge"]              = fee_info["gross_edge"]    # backwards compat alias
+    result["net_edge"]          = fee_info["net_edge"]
+    result["est_fee_cents"]     = fee_info["expected_fee_cents"]
+    result["spread_cost_cents"] = fee_info["spread_cost_cents"]
+    result["order_type"]        = fee_info["order_type"]
+    result["is_tradeable"]      = fee_info["is_tradeable"]
+    # Expose full fee dict for dashboard detail views
+    result["fee_breakdown"]     = fee_info
 
     # 8. Confidence
     conf, reasons = compute_confidence(
@@ -169,8 +192,10 @@ def calculate_edge(
     result["confidence"]         = conf
     result["confidence_reasons"] = reasons
 
-    # 9. Signal
-    result["signal"] = _signal(edge, conf, result["spread"])
+    # 9. Signal — gated on both gross edge AND net edge (after fees + spread)
+    result["signal"] = _signal(
+        fee_info["gross_edge"], fee_info["net_edge"], conf, result["spread"]
+    )
 
     # 10. Human-readable explanation
     station_name = STATIONS.get(station_code, {}).get("name", station_code)
@@ -178,14 +203,19 @@ def calculate_edge(
         f"{station_code} ({station_name})  {side} >{threshold_f:.0f}°F\n"
         f"  Market price:      {market_price:.0f}¢\n"
         f"  Model probability: {prob*100:.1f}%\n"
-        f"  Fair value:        {fair:.1f}¢\n"
-        f"  Edge:              {edge:+.1f}¢\n"
+        f"  Gross fair value:  {fee_info['gross_fair']:.1f}¢  (prob × 100)\n"
+        f"  Kalshi fee est.:   −{fee_info['expected_fee_cents']:.1f}¢"
+        f"  (spread: −{fee_info['spread_cost_cents']:.1f}¢)\n"
+        f"  Net fair value:    {fee_info['net_fair']:.1f}¢\n"
+        f"  Gross edge:        {fee_info['gross_edge']:+.1f}¢\n"
+        f"  Net edge:          {fee_info['net_edge']:+.1f}¢  [{fee_info['order_type']}]\n"
         f"  Open-Meteo high:   {fr['temp_max']:.1f}°F\n"
         f"  Adjusted forecast: {adj:.1f}°F (bias {bias:+.2f}°F)\n"
         f"  Regime:            {regime_r.regime} (conf {regime_r.confidence:.0%})\n"
         f"  Bias note:         {bias_note}\n"
         f"  Model confidence:  {conf:.0%}\n"
         f"  Signal:            {result['signal']}"
+        + ("  ✓ TRADEABLE" if fee_info["is_tradeable"] else "  ✗ edge destroyed by fees/spread")
     )
 
     return result

@@ -34,9 +34,15 @@ def open_trade(edge_result: dict, conn: sqlite3.Connection) -> int | None:
     spread     = edge_result.get("spread")
     signal     = edge_result.get("signal", "PASS")
 
+    net_edge = edge_result.get("net_edge")
+    is_tradeable = edge_result.get("is_tradeable", True)   # fee engine sets this
+
     if signal not in ("BET", "FADE"):
         return None
     if abs(edge) < MIN_EDGE:
+        return None
+    if not is_tradeable:
+        log.info("Trade skipped — net edge after fees/spread is non-positive")
         return None
     if confidence < MIN_CONFIDENCE:
         return None
@@ -55,14 +61,16 @@ def open_trade(edge_result: dict, conn: sqlite3.Connection) -> int | None:
         log.info("Trade rejected by bet_sizer: %s", sizing.get("reject_reason"))
         return None
 
+    fee_info = edge_result.get("fee_breakdown", {})
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     cur = conn.execute("""
         INSERT INTO paper_trades (
             opened_at, station_code, market_ticker, forecast_date,
             threshold_f, side, entry_price, fair_value, edge,
             confidence, regime, adjusted_forecast, model_prob,
-            status, grade, stake_dollars, kelly_fraction, notes
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'OPEN',?,?,?,?)
+            status, grade, stake_dollars, kelly_fraction, notes,
+            gross_edge, net_edge, est_fee_cents, spread_cost_cents, order_type
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'OPEN',?,?,?,?,?,?,?,?,?)
     """, (
         now,
         edge_result.get("station_code"),
@@ -81,6 +89,11 @@ def open_trade(edge_result: dict, conn: sqlite3.Connection) -> int | None:
         sizing.get("stake_dollars", 0.0),
         sizing.get("kelly_fraction", 0.0),
         f"Signal: {signal} | Auto paper trade",
+        edge_result.get("gross_edge", edge),
+        net_edge,
+        fee_info.get("expected_fee_cents"),
+        fee_info.get("spread_cost_cents"),
+        fee_info.get("order_type", "TAKER"),
     ))
     conn.commit()
     trade_id = cur.lastrowid
@@ -129,32 +142,34 @@ def settle_trades(date: str, conn: sqlite3.Connection) -> list[dict]:
         threshold     = t["threshold_f"]
         side          = t["side"]
 
+        # T+0.5 continuity correction — consistent with probability engine
         if side == "Yes":
-            win = official_high >= threshold + 1
+            win = official_high >= threshold + 0.5
         else:
-            win = official_high <= threshold
+            win = official_high < threshold + 0.5
 
         entry_cost = t["entry_price"]
         payout     = 100 if win else 0
         pnl_cents  = payout - entry_cost
 
-        # Dollar P&L: stake at risk → win returns stake × (payout/entry_cost), loss loses stake
         stake = t["stake_dollars"] or 0.0
-        if stake > 0 and entry_cost and entry_cost > 0:
-            pnl_dollars = stake * (pnl_cents / entry_cost)
-        else:
-            pnl_dollars = 0.0
-        pnl_dollars = round(pnl_dollars, 4)
-
         result_str = "WIN" if win else "LOSS"
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+        # Compute net P&L after Kalshi settlement fee (fee only on wins)
+        from models.fee_engine import net_pnl_after_fee
+        gross_pnl_d, fee_d, net_pnl_d = net_pnl_after_fee(
+            stake, entry_cost, result_str
+        )
+
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         conn.execute("""
             UPDATE paper_trades
             SET status='CLOSED', settlement_price=?, result=?,
-                pnl_cents=?, pnl_dollars=?, closed_at=?
+                pnl_cents=?, pnl_dollars=?, gross_pnl_dollars=?,
+                fee_dollars=?, closed_at=?
             WHERE id=?
-        """, (official_high, result_str, pnl_cents, pnl_dollars, now, t["id"]))
+        """, (official_high, result_str, pnl_cents, net_pnl_d,
+              gross_pnl_d, fee_d, now, t["id"]))
         conn.commit()
 
         # Build the settled record
@@ -168,10 +183,12 @@ def settle_trades(date: str, conn: sqlite3.Connection) -> list[dict]:
             "side":          side,
             "entry_price":   entry_cost,
             "official_high": official_high,
-            "result":        result_str,
-            "pnl_cents":     pnl_cents,
-            "pnl_dollars":   pnl_dollars,
-            "stake_dollars": stake,
+            "result":           result_str,
+            "pnl_cents":        pnl_cents,
+            "gross_pnl_dollars":gross_pnl_d,
+            "fee_dollars":      fee_d,
+            "pnl_dollars":      net_pnl_d,
+            "stake_dollars":    stake,
             "regime":        t["regime"],
             "grade":         t["grade"],
             "new_bankroll":  new_bankroll,

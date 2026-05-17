@@ -94,6 +94,15 @@ DEFAULT_MODEL     = "OpenMeteo"
 # We deduct this from fair value so edge reflects real net EV, not gross.
 KALSHI_SETTLEMENT_FEE_PCT = float(os.getenv("KALSHI_SETTLEMENT_FEE_PCT", "3.0"))
 
+# Minimum net edge (after all fees and spread) required to open a trade.
+# Gross edge signals above MIN_EDGE may still be suppressed here.
+MIN_NET_EDGE = float(os.getenv("MIN_NET_EDGE", "3.0"))
+
+# Default order-type assumption for paper trading cost modelling.
+# "TAKER" = market order (pays ask, guaranteed fill, incurs half-spread).
+# "MAKER" = limit order at mid (no spread cost, 70% assumed fill rate).
+DEFAULT_ORDER_TYPE = os.getenv("DEFAULT_ORDER_TYPE", "TAKER").upper()
+
 # ---------------------------------------------------------------------------
 # Polling intervals (seconds)
 # ---------------------------------------------------------------------------

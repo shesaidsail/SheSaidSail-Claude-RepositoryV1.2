@@ -1,0 +1,201 @@
+{
+  "name": "SSS-LEAD-INTAKE",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "SSS_LEAD_INTAKE_HOOK",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "SSS Lead Intake Webhook — register in Webflow Form Submissions" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          {
+            "name": "idempotency_key",
+            "value": "LEAD-{{sha256(join([1.email; \"|\"; ifempty(1.preferred_date; \"nodate\"); \"|\"; ifempty(1.guest_count; \"0\")]))}}"
+          },
+          {
+            "name": "lead_name",
+            "value": "{{trim(join([ifempty(1.first_name; \"\"); \" \"; ifempty(1.last_name; \"\")]))}}"
+          },
+          {
+            "name": "submission_time",
+            "value": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+          }
+        ]
+      },
+      "metadata": { "designer": { "x": 200, "y": 0 } }
+    },
+    {
+      "id": 3,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg",
+        "maxRecords": 1
+      },
+      "mapper": {
+        "filterByFormula": "SEARCH(\"{{idempotency_key}}\", {Notes})"
+      },
+      "metadata": {
+        "designer": { "x": 400, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "IDEMPOTENCY: Skip if duplicate submission exists",
+        "condition": {
+          "left": "{{3.id}}",
+          "operator": "notExist"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": { "designer": { "x": 600, "y": 0 } }
+    },
+    {
+      "id": 5,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "PASTE_BRAND_ROUTER_WEBHOOK_URL_HERE",
+        "method": "POST",
+        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+        "body": "{\"request_record_id\": \"PENDING\", \"source_url\": \"{{ifempty(1.source_url; \"\")}}\", \"form_name\": \"{{ifempty(1.form_name; \"\")}}\"}",
+        "timeout": 10
+      },
+      "metadata": { "designer": { "x": 800, "y": 0 } }
+    },
+    {
+      "id": 6,
+      "module": "json:TransformToJSON",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "input": "{{5.body}}"
+      },
+      "metadata": { "designer": { "x": 1000, "y": 0 } }
+    },
+    {
+      "id": 7,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg"
+      },
+      "mapper": {
+        "fields": {
+          "First Name": "{{1.first_name}}",
+          "Last Name": "{{1.last_name}}",
+          "Email": "{{1.email}}",
+          "Phone": "{{1.phone}}",
+          "Yacht": "{{1.yacht}}",
+          "Experience": "{{1.experience}}",
+          "Duration": "{{1.duration}}",
+          "Preferred Date": "{{1.preferred_date}}",
+          "Guest Count": "{{toNumber(ifempty(1.guest_count; \"0\"))}}",
+          "Add-Ons Selected": "{{1.add_ons}}",
+          "Occasion": "{{1.occasion}}",
+          "Special Requests": "{{1.special_requests}}",
+          "Status": "NEW",
+          "Environment": "Production",
+          "Source_System": "Make",
+          "Brand": "{{ifempty(6.brand; \"SSS\")}}",
+          "Notes": "Source: {{ifempty(1.source_url; \"Unknown\")}} | Form: {{ifempty(1.form_name; \"Unknown\")}} | Idempotency: {{idempotency_key}} | Submitted: {{submission_time}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "account": "hello@shesaidsail.com"
+      },
+      "mapper": {
+        "to": "{{1.email}}",
+        "subject": "We received your {{if(6.brand = \"ME\"; \"Mare Executive\"; \"She Said Sail\")}} inquiry, {{1.first_name}}!",
+        "bodyType": "html",
+        "body": "<p>Hi {{1.first_name}},</p><p>Thank you for reaching out! We've received your inquiry and our team will be in touch within a few hours to discuss availability and details for your {{ifempty(1.occasion; \"experience\")}}.</p><p><strong>Your submission summary:</strong></p><ul><li><strong>Experience:</strong> {{ifempty(1.experience; \"—\")}}</li><li><strong>Preferred Date:</strong> {{ifempty(1.preferred_date; \"—\")}}</li><li><strong>Guests:</strong> {{ifempty(1.guest_count; \"—\")}}</li></ul><p>We'll be in touch shortly. Feel free to reply to this email with any questions.</p><p>Warmly,<br>The {{if(6.brand = \"ME\"; \"Mare Executive\"; \"She Said Sail\")}} Team</p>"
+      },
+      "metadata": {
+        "designer": { "x": 1400, "y": 0 },
+        "restore": {
+          "parameters": {
+            "account": { "label": "hello@shesaidsail.com" }
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
+        "method": "POST",
+        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+        "body": "{\"triggering_event\": \"Webflow form submission — Lead Intake\", \"source_data\": \"Email: {{1.email}}, Name: {{lead_name}}, Date: {{ifempty(1.preferred_date; \"—\")}}, Guests: {{ifempty(1.guest_count; \"—\")}}, Source: {{ifempty(1.source_url; \"Unknown\")}}\", \"output\": \"Request record created: {{7.id}}. Auto-reply sent to {{1.email}}.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(6.brand; \"SSS\")}}\", \"city\": \"{{ifempty(1.city; \"Unknown\")}}\", \"environment\": \"Production\", \"destination\": \"Airtable Requests + Gmail auto-reply\", \"alert_type\": \"LEAD\", \"severity\": \"INFO\", \"title\": \"New {{ifempty(6.brand; \"SSS\")}} Lead\", \"body\": \"{{lead_name}} — {{ifempty(1.occasion; \"—\")}} — {{ifempty(1.preferred_date; \"—\")}} — {{ifempty(1.guest_count; \"—\")}} guests\", \"booking_id\": \"{{7.id}}\", \"lead_name\": \"{{lead_name}}\", \"occasion\": \"{{ifempty(1.occasion; \"—\")}}\", \"preferred_date\": \"{{ifempty(1.preferred_date; \"—\")}}\", \"guest_count\": \"{{ifempty(1.guest_count; \"—\")}}\", \"source\": \"{{ifempty(1.source_url; \"Unknown\")}}\"}"
+      },
+      "metadata": { "designer": { "x": 1600, "y": 0 } }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 1,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 3 and 7 to SSS PAT. Base = appdZ49WqgjRXxA1R, Table = Requests (tblTlSB9CO4dTGodg). (2) Rebind Gmail OAuth connection on module 8 to hello@shesaidsail.com account. (3) Replace PASTE_BRAND_ROUTER_WEBHOOK_URL_HERE in module 5 with the webhook URL from SSS-BRAND-ROUTER. (4) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in module 9 with the webhook URL from SSS-OPS-LOGGER-ALERTER. (5) Register THIS scenario's webhook URL in Webflow: Site Settings → Integrations → Form Webhooks. IDEMPOTENCY: Checks Requests table Notes field for idempotency_key before creating. Duplicate submissions are silently skipped. WEBFLOW PAYLOAD EXPECTED: {first_name, last_name, email, phone, yacht, experience, duration, preferred_date, guest_count, add_ons, occasion, special_requests, source_url, form_name, city}. Import order: M-OPS-LOGGER-ALERTER first, then M-BRAND-ROUTER, then this scenario."
+  }
+}

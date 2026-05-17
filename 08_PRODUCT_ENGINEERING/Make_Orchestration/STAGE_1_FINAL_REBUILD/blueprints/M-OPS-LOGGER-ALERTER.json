@@ -1,0 +1,261 @@
+{
+  "name": "SSS-OPS-LOGGER-ALERTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "SSS_OPS_LOGGER_ALERTER_HOOK",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "SSS Ops Logger Alerter Webhook" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "Validate: triggering_event or environment must be present",
+        "condition": {
+          "left": "{{ifempty(1.triggering_event; 1.environment)}}",
+          "operator": "exist"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 200, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblrMpTfMk8q1eNHp"
+      },
+      "mapper": {
+        "fields": {
+          "Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}",
+          "Triggering_Event": "{{1.triggering_event}}",
+          "Source_Data": "{{1.source_data}}",
+          "Output": "{{1.output}}",
+          "Approval_State": "{{ifempty(1.approval_state; \"AUTONOMOUS\")}}",
+          "Reviewed_By": "{{1.reviewed_by}}",
+          "Rollback_Linkage": "{{1.rollback_linkage}}",
+          "Brand": "{{ifempty(1.brand; \"SSS\")}}",
+          "City": "{{1.city}}",
+          "Environment": "{{ifempty(1.environment; \"Production\")}}",
+          "Model_Version": "{{1.model_version}}",
+          "AI_Confidence_Score": "{{1.ai_confidence_score}}",
+          "Destination": "{{1.destination}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 400, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Audit Log" }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          { "name": "audit_record_id", "value": "{{3.id}}" },
+          { "name": "log_timestamp", "value": "{{formatDate(now; \"YYYY-MM-DD HH:mm\")}} UTC" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 }
+      }
+    },
+    {
+      "id": 5,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "Only route to Slack if alert_type is provided",
+        "condition": {
+          "left": "{{1.alert_type}}",
+          "operator": "exist"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 800, "y": 0 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 1000, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 7,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: EMERGENCY",
+                "condition": {
+                  "left": "{{1.alert_type}}",
+                  "operator": "equal",
+                  "right": "EMERGENCY"
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": -250 } }
+            },
+            {
+              "id": 8,
+              "module": "slack:ActionPostMessage",
+              "version": 1,
+              "parameters": {
+                "channel": "#sss-emergency-ops"
+              },
+              "mapper": {
+                "text": "🚨 *EMERGENCY ALERT* — {{ifempty(1.booking_id; \"NO-ID\")}} — {{ifempty(1.city; \"—\")}} — {{log_timestamp}}\n*Type:* {{ifempty(1.title; \"Unspecified Emergency\")}}\n*Details:* {{ifempty(1.body; \"No details\")}}\n*Brand:* {{ifempty(1.brand; \"SSS\")}}\n*Status:* AWAITING FOUNDER CLEARANCE\n*Automations:* PAUSED IMMEDIATELY\n*Audit Log Record:* {{audit_record_id}}"
+              },
+              "metadata": {
+                "designer": { "x": 1400, "y": -250 },
+                "restore": {
+                  "parameters": {
+                    "channel": { "label": "#sss-emergency-ops" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 9,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: LEAD",
+                "condition": {
+                  "left": "{{1.alert_type}}",
+                  "operator": "equal",
+                  "right": "LEAD"
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": 0 } }
+            },
+            {
+              "id": 10,
+              "module": "slack:ActionPostMessage",
+              "version": 1,
+              "parameters": {
+                "channel": "#sss-lead-intake"
+              },
+              "mapper": {
+                "text": "🎯 *New {{ifempty(1.brand; \"SSS\")}} Lead*\n*Name:* {{ifempty(1.lead_name; \"—\")}}\n*Occasion:* {{ifempty(1.occasion; \"—\")}}\n*Date:* {{ifempty(1.preferred_date; \"—\")}}\n*Guests:* {{ifempty(1.guest_count; \"—\")}}\n*City:* {{ifempty(1.city; \"—\")}}\n*Source:* {{ifempty(1.source; \"—\")}}\n*Audit Log:* {{audit_record_id}} | _{{log_timestamp}}_"
+              },
+              "metadata": {
+                "designer": { "x": 1400, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "channel": { "label": "#sss-lead-intake" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 11,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: OPS and all other alert types",
+                "condition": {
+                  "left": "{{1.alert_type}}",
+                  "operator": "notEqual",
+                  "right": "EMERGENCY",
+                  "and": {
+                    "left": "{{1.alert_type}}",
+                    "operator": "notEqual",
+                    "right": "LEAD"
+                  }
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 1200, "y": 250 } }
+            },
+            {
+              "id": 12,
+              "module": "slack:ActionPostMessage",
+              "version": 1,
+              "parameters": {
+                "channel": "#sss-ops-alerts"
+              },
+              "mapper": {
+                "text": "{{if(1.severity = \"CRITICAL\"; \"🔴\"; if(1.severity = \"WARNING\"; \"🟡\"; \"🟢\"))}} *{{ifempty(1.title; \"Ops Update\")}}*\n{{ifempty(1.body; \"No details provided\")}}\n*Booking:* {{ifempty(1.booking_id; \"—\")}} | *City:* {{ifempty(1.city; \"—\")}} | *Brand:* {{ifempty(1.brand; \"SSS\")}}\n*Audit Log:* {{audit_record_id}} | _{{log_timestamp}}_"
+              },
+              "metadata": {
+                "designer": { "x": 1400, "y": 250 },
+                "restore": {
+                  "parameters": {
+                    "channel": { "label": "#sss-ops-alerts" }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 1,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on module 3 to SSS PAT. Base = appdZ49WqgjRXxA1R, Table = Audit Log (tblrMpTfMk8q1eNHp). (2) Rebind Slack OAuth connection on modules 8, 10, 12. Channels: #sss-emergency-ops, #sss-lead-intake, #sss-ops-alerts — these must exist in your Slack workspace before activation. (3) Copy the webhook URL after import — ALL other scenarios call this endpoint. Paste it into every PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE placeholder across all other scenarios. PAYLOAD SCHEMA: Send {triggering_event, source_data, output, approval_state, brand, city, environment, destination} for log-only. Add {alert_type, severity, title, body, booking_id} for log + Slack alert. alert_type values: EMERGENCY, LEAD, OPS. MERGED FROM: M-AUDIT-LOGGER + M-SLACK-ALERTS."
+  }
+}

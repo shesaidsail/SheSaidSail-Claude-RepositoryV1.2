@@ -1,0 +1,255 @@
+{
+  "name": "SSS-BRAND-ROUTER",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "SSS_BRAND_ROUTER_HOOK",
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "SSS Brand Router Webhook" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "Validate: source_url must exist",
+        "condition": {
+          "left": "{{1.source_url}}",
+          "operator": "exist"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 200, "y": 0 }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 400, "y": 0 }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: She Said Sail",
+                "condition": {
+                  "left": "{{1.source_url}}",
+                  "operator": "contain",
+                  "right": "shesaidsail.com"
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 600, "y": -200 } }
+            },
+            {
+              "id": 5,
+              "module": "builtin:SetVariables",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "variables": [
+                  { "name": "classified_brand", "value": "SSS" },
+                  { "name": "routing_confidence", "value": "HIGH" },
+                  { "name": "brand_name_full", "value": "She Said Sail" }
+                ]
+              },
+              "metadata": { "designer": { "x": 800, "y": -200 } }
+            },
+            {
+              "id": 6,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg"
+              },
+              "mapper": {
+                "recordId": "{{1.request_record_id}}",
+                "fields": {
+                  "Brand": "SSS",
+                  "Source_System": "Make"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1000, "y": -200 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Requests" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 7,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: Mare Executive",
+                "condition": {
+                  "left": "{{1.source_url}}",
+                  "operator": "contain",
+                  "right": "mareexecutive.com"
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 600, "y": 0 } }
+            },
+            {
+              "id": 8,
+              "module": "builtin:SetVariables",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "variables": [
+                  { "name": "classified_brand", "value": "ME" },
+                  { "name": "routing_confidence", "value": "HIGH" },
+                  { "name": "brand_name_full", "value": "Mare Executive" }
+                ]
+              },
+              "metadata": { "designer": { "x": 800, "y": 0 } }
+            },
+            {
+              "id": 9,
+              "module": "airtable:ActionUpdateRecord",
+              "version": 3,
+              "parameters": {
+                "base": "appdZ49WqgjRXxA1R",
+                "table": "tblTlSB9CO4dTGodg"
+              },
+              "mapper": {
+                "recordId": "{{1.request_record_id}}",
+                "fields": {
+                  "Brand": "ME",
+                  "Source_System": "Make"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 1000, "y": 0 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Requests" }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 10,
+              "module": "builtin:BasicFilter",
+              "version": 1,
+              "parameters": {
+                "label": "Route: Ambiguous — neither SSS nor ME",
+                "condition": {
+                  "left": "{{1.source_url}}",
+                  "operator": "notContain",
+                  "right": "shesaidsail.com",
+                  "and": {
+                    "left": "{{1.source_url}}",
+                    "operator": "notContain",
+                    "right": "mareexecutive.com"
+                  }
+                },
+                "throw": false
+              },
+              "mapper": {},
+              "metadata": { "designer": { "x": 600, "y": 200 } }
+            },
+            {
+              "id": 11,
+              "module": "builtin:SetVariables",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "variables": [
+                  { "name": "classified_brand", "value": "UNKNOWN" },
+                  { "name": "routing_confidence", "value": "LOW" },
+                  { "name": "brand_name_full", "value": "Unknown" }
+                ]
+              },
+              "metadata": { "designer": { "x": 800, "y": 200 } }
+            },
+            {
+              "id": 12,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+              "mapper": {
+                "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
+                "method": "POST",
+                "headers": [{ "name": "Content-Type", "value": "application/json" }],
+                "body": "{\"triggering_event\": \"Brand Router — UNKNOWN classification\", \"source_data\": \"Source URL: {{1.source_url}}, Request record: {{1.request_record_id}}\", \"output\": \"Brand could not be classified. Manual action required.\", \"approval_state\": \"PENDING_HUMAN\", \"brand\": \"UNKNOWN\", \"city\": \"Unknown\", \"environment\": \"Production\", \"destination\": \"Slack #sss-ops-alerts\", \"alert_type\": \"OPS\", \"severity\": \"WARNING\", \"title\": \"Brand Classification UNKNOWN — Manual Action Required\", \"body\": \"Inbound request from {{1.source_url}} could not be classified as SSS or ME. Request ID: {{1.request_record_id}}. Please set Brand field manually in Airtable.\", \"booking_id\": \"{{1.request_record_id}}\"}"
+              },
+              "metadata": { "designer": { "x": 1000, "y": 200 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "module": "gateway:CustomWebHookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "status": "200",
+        "body": "{\"brand\": \"{{classified_brand}}\", \"brand_name_full\": \"{{brand_name_full}}\", \"routing_confidence\": \"{{routing_confidence}}\"}"
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 1,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 6 and 9 to SSS PAT. Base = appdZ49WqgjRXxA1R, Table = Requests (tblTlSB9CO4dTGodg). (2) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in module 12 with the actual webhook URL from SSS-OPS-LOGGER-ALERTER. ROUTING LOGIC: source_url contains shesaidsail.com → Brand=SSS. source_url contains mareexecutive.com → Brand=ME. Neither → Brand=UNKNOWN + alert sent. RESPONSE: Returns JSON with brand, brand_name_full, routing_confidence to caller. This scenario is called synchronously by M-LEAD-INTAKE — caller reads the brand from the response body. Import M-OPS-LOGGER-ALERTER before this scenario."
+  }
+}

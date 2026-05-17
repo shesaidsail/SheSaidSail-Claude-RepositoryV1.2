@@ -1,0 +1,297 @@
+{
+  "name": "SSS-BOOKING-CREATION",
+  "flow": [
+    {
+      "id": 1,
+      "module": "airtable:WatchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg",
+        "maxResults": 1,
+        "formula": "AND({Status} = 'AVAILABILITY_CONFIRMED', {Environment} = 'Production')",
+        "sort": [{ "field": "Submission Date", "direction": "asc" }]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          {
+            "name": "request_id",
+            "value": "{{1.id}}"
+          },
+          {
+            "name": "idempotency_key",
+            "value": "BOOKING-{{1.id}}-{{formatDate(now; \"YYYYMMDD\")}}"
+          },
+          {
+            "name": "deposit_amount_cents",
+            "value": "{{round(multiply(toNumber(ifempty(1.fields.Base Price; \"0\")); 50))}}"
+          },
+          {
+            "name": "client_full_name",
+            "value": "{{trim(join([ifempty(1.fields.First Name; \"\"); \" \"; ifempty(1.fields.Last Name; \"\")]))}}"
+          },
+          {
+            "name": "brand_display_name",
+            "value": "{{if(ifempty(1.fields.Brand; \"SSS\") = \"ME\"; \"Mare Executive\"; \"She Said Sail\")}}"
+          }
+        ]
+      },
+      "metadata": { "designer": { "x": 200, "y": 0 } }
+    },
+    {
+      "id": 3,
+      "module": "airtable:SearchRecords",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL",
+        "maxRecords": 1
+      },
+      "mapper": {
+        "filterByFormula": "SEARCH(\"{{idempotency_key}}\", {Idempotency_Key})"
+      },
+      "metadata": {
+        "designer": { "x": 400, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Bookings" }
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "IDEMPOTENCY: Skip if booking already exists for this request",
+        "condition": {
+          "left": "{{3.id}}",
+          "operator": "notExist"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": { "designer": { "x": 600, "y": 0 } }
+    },
+    {
+      "id": 5,
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL"
+      },
+      "mapper": {
+        "fields": {
+          "Status": "AVAILABILITY_CONFIRMED",
+          "Guest Count": "{{toNumber(ifempty(1.fields.Guest Count; \"0\"))}}",
+          "Charter Date": "{{1.fields.Preferred Date}}",
+          "Occasion": "{{1.fields.Occasion}}",
+          "Boarding Location": "{{1.fields.Boarding Location}}",
+          "Charter Notes": "{{1.fields.Special Requests}}",
+          "Add-ons": "{{1.fields.Add-Ons Selected}}",
+          "Brand": "{{ifempty(1.fields.Brand; \"SSS\")}}",
+          "City": "{{1.fields.City}}",
+          "Environment": "Production",
+          "Source_System": "Make",
+          "Idempotency_Key": "{{idempotency_key}}",
+          "Automations_Paused": false,
+          "HV Booking": false,
+          "Confirmation_Sent": false,
+          "Concierge_Assigned": false
+        }
+      },
+      "metadata": {
+        "designer": { "x": 800, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Bookings" }
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "https://api.stripe.com/v1/prices",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer PASTE_STRIPE_SECRET_KEY_HERE" },
+          { "name": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "name": "Stripe-Version", "value": "2023-10-16" }
+        ],
+        "body": "unit_amount={{deposit_amount_cents}}&currency=usd&product_data[name]={{encodeURL(ifempty(1.fields.Experience; \"Charter Booking\"))}} Deposit 50pct&product_data[metadata][booking_id]={{5.id}}&product_data[metadata][request_id]={{request_id}}&product_data[metadata][client]={{encodeURL(client_full_name)}}"
+      },
+      "metadata": { "designer": { "x": 1000, "y": 0 } }
+    },
+    {
+      "id": 7,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "https://api.stripe.com/v1/payment_links",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer PASTE_STRIPE_SECRET_KEY_HERE" },
+          { "name": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "name": "Stripe-Version", "value": "2023-10-16" },
+          { "name": "Idempotency-Key", "value": "{{idempotency_key}}-paylink" }
+        ],
+        "body": "line_items[0][price]={{6.data.id}}&line_items[0][quantity]=1&metadata[booking_id]={{5.id}}&metadata[request_id]={{request_id}}&metadata[client_name]={{encodeURL(client_full_name)}}&metadata[brand]={{ifempty(1.fields.Brand; \"SSS\")}}&after_completion[type]=redirect&after_completion[redirect][url]=https://shesaidsail.com/booking-confirmed"
+      },
+      "metadata": { "designer": { "x": 1200, "y": 0 } }
+    },
+    {
+      "id": 8,
+      "module": "builtin:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          { "name": "payment_link_url", "value": "{{7.data.url}}" },
+          { "name": "payment_link_id", "value": "{{7.data.id}}" },
+          { "name": "stripe_price_id", "value": "{{6.data.id}}" }
+        ]
+      },
+      "metadata": { "designer": { "x": 1400, "y": 0 } }
+    },
+    {
+      "id": 9,
+      "module": "airtable:ActionUpdateRecord",
+      "version": 3,
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tbl72omPibBkn2hZL"
+      },
+      "mapper": {
+        "recordId": "{{5.id}}",
+        "fields": {
+          "Status": "DEPOSIT_SENT",
+          "Stripe_Payment_Link_URL": "{{payment_link_url}}",
+          "Stripe_Payment_Link_ID": "{{payment_link_id}}",
+          "Stripe_Price_ID": "{{stripe_price_id}}",
+          "Last_Automation_Timestamp": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Bookings" }
+          }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {
+        "label": "SAFETY: Check Automations_Paused before any outbound comms",
+        "condition": {
+          "left": "{{5.fields.Automations_Paused}}",
+          "operator": "notEqual",
+          "right": "true"
+        },
+        "throw": false
+      },
+      "mapper": {},
+      "metadata": { "designer": { "x": 1800, "y": 0 } }
+    },
+    {
+      "id": 11,
+      "module": "gmail:ActionSendEmail",
+      "version": 1,
+      "parameters": {
+        "account": "hello@shesaidsail.com"
+      },
+      "mapper": {
+        "to": "{{1.fields.Email}}",
+        "subject": "Your {{brand_display_name}} Deposit Link — {{1.fields.First Name}}",
+        "bodyType": "html",
+        "body": "<p>Hi {{1.fields.First Name}},</p><p>Great news — we've confirmed availability for your {{ifempty(1.fields.Experience; \"charter\")}} on {{1.fields.Preferred Date}}!</p><p>To secure your booking, please complete your 50% deposit using the link below:</p><p><a href=\"{{payment_link_url}}\"><strong>Pay Deposit Now</strong></a></p><p>Once your deposit is received, you'll receive your full booking confirmation with all the details for your charter day. This payment link is secure and processed via Stripe.</p><p>Questions? Just reply to this email.</p><p>We'll see you on the water!</p><p>Warmly,<br>The {{brand_display_name}} Team</p>"
+      },
+      "metadata": {
+        "designer": { "x": 2000, "y": 0 },
+        "restore": {
+          "parameters": {
+            "account": { "label": "hello@shesaidsail.com" }
+          }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": true, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "https://api.quosms.com/v1/messages",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer PASTE_QUO_SMS_API_KEY_HERE" },
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "body": "{\"to\": \"{{1.fields.Phone}}\", \"body\": \"Hi {{1.fields.First Name}}! Your {{brand_display_name}} experience on {{1.fields.Preferred Date}} is available. Secure your spot with your 50% deposit: {{payment_link_url}} — Reply STOP to opt out.\"}"
+      },
+      "metadata": { "designer": { "x": 2200, "y": 0 } }
+    },
+    {
+      "id": 13,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true },
+      "mapper": {
+        "url": "PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE",
+        "method": "POST",
+        "headers": [{ "name": "Content-Type", "value": "application/json" }],
+        "body": "{\"triggering_event\": \"Requests table: Status = AVAILABILITY_CONFIRMED\", \"source_data\": \"Request ID: {{request_id}}, Client: {{client_full_name}}, Date: {{ifempty(1.fields.Preferred Date; \"—\")}}, Brand: {{ifempty(1.fields.Brand; \"SSS\")}}\", \"output\": \"Booking created: {{5.id}}. Stripe price {{stripe_price_id}} and payment link {{payment_link_id}} generated. Deposit email + SMS sent to client.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{ifempty(1.fields.Brand; \"SSS\")}}\", \"city\": \"{{ifempty(1.fields.City; \"Unknown\")}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings + Stripe API + Gmail + Quo SMS\", \"alert_type\": \"OPS\", \"severity\": \"INFO\", \"title\": \"Booking Created — Deposit Link Sent\", \"body\": \"{{client_full_name}} — {{ifempty(1.fields.Experience; \"—\")}} — {{ifempty(1.fields.Preferred Date; \"—\")}}. Deposit link sent via email and SMS. Booking: {{5.id}}\", \"booking_id\": \"{{5.id}}\"}"
+      },
+      "metadata": { "designer": { "x": 2400, "y": 0 } }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": true,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com",
+    "notes": "=== MANUAL ACTION REQUIRED === After import: (1) Rebind Airtable connection on modules 1, 3, 5, 9 to SSS PAT. Module 1: Requests (tblTlSB9CO4dTGodg). Modules 3, 5, 9: Bookings (tbl72omPibBkn2hZL). (2) Rebind Gmail OAuth on module 11 to hello@shesaidsail.com. (3) Replace PASTE_STRIPE_SECRET_KEY_HERE in modules 6 AND 7 (both calls need the key). === STRIPE TEST MODE REQUIRED === Use your Stripe TEST secret key (sk_test_...) during all testing. Switch to live key (sk_live_...) only after full sandbox validation. (4) Replace PASTE_QUO_SMS_API_KEY_HERE in module 12. (5) Replace PASTE_OPS_LOGGER_ALERTER_WEBHOOK_URL_HERE in module 13. === AIRTABLE FIELDS REQUIRED IN BOOKINGS TABLE === Create before activation: Stripe_Payment_Link_URL (URL field), Stripe_Payment_Link_ID (Single line text), Stripe_Price_ID (Single line text). === STRIPE PAYMENT LINK FLOW === Module 6: POST /v1/prices creates a one-time price. Module 7: POST /v1/payment_links creates the checkout link using the price ID from module 6. Response: 7.data.url = payment link URL. Idempotency-Key header on module 7 prevents duplicate payment links on retry. TRIGGER: Requests table, Status = AVAILABILITY_CONFIRMED, Environment = Production. Polls every 15 minutes (configure schedule in Make)."
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "_meta": {
+    "version": "STAGE_1_FINAL_REBUILD",
+    "description": "Test payloads for all Stage 1 Make scenarios",
+    "usage": "POST these payloads to the appropriate webhook URL using curl or Postman",
+    "content_type": "application/json"
+  },
+
+  "test_1_log_only": {
+    "_description": "TEST 1: OPS-LOGGER-ALERTER — Log only, no Slack alert",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Airtable Audit Log record created, NO Slack message",
+    "triggering_event": "Manual test — log only",
+    "source_data": "Test payload submitted manually",
+    "output": "Verifying Airtable log write",
+    "approval_state": "AUTONOMOUS",
+    "brand": "SSS",
+    "city": "Miami",
+    "environment": "Production",
+    "model_version": "N/A",
+    "destination": "Airtable Audit Log"
+  },
+
+  "test_2_ops_alert": {
+    "_description": "TEST 2: OPS-LOGGER-ALERTER — OPS alert to #sss-ops-alerts",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Airtable log + Slack #sss-ops-alerts green message",
+    "triggering_event": "Manual test — OPS alert",
+    "source_data": "Test payload with OPS alert_type",
+    "output": "Verifying Slack #sss-ops-alerts routing",
+    "approval_state": "AUTONOMOUS",
+    "brand": "SSS",
+    "city": "Miami",
+    "environment": "Production",
+    "destination": "Slack #sss-ops-alerts",
+    "alert_type": "OPS",
+    "severity": "INFO",
+    "title": "Test OPS Alert — Stage 1 Rebuild",
+    "body": "This is a test OPS alert. If you see this in Slack, routing is working.",
+    "booking_id": "TEST-001"
+  },
+
+  "test_3_lead_alert": {
+    "_description": "TEST 3: OPS-LOGGER-ALERTER — LEAD alert to #sss-lead-intake",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Airtable log + Slack #sss-lead-intake lead message",
+    "triggering_event": "Manual test — LEAD alert",
+    "source_data": "Test lead payload",
+    "output": "Verifying Slack #sss-lead-intake routing",
+    "approval_state": "AUTONOMOUS",
+    "brand": "SSS",
+    "city": "Miami",
+    "environment": "Production",
+    "destination": "Slack #sss-lead-intake",
+    "alert_type": "LEAD",
+    "severity": "INFO",
+    "title": "New SSS Test Lead",
+    "body": "Test lead notification",
+    "booking_id": "TEST-LEAD-001",
+    "lead_name": "Jane Test",
+    "occasion": "Birthday",
+    "preferred_date": "2026-07-04",
+    "guest_count": "8",
+    "source": "https://shesaidsail.com/test"
+  },
+
+  "test_4_emergency_alert": {
+    "_description": "TEST 4: OPS-LOGGER-ALERTER — EMERGENCY alert to #sss-emergency-ops",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Airtable log + Slack #sss-emergency-ops EMERGENCY message",
+    "triggering_event": "Manual test — EMERGENCY alert",
+    "source_data": "Test emergency payload",
+    "output": "Verifying Slack #sss-emergency-ops routing",
+    "approval_state": "FOUNDER_REQUIRED",
+    "brand": "SSS",
+    "city": "Miami",
+    "environment": "Production",
+    "destination": "Slack #sss-emergency-ops",
+    "alert_type": "EMERGENCY",
+    "severity": "CRITICAL",
+    "title": "TEST EMERGENCY — Ignore This Alert",
+    "body": "This is a STAGED test of the emergency alert system. No action required.",
+    "booking_id": "TEST-EMERGENCY-001"
+  },
+
+  "test_5_brand_sss": {
+    "_description": "TEST 5: BRAND-ROUTER — SSS classification",
+    "_target_scenario": "SSS-BRAND-ROUTER",
+    "_expected": "Response: {brand: SSS, routing_confidence: HIGH}",
+    "source_url": "https://shesaidsail.com/inquire",
+    "request_record_id": "PENDING_TEST_RECORD"
+  },
+
+  "test_6_brand_me": {
+    "_description": "TEST 6: BRAND-ROUTER — ME classification",
+    "_target_scenario": "SSS-BRAND-ROUTER",
+    "_expected": "Response: {brand: ME, routing_confidence: HIGH}",
+    "source_url": "https://mareexecutive.com/inquire",
+    "request_record_id": "PENDING_TEST_RECORD"
+  },
+
+  "test_7_brand_unknown": {
+    "_description": "TEST 7: BRAND-ROUTER — UNKNOWN classification + Slack alert",
+    "_target_scenario": "SSS-BRAND-ROUTER",
+    "_expected": "Response: {brand: UNKNOWN} + Slack #sss-ops-alerts WARNING",
+    "source_url": "https://unknownsite.com/form",
+    "request_record_id": "PENDING_TEST_RECORD"
+  },
+
+  "test_8_lead_intake": {
+    "_description": "TEST 8: LEAD-INTAKE — Full flow",
+    "_target_scenario": "SSS-LEAD-INTAKE",
+    "_expected": "Airtable Request created + Gmail auto-reply + Slack #sss-lead-intake + Audit Log",
+    "_note": "Replace test@example.com with a real email you can receive, to verify auto-reply",
+    "first_name": "Jane",
+    "last_name": "Test",
+    "email": "test@example.com",
+    "phone": "+13055550101",
+    "yacht": "Test Yacht",
+    "experience": "Sunset Sail",
+    "duration": "3 hours",
+    "preferred_date": "2026-07-04",
+    "guest_count": "6",
+    "add_ons": "Charcuterie board, champagne",
+    "occasion": "Birthday",
+    "special_requests": "Gluten-free options please",
+    "source_url": "https://shesaidsail.com/inquire",
+    "form_name": "Inquiry Form",
+    "city": "Miami"
+  },
+
+  "test_8_lead_intake_duplicate": {
+    "_description": "TEST 9: LEAD-INTAKE idempotency — submit same data again",
+    "_target_scenario": "SSS-LEAD-INTAKE",
+    "_expected": "NO new Airtable record — scenario exits at Module 4 filter",
+    "_note": "Submit the EXACT same payload as test_8_lead_intake",
+    "first_name": "Jane",
+    "last_name": "Test",
+    "email": "test@example.com",
+    "phone": "+13055550101",
+    "yacht": "Test Yacht",
+    "experience": "Sunset Sail",
+    "duration": "3 hours",
+    "preferred_date": "2026-07-04",
+    "guest_count": "6",
+    "add_ons": "Charcuterie board, champagne",
+    "occasion": "Birthday",
+    "special_requests": "Gluten-free options please",
+    "source_url": "https://shesaidsail.com/inquire",
+    "form_name": "Inquiry Form",
+    "city": "Miami"
+  },
+
+  "test_10_stripe_deposit_simulate": {
+    "_description": "TEST 10: STRIPE-DEPOSIT — simulated Stripe webhook payload",
+    "_target_scenario": "SSS-STRIPE-DEPOSIT",
+    "_note": "Use Stripe Dashboard Send Test Webhook feature. This is a reference structure only.",
+    "_use_stripe_dashboard": true,
+    "type": "payment_intent.succeeded",
+    "data": {
+      "object": {
+        "id": "pi_test_0123456789",
+        "amount_received": 100000,
+        "currency": "usd",
+        "receipt_email": "test@example.com",
+        "metadata": {
+          "booking_id": "INSERT_REAL_BOOKING_RECORD_ID_HERE",
+          "request_id": "INSERT_REAL_REQUEST_RECORD_ID_HERE"
+        }
+      }
+    }
+  },
+
+  "test_ops_logger_critical_warning": {
+    "_description": "EXTRA: OPS-LOGGER-ALERTER — CRITICAL severity test",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Airtable log + Slack #sss-ops-alerts RED message (🔴)",
+    "triggering_event": "Manual test — CRITICAL severity",
+    "source_data": "Test CRITICAL payload",
+    "output": "Verifying CRITICAL severity icon routing",
+    "approval_state": "PENDING_HUMAN",
+    "brand": "SSS",
+    "city": "Miami",
+    "environment": "Production",
+    "destination": "Slack #sss-ops-alerts",
+    "alert_type": "OPS",
+    "severity": "CRITICAL",
+    "title": "TEST CRITICAL ALERT — Ignore",
+    "body": "This tests the CRITICAL severity 🔴 icon in Slack.",
+    "booking_id": "TEST-CRITICAL-001"
+  },
+
+  "test_ops_logger_warning": {
+    "_description": "EXTRA: OPS-LOGGER-ALERTER — WARNING severity test",
+    "_target_scenario": "SSS-OPS-LOGGER-ALERTER",
+    "_expected": "Slack #sss-ops-alerts YELLOW message (🟡)",
+    "triggering_event": "Manual test — WARNING severity",
+    "source_data": "Test WARNING payload",
+    "output": "Verifying WARNING severity icon",
+    "approval_state": "PENDING_HUMAN",
+    "brand": "ME",
+    "city": "Fort Lauderdale",
+    "environment": "Production",
+    "destination": "Slack #sss-ops-alerts",
+    "alert_type": "OPS",
+    "severity": "WARNING",
+    "title": "TEST WARNING ALERT — Ignore",
+    "body": "This tests the WARNING severity 🟡 icon in Slack.",
+    "booking_id": "TEST-WARNING-001"
+  }
+}

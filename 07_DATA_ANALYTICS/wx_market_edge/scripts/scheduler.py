@@ -18,9 +18,10 @@ from datetime import datetime, timezone
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from database.db         import init_db
-from ingestion.open_meteo  import refresh_all as refresh_forecasts
-from ingestion.metar       import refresh_all as refresh_metar
-from ingestion.kalshi_auth import refresh_with_auth as refresh_kalshi
+from ingestion.open_meteo   import refresh_all as refresh_forecasts
+from ingestion.metar        import refresh_all as refresh_metar
+from ingestion.kalshi_auth  import refresh_with_auth as refresh_kalshi
+from alerts.webhook_alerts  import check_and_alert_all, is_configured, _alerts_enabled
 from config import FORECAST_INTERVAL, METAR_INTERVAL, KALSHI_INTERVAL, LOG_DIR
 
 logging.basicConfig(
@@ -69,9 +70,46 @@ class Scheduler:
             try:
                 n = refresh_kalshi(self.conn, verbose=False)
                 log.info(f"Kalshi refresh: {n} market snapshots stored")
+                # After Kalshi refresh, check for alert-worthy signals
+                if n > 0 and _alerts_enabled() and is_configured():
+                    self._check_alerts()
             except Exception as e:
                 log.error(f"Kalshi refresh failed: {e}")
             self.last_run["kalshi"] = time.time()
+
+    def _check_alerts(self):
+        """Grade all current market snapshots and send alerts for A+/B signals."""
+        try:
+            from datetime import datetime, timezone
+            from ingestion.kalshi import get_latest_snapshots
+            from models.edge_calculator import calculate_edge
+            from models.signal_ranker import grade_all
+
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            snapshots = get_latest_snapshots(self.conn, date=today)
+            results = []
+            for snap in snapshots:
+                if not snap.get("station_code") or not snap.get("threshold_f"):
+                    continue
+                r = calculate_edge(
+                    station_code  = snap["station_code"],
+                    forecast_date = snap.get("expiry_date") or today,
+                    threshold_f   = snap["threshold_f"],
+                    side          = snap.get("side", "Yes"),
+                    market_price  = snap.get("market_price") or 50,
+                    best_bid      = snap.get("best_bid"),
+                    best_ask      = snap.get("best_ask"),
+                    conn          = self.conn,
+                )
+                results.append(r)
+            if results:
+                graded = grade_all(results, self.conn)
+                outcomes = check_and_alert_all(graded, self.conn)
+                sent = [o for o in outcomes if o.get("sent")]
+                if sent:
+                    log.info(f"Alerts fired: {len(sent)} webhook(s) sent")
+        except Exception as e:
+            log.error(f"Alert check error: {e}")
 
     def run_once(self):
         """Force-run all tasks regardless of interval."""

@@ -222,6 +222,59 @@ CREATE TABLE IF NOT EXISTS alerts (
     acknowledged INTEGER DEFAULT 0
 );
 
+-- ── Claude review records ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS claude_reviews (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    report_date         TEXT NOT NULL UNIQUE,
+    summary             TEXT,
+    strengths           TEXT,    -- JSON array of strings
+    weaknesses          TEXT,    -- JSON array of strings
+    suggested_changes   TEXT,    -- JSON array of strings
+    suspicious_regimes  TEXT,    -- JSON array of strings
+    calibration_notes   TEXT,
+    confidence_notes    TEXT,
+    full_report_path    TEXT,
+    review_source       TEXT DEFAULT 'auto'  -- 'auto' | 'claude_api' | 'manual'
+);
+
+-- ── Model lessons (regime-level learning) ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS model_lessons (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    station_code    TEXT REFERENCES stations(icao),
+    regime          TEXT NOT NULL,
+    lesson          TEXT NOT NULL,
+    severity        TEXT NOT NULL DEFAULT 'INFO' CHECK(severity IN ('INFO','WARN','ALERT')),
+    recommendation  TEXT,
+    applied         INTEGER DEFAULT 0
+);
+
+-- ── Webhook alerts (Make.com outbound) ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS webhook_alerts (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    station_code        TEXT,
+    market_ticker       TEXT,
+    threshold_f         REAL,
+    side                TEXT,
+    market_price        REAL,
+    fair_value          REAL,
+    edge_cents          REAL,
+    confidence          TEXT,
+    grade               TEXT,
+    regime              TEXT,
+    adjusted_forecast_f REAL,
+    official_temp_f     REAL,
+    wind_summary        TEXT,
+    reason              TEXT,
+    sms_text            TEXT,
+    payload_json        TEXT,
+    status              TEXT NOT NULL DEFAULT 'PENDING',  -- SENT | FAILED | SUPPRESSED
+    response_code       INTEGER,
+    error_message       TEXT
+);
+
 -- ── Data health ───────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS data_health (
     feed            TEXT PRIMARY KEY,   -- 'forecast' | 'metar' | 'kalshi'

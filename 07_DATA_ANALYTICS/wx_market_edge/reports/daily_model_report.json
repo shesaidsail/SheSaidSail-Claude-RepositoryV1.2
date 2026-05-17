@@ -1,0 +1,42 @@
+{
+  "report_date": "2026-05-17",
+  "generated_at": "2026-05-17T20:55:11Z",
+  "model": "OpenMeteo",
+  "active_stations": [
+    "KLAX",
+    "KJFK",
+    "KORD",
+    "KMIA",
+    "KPHX",
+    "KDFW",
+    "KDEN",
+    "KSEA",
+    "KSFO",
+    "KBOS"
+  ],
+  "forecasts_count": 10,
+  "settlements": [],
+  "trades_opened": 0,
+  "trades_closed": 0,
+  "pnl_summary": {
+    "total": 0,
+    "wins": 0,
+    "losses": 0,
+    "win_rate": 0,
+    "pnl": 0
+  },
+  "alerts_sent": 0,
+  "regime_perf_30d": [],
+  "model_stats": [],
+  "lessons": [],
+  "claude_review_packet": {
+    "what_happened": "0 stations settled. 0 trades closed (0 wins, 0 losses). P&L +0\u00a2.",
+    "lessons_count": 0,
+    "alerts": [],
+    "suggested_questions": [
+      "Which regimes had the largest bias drift this week?",
+      "Are there any stations where the model is systematically over or underforecasting?",
+      "Should any regime confidence weights be adjusted based on recent calibration?"
+    ]
+  }
+}

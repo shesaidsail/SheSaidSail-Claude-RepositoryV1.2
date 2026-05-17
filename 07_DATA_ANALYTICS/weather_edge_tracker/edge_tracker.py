@@ -16,8 +16,6 @@ Data file: klax_data.csv (same directory as this script)
 
 import argparse
 import csv
-import math
-import os
 import statistics
 from datetime import date
 from pathlib import Path
@@ -89,6 +87,23 @@ def compute_bias_stats(records: list[dict]) -> tuple[float, float, int]:
 # Core edge calculation
 # ---------------------------------------------------------------------------
 
+def win_probability(adjusted_forecast: float, std_dev: float, threshold: float, side: str) -> float:
+    """
+    Return P(contract wins) using whole-degree settlement logic.
+
+    Markets settle on whole-degree official highs, so the CDF cutoff is T+0.5:
+      Yes >T wins when actual >= T+1  →  1 - CDF(T+0.5)
+      No  >T wins when actual <= T    →  CDF(T+0.5)
+    """
+    cutoff = threshold + 0.5
+    if side.lower() == "yes":
+        return 1.0 - norm.cdf(cutoff, loc=adjusted_forecast, scale=std_dev)
+    elif side.lower() == "no":
+        return norm.cdf(cutoff, loc=adjusted_forecast, scale=std_dev)
+    else:
+        raise ValueError("side must be 'Yes' or 'No'")
+
+
 def calculate_edge(
     ventusky_forecast: float,
     threshold: float,
@@ -98,16 +113,7 @@ def calculate_edge(
 ) -> dict:
     avg_bias, std_dev, n = compute_bias_stats(records)
     adjusted_forecast = ventusky_forecast + avg_bias
-
-    # Actual high is modelled as N(adjusted_forecast, std_dev)
-    # "Yes >T" wins when actual_high > T  →  P(Z > T)
-    # "No  >T" wins when actual_high <= T →  P(Z <= T)
-    if side.lower() == "yes":
-        probability = 1.0 - norm.cdf(threshold, loc=adjusted_forecast, scale=std_dev)
-    elif side.lower() == "no":
-        probability = norm.cdf(threshold, loc=adjusted_forecast, scale=std_dev)
-    else:
-        raise ValueError("side must be 'Yes' or 'No'")
+    probability = win_probability(adjusted_forecast, std_dev, threshold, side)
 
     fair_price = probability * 100.0
     edge = fair_price - market_price

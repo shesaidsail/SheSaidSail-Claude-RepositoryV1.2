@@ -66,10 +66,14 @@ def calculate_edge(
     avg_bias, std_dev, n = bias_stats(df)
     adjusted = ventusky_forecast + avg_bias
 
+    # Markets settle on whole-degree official highs, so the cutoff shifts by +0.5:
+    # Yes >T wins when actual >= T+1  →  P(actual > T+0.5) = 1 - CDF(T+0.5)
+    # No  >T wins when actual <= T    →  P(actual <= T+0.5) = CDF(T+0.5)
+    cutoff = threshold + 0.5
     if side == "Yes":
-        prob = 1.0 - norm.cdf(threshold, loc=adjusted, scale=std_dev)
+        prob = 1.0 - norm.cdf(cutoff, loc=adjusted, scale=std_dev)
     else:
-        prob = norm.cdf(threshold, loc=adjusted, scale=std_dev)
+        prob = norm.cdf(cutoff, loc=adjusted, scale=std_dev)
 
     fair = prob * 100.0
     edge = fair - market_price
@@ -187,13 +191,19 @@ with c2:
 
 with c3:
     side = st.selectbox("Contract Side", ["Yes", "No"],
-                        help="Yes = wins if actual > threshold. No = wins if actual ≤ threshold.")
+                        help="Yes >T wins if actual ≥ T+1 (e.g. Yes >68 needs 69°F+). No >T wins if actual ≤ T.")
 
 with c4:
     market_price = st.number_input(
         "Market Price (cents, 0–100)",
         min_value=1.0, max_value=99.0, value=50.0, step=1.0,
     )
+
+st.info(
+    "**Settlement note:** Markets settle on whole-degree official highs. "
+    "We use T + 0.5 as the cutoff so Yes >68 means 69°F or higher, "
+    "while No >68 means 68°F or lower."
+)
 
 if len(df) >= 2 and st.button("Calculate Edge", type="primary"):
     r = calculate_edge(today_forecast, threshold, side, market_price, df)
@@ -242,9 +252,10 @@ if len(df) >= 2 and st.button("Calculate Edge", type="primary"):
                 "Average bias",
                 "Adjusted forecast",
                 "Std deviation",
-                "Threshold",
+                "Threshold (T)",
+                "CDF cutoff (T + 0.5)",
                 "Side",
-                "P(win) = normal CDF",
+                "P(win) = normal CDF at cutoff",
                 "Fair price",
                 "Market price",
                 "Edge",
@@ -255,6 +266,7 @@ if len(df) >= 2 and st.button("Calculate Edge", type="primary"):
                 f"{r['adjusted']}°F",
                 f"{r['std_dev']}°F",
                 f"{r['threshold']}°F",
+                f"{r['threshold'] + 0.5}°F",
                 r['side'],
                 f"{r['prob']:.4f}  ({r['prob']:.1%})",
                 f"{r['fair']:.1f}¢",

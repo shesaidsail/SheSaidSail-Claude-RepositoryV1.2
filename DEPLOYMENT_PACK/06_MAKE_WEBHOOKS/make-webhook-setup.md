@@ -22,6 +22,7 @@ Confirm all of the following before starting:
 
 Build scenarios in this order. Later scenarios depend on earlier ones being stable.
 
+**Phase 1: Core (build first)**
 1. M-WEBFORM-REQUEST-CAPTURE (main form intake)
 2. M-UTM-CAPTURE (sub-flow, called from #1)
 3. M-EMAIL-CAPTURE (homepage email form, independent)
@@ -30,6 +31,17 @@ Build scenarios in this order. Later scenarios depend on earlier ones being stab
 6. M-AIRTABLE-AUDIT-LOGGER (triggered by #1 and #3)
 7. M-BRAND-ROUTER (add last, after core flows are tested)
 8. M-CONCIERGE-ASSIGNMENT (add last, after core flows are tested)
+
+**Phase 2: Chatbot (build after core is stable)**
+9. M-CHATBOT-001 (chatbot handoff intake, see intelligence-scenarios.md for full spec)
+
+**Phase 3: Intelligence Layer (build after Phase 2 is live and generating data)**
+10. M-BOOKING-OUTCOME-001 (triggered by Request Status = Booked, creates Revenue Attribution)
+11. M-WEEKLY-REPORT-001 (scheduled Monday 8:00 AM, posts intelligence report to Slack)
+12. M-EXPERIENCE-ROLLUP-001 (scheduled Monday 8:30 AM, aggregates experience metrics)
+13. M-CONCIERGE-SCORE-001 (triggered by Booking Status = Paid in Full, scores concierge)
+
+See `intelligence-scenarios.md` for full specs on scenarios 10-13.
 
 ---
 
@@ -230,6 +242,44 @@ Email: {{payload.email}} | Phone: {{payload.phone}}
   "status": "Success"
 }
 ```
+
+---
+
+### Scenario M-CHATBOT-001
+
+**Purpose:** Receives the chatbot handoff payload when a user completes the conversation and the webhook fires. Creates a Request record, creates a Chatbot Conversations record, and creates a UTMs record. Sends a Slack alert to #she-said-sail-leads.
+
+**Trigger type:** Webhook (Custom Webhook)
+
+**Step-by-step:**
+
+1. Create a new scenario. First module: Webhooks > Custom Webhook.
+2. Name it: `she-said-sail-chatbot-handoff`.
+3. Copy the webhook URL.
+4. Open `chatbot/chatbot-js.js`. Find the line:
+   ```
+   xhr.open('POST', 'WIRE_THIS_CHATBOT_WEBHOOK_URL', true);
+   ```
+5. Replace `WIRE_THIS_CHATBOT_WEBHOOK_URL` with your webhook URL.
+
+**Module sequence:**
+
+| Step | Module | Configuration |
+|---|---|---|
+| 1 | Webhooks: Custom Webhook | Receives chatbot payload with all fields from chatbot data object. |
+| 2 | Tools: Set Variable | Map `occasion` from payload. Map `experience_name` by translating slug: monaco-social to "Monaco Social", golden-hour-escape to "Golden Hour Escape", rose-day-club to "Rose Day Club", pink-palm-club to "Pink Palm Club". |
+| 3 | Tools: Set Variable | Set `internal_rating`: if occasion = "bachelorette" OR guest_count >= 15, set "Hot"; else set "Warm". |
+| 4 | Airtable: Create a Record | Table: Requests. Fields: Name = first_name, Email, Phone, Occasion (mapped display name), Group Size = guest_count, Notes = conversation_summary, Experience Interest = experience_name, Source Type = "chatbot", Visitor ID = visitor_id, Status = "New", Internal Rating = from Step 3, Submitted At = now(). |
+| 5 | Airtable: Search Records | Table: Contacts. Search by Email. |
+| 6 | Router | Route A: Contact found. Route B: Contact not found. |
+| 7a | Airtable: Update a Record (Route A) | Update Contact: Last Seen At = now(). Link to new Request record. |
+| 7b | Airtable: Create a Record (Route B) | Create new Contact. Link to new Request record. |
+| 8 | Airtable: Create a Record | Table: UTMs. Map utm_source, utm_medium, utm_campaign, utm_content, utm_term, landing_page, referrer_url, visitor_id. Link to Request record. |
+| 9 | Airtable: Create a Record | Table: Chatbot Conversations. Map conversation fields: occasion, occasion_energy, guest_count, selected_experience (slug), preferred_date, conversation_summary, landing_page, utm_source, utm_campaign, visitor_id, outcome = "Handoff Completed". Link to Request record. |
+| 10 | Slack: Create a Message | Channel: #she-said-sail-leads. Message: "New chatbot lead: [first_name] / [occasion] / [guest_count] guests / [selected_experience] / Source: [utm_source] / [utm_campaign]" |
+| 11 | Airtable: Create a Record | Audit Log. Action = "chatbot_lead_captured". |
+
+**Payload reference:** See `06_MAKE_WEBHOOKS/request-capture-payload.json` for field structure. The chatbot payload uses `first_name` instead of `full_name` and `guest_count` instead of `group_size`.
 
 ---
 

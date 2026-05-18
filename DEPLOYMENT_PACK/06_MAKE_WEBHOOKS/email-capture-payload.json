@@ -7,5 +7,7 @@
   "landing_page": "https://shesaidsail.com/",
   "first_seen_at": "2026-05-16T11:44:22.000Z",
   "brand": "shesaidsail",
-  "service_category": "yacht-charter"
+  "service_category": "yacht-charter",
+  "visitor_id": "a3f8c1d2-4e9b-4a1c-8f7e-2b6d0e3a9c5f",
+  "source_type": "email_capture"
 }

@@ -79,6 +79,25 @@ Fields set by Make.com for email capture:
 
 ---
 
+## INTELLIGENCE LAYER FIELDS (New Fields Added to Existing Tables)
+
+These fields extend the existing tables. Add them after the original tables are stable.
+
+### Requests Table: Additional Fields from Global JS
+
+| Hidden Form Field | Airtable Field Name | Field Type | Notes |
+|---|---|---|---|
+| visitor_id | Visitor ID | Short Text | UUID from sss_vid cookie. Cross-system visitor linking. |
+| source_type | Source Type | Single Select | Options: form_lead, chatbot, contact_form, email_capture. Set by global.js or chatbot-js.js. |
+
+### UTMs Table: Additional Field
+
+| Field | Airtable Field Name | Field Type | Notes |
+|---|---|---|---|
+| visitor_id | Visitor ID | Short Text | Cross-references Requests.Visitor ID and Chatbot Conversations.Visitor ID. |
+
+---
+
 ## NOTES
 
 - The UTMs table is a separate table linked via a Linked Record field in Requests. This allows one Contact to have multiple UTM touch records over time.

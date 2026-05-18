@@ -1,16 +1,17 @@
 # She Said Sail: Website Deployment Pack
-**Version:** 1.0
+**Version:** 2.0
 **Date:** May 2026
 **Branch:** feature/luxury-conversion-overhaul
 
 Read this first. Everything else follows from here.
 
+For the complete step-by-step installation guide, see: `FINAL_IMPLEMENTATION_GUIDE.md`
+
 ---
 
 ## WHAT THIS PACK IS
 
-This deployment pack contains every file needed to upgrade the She Said Sail website.
-It covers three pages: Homepage, Request to Book, and Experiences.
+This deployment pack contains every file needed to build and deploy the complete She Said Sail website system. It covers the full site: 13 pages, custom luxury chatbot widget, full Airtable backend (7 core tables + 6 intelligence tables), Make.com automation (10 core scenarios + 4 intelligence scenarios), GTM event tracking (22 events), GA4, Meta Pixel, TikTok Pixel, and complete AI search and SEO optimization.
 
 The pack is organized into numbered folders. Each folder has a specific job.
 You do not need to understand the whole pack to use it. Follow the install guides in order.
@@ -28,20 +29,28 @@ Will (founder) approves decisions and reviews screenshots before each page is pu
 ## FOLDER MAP
 
 ```
-01_GLOBAL_CSS/         One CSS file. Goes into WordPress Additional CSS.
-02_GLOBAL_JS/          One JS file. Goes into Insert Headers and Footers plugin, footer.
-03_HTML_SNIPPETS/      Ready-to-paste HTML sections added via Elementor HTML widgets.
-  homepage/            Homepage sections.
-  request-to-book/     Request to Book page sections.
-  experiences/         Experiences page sections.
-04_SEO_META/           Meta tags and schema. Goes into Yoast SEO or Insert Headers and Footers.
-05_AIRTABLE_BACKEND/   Field maps and table schemas. Used to build Airtable base.
-06_MAKE_WEBHOOKS/      Make.com scenario specs and test payloads.
-07_GTM_ANALYTICS/      GTM event map and platform-specific pixel setup.
-08_PAGE_INSTALL_GUIDES/ Step-by-step guides for each page. Web builder follows these.
-09_QA/                 Pass/fail checklists. Complete after each page is applied.
-10_FINAL_AUDIT/        Readiness scores. Review before merging to production.
-11_HANDOFF_TO_WEB_BUILDER/ The short contractor briefing document. Start here if you are the builder.
+01_GLOBAL_CSS/         Global CSS file. Goes into WordPress Additional CSS.
+02_GLOBAL_JS/          Global JS file. Goes into Insert Headers and Footers, footer.
+03_HTML_SNIPPETS/      HTML sections added via Elementor HTML widgets (homepage, experiences, monaco-social, request-to-book).
+04_SEO_META/           Meta tags and schema for homepage, experiences, request-to-book, and global.
+05_AIRTABLE_BACKEND/   Table schemas and field maps for 7 core tables + 6 intelligence tables.
+06_MAKE_WEBHOOKS/      Make.com scenario specs, webhook payloads, and intelligence scenarios.
+07_GTM_ANALYTICS/      GTM event map (22 events: 14 site + 8 chatbot), GA4, Meta Pixel, TikTok Pixel.
+08_PAGE_INSTALL_GUIDES/ Step-by-step per-page install guides. Web builder follows these.
+09_QA/                 Pass/fail checklists. Complete after each section is applied.
+10_FINAL_AUDIT/        Readiness audit. Review before merging to production.
+11_HANDOFF_TO_WEB_BUILDER/ Contractor briefing document. Start here if you are the builder.
+chatbot/               Custom luxury concierge chatbot: CSS, JS, conversation flow, analytics, QA.
+pages/                 Per-page HTML snippets and metadata for all 10 additional pages:
+  about/               About page.
+  contact/             Contact page.
+  faq/                 FAQ page.
+  golden-hour-escape/  Golden Hour Escape experience page.
+  pink-palm-club/      Pink Palm Club experience page.
+  rose-day-club/       Rose Day Club experience page.
+  journal/             Journal / blog page.
+  thank-you/           Thank You page.
+FINAL_IMPLEMENTATION_GUIDE.md   Complete step-by-step deployment guide for the entire system.
 ```
 
 ---

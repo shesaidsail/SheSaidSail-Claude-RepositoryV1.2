@@ -28,6 +28,34 @@
 
 
   /* ==========================================================
+     SECTION 0: VISITOR ID
+     Generates a persistent first-party UUID cookie (sss_vid)
+     on first visit. Available globally as window.__sssVid.
+     Must run before Section 1 so visitor_id is ready for
+     hidden field population and webhook payloads.
+  ========================================================== */
+  (function generateVisitorId() {
+    function uuid4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0;
+        var v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    var existing = (document.cookie.match(/(?:^|;\s*)sss_vid=([^;]+)/) || [])[1];
+    if (!existing) {
+      var vid = uuid4();
+      var exp = new Date();
+      exp.setFullYear(exp.getFullYear() + 1);
+      document.cookie = 'sss_vid=' + vid + '; expires=' + exp.toUTCString() + '; path=/; SameSite=Lax';
+      window.__sssVid = vid;
+    } else {
+      window.__sssVid = existing;
+    }
+  })();
+
+
+  /* ==========================================================
      SECTION 1: UTM CAPTURE
      Runs immediately (before DOM ready) on every page.
      Reads UTM params from the URL and stores them in
@@ -106,7 +134,7 @@
       'utm_source', 'utm_medium', 'utm_campaign', 'utm_content',
       'utm_term', 'creative_id', 'landing_page', 'source_url',
       'referrer_url', 'first_seen_at', 'submission_page', 'brand',
-      'service_category'
+      'service_category', 'visitor_id', 'source_type'
     ];
 
     /* Check at least one of our target fields exists before proceeding */
@@ -133,7 +161,9 @@
       first_seen_at:    readLocal('sss_first_seen'),
       submission_page:  window.location.href,
       brand:            'shesaidsail',
-      service_category: 'yacht-charter'
+      service_category: 'yacht-charter',
+      visitor_id:       window.__sssVid || '',
+      source_type:      'form_lead'
     };
 
     hiddenNames.forEach(function (name) {
@@ -342,7 +372,9 @@
           landing_page:     window.location.href,
           first_seen_at:    readLocal('sss_first_seen'),
           brand:            'shesaidsail',
-          service_category: 'yacht-charter'
+          service_category: 'yacht-charter',
+          visitor_id:       window.__sssVid || '',
+          source_type:      'email_capture'
         };
 
         /*
@@ -678,20 +710,11 @@
     });
 
     /* ----------------------------------------------------------
-       k. OPEN_CHAT
-       Fires when the Tidio live chat widget is opened.
-       Uses the Tidio public API if loaded; falls back to the
-       custom DOM event for async-loaded instances.
+       k. CHATBOT EVENTS
+       chatbot_open and all subsequent chatbot GTM events are
+       fired directly from chatbot-js.js. No Tidio dependency.
+       Tidio plugin must be disabled in WordPress admin.
     ---------------------------------------------------------- */
-    if (typeof tidioChatApi !== 'undefined') {
-      tidioChatApi.on('open', function () {
-        dlPush('open_chat', { page_location: window.location.href });
-      });
-    } else {
-      document.addEventListener('tidioChat-open', function () {
-        dlPush('open_chat', { page_location: window.location.href });
-      });
-    }
 
     /* ----------------------------------------------------------
        l. VIEW_ABOUT_PAGE

@@ -101,7 +101,9 @@
     utm_term:              '',
     referrer_url:          document.referrer || '',
     brand:                 'shesaidsail',
-    service_category:      'yacht-charter'
+    service_category:      'yacht-charter',
+    visitor_id:            window.__sssVid || '',
+    source_type:           'chatbot'
   };
 
   // Capture UTM params from sessionStorage (set by global JS)

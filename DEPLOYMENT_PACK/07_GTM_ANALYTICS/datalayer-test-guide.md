@@ -191,11 +191,12 @@ Paste this into the browser console to see only She Said Sail relevant events in
 ```javascript
 window.dataLayer.filter(function(e) {
   return e.event && (
-    e.event.startsWith('sss') ||
-    ['view_homepage', 'view_request_page', 'view_experiences_page',
+    e.event.startsWith('chatbot_') ||
+    ['view_homepage', 'view_request_page', 'view_experiences_page', 'view_experience_page',
+     'view_about_page', 'view_contact_page', 'view_faq_page', 'view_journal_page',
      'click_request_to_book', 'click_explore_experiences', 'click_experience_card',
      'start_booking_form', 'submit_booking_form', 'submit_email_capture',
-     'click_phone', 'open_chat', 'view_thank_you_page',
+     'click_phone', 'view_thank_you_page',
      'scroll_50_percent', 'scroll_90_percent'].includes(e.event)
   );
 });
@@ -230,8 +231,18 @@ This returns an array of all matching dataLayer pushes. Each object should show 
 | submit_booking_form | GA4 submit_booking_form, Meta Lead, TikTok SubmitForm | occasion, group_size (number), experience_interest |
 | submit_email_capture | GA4 submit_email_capture, TikTok Subscribe | page_path |
 | view_thank_you_page | GA4 view_thank_you_page, TikTok CompleteRegistration | conversion_type |
-| click_phone | GA4 click_phone | page_path |
-| scroll_50_percent | GA4 scroll_50_percent | page_path |
-| scroll_90_percent | GA4 scroll_90_percent | page_path |
+| click_phone | GA4 click_phone | page_location |
+| scroll_50_percent | GA4 scroll_50_percent | page_location |
+| scroll_90_percent | GA4 scroll_90_percent | page_location |
+| chatbot_open | GA4 chatbot_open | page_location |
+| chatbot_start_conversation | GA4 chatbot_start_conversation | page_location |
+| chatbot_select_occasion | GA4 chatbot_select_occasion | occasion (non-empty), page_location |
+| chatbot_select_experience | GA4 chatbot_select_experience | experience_slug (non-empty), page_location |
+| chatbot_capture_email | GA4 chatbot_capture_email, Meta Lead | page_location |
+| chatbot_capture_phone | GA4 chatbot_capture_phone | page_location |
+| chatbot_handoff | GA4 chatbot_handoff, Meta Lead | experience_slug, occasion, page_location |
+| chatbot_complete | GA4 chatbot_complete | page_location |
 
-All events must pass before publishing the GTM container. After all pass, click Publish in GTM, give the version a name (e.g., "v1 - Initial She Said Sail Events"), and submit.
+All events must pass before publishing the GTM container. After all pass, click Publish in GTM, give the version a name (e.g., "v1 - She Said Sail Full Event Set"), and submit.
+
+**Note:** The chatbot events require the chatbot widget to be loaded on the page. Test chatbot events on the homepage or an experience page (not /request-to-book/ where the chatbot does not auto-trigger).

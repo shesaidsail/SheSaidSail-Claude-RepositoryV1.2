@@ -580,7 +580,9 @@
       contact_message: message,
       brand: brand,
       submission_page: submissionPage,
-      source_url: sourceUrl
+      source_url: sourceUrl,
+      visitor_id: (window.__sssVid || ''),
+      source_type: 'contact_form'
     };
 
     if (submitBtn) {

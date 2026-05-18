@@ -1,0 +1,440 @@
+<!--
+  FILE: about-html-snippets.html
+  PAGE: /about/
+  PURPOSE: HTML sections for the She Said Sail About page.
+  4 sections divided by HTML comment headers.
+  Class prefix: .sss-ab-*
+  No em dashes used anywhere in this file.
+-->
+
+<!-- ============================================================
+     SECTION 1: PAGE HERO
+     Background: --sss-cream (#FAF8F3)
+     Class prefix: .sss-ab-hero-*
+     ============================================================ -->
+
+<style>
+  /* ---- HERO ---- */
+  .sss-ab-hero {
+    background-color: #FAF8F3;
+    padding: 96px 24px;
+    text-align: center;
+  }
+
+  .sss-ab-hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .sss-ab-hero-eyebrow {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    margin-bottom: 20px;
+  }
+
+  .sss-ab-hero-h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: #1A2332;
+    margin: 0 0 24px 0;
+  }
+
+  .sss-ab-hero-subline {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: #6B6560;
+    margin: 0 auto;
+    max-width: 600px;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ab-hero {
+      padding: 64px 20px;
+    }
+
+    .sss-ab-hero-h1 {
+      font-size: 36px;
+    }
+
+    .sss-ab-hero-subline {
+      font-size: 16px;
+    }
+  }
+</style>
+
+<section class="sss-ab-hero">
+  <div class="sss-ab-hero-inner">
+    <span class="sss-ab-hero-eyebrow">Our Story</span>
+    <h1 class="sss-ab-hero-h1">Built for the days that matter.</h1>
+    <p class="sss-ab-hero-subline">She Said Sail started with a simple observation: the women who celebrate together deserve an experience that actually meets them where they are.</p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: BRAND STORY
+     Background: white
+     Two-column grid: text left, image right (mobile: image below text)
+     Class prefix: .sss-ab-story-*
+     ============================================================ -->
+
+<style>
+  /* ---- BRAND STORY ---- */
+  .sss-ab-story {
+    background-color: #ffffff;
+    padding: 96px 24px;
+  }
+
+  .sss-ab-story-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .sss-ab-story-label {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    margin-bottom: 16px;
+  }
+
+  .sss-ab-story-h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1A2332;
+    margin: 0 0 32px 0;
+  }
+
+  .sss-ab-story-body p {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.75;
+    color: #2C2C2C;
+    margin: 0 0 20px 0;
+  }
+
+  .sss-ab-story-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .sss-ab-story-img-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .sss-ab-story-img-placeholder {
+    background-color: #E8E3DB;
+    height: 500px;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ab-story {
+      padding: 64px 20px;
+    }
+
+    .sss-ab-story-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    /* Image column comes second on mobile (below text) */
+    .sss-ab-story-text-col {
+      order: 1;
+    }
+
+    .sss-ab-story-img-col {
+      order: 2;
+    }
+
+    .sss-ab-story-img-placeholder {
+      height: 340px;
+    }
+
+    .sss-ab-story-h2 {
+      font-size: 28px;
+    }
+  }
+</style>
+
+<section class="sss-ab-story">
+  <div class="sss-ab-story-inner">
+
+    <!-- Left: text -->
+    <div class="sss-ab-story-text-col">
+      <span class="sss-ab-story-label">Why We Exist</span>
+      <h2 class="sss-ab-story-h2">The yacht is not the product.</h2>
+      <div class="sss-ab-story-body">
+        <p>Most women planning a group celebration hit the same wall. They find charter companies built for corporate retreats or romantic getaways, with packages that do not speak to a bachelorette party of twelve who want champagne on the water, someone handling every detail, and a day that actually feels like theirs. The options are either too generic or too high-pressure. She Said Sail exists because that gap should not exist.</p>
+        <p>What makes the difference here is that everything is designed around the feeling first. The photography on this site is editorial, not stock. The concierge process is structured to remove planning stress, not add to it. The experiences are built around the occasion, which means a bachelorette trip looks and feels different from a birthday on the water, because it should.</p>
+        <p>Will built She Said Sail after watching an audience he cared about get underserved by an industry that was not paying attention. He pays attention to the details most operators skip: the tone of the inquiry process, the way a package is named, the way a crew interacts with a group of women who are there to celebrate. It is not sentimental. It is just deliberate.</p>
+        <p>When you book with She Said Sail, you are not getting a boat rental with a few extras added. You are getting a designed experience where the crew, the itinerary, and every touchpoint along the way are pointed at the same goal: you and your group feeling genuinely looked after, from the first message to the last hour on the water.</p>
+      </div>
+    </div>
+
+    <!-- Right: image placeholder -->
+    <div class="sss-ab-story-img-col">
+      <!-- Replace with brand photography or founder photo at 600x700px. Warm tones, natural light preferred. -->
+      <div class="sss-ab-story-img-placeholder" role="img" aria-label="She Said Sail brand photography"></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: VALUES
+     Background: --sss-warm (#F5F0E8)
+     3 value cards in a horizontal row, stacks on mobile
+     No bullet lists. Values expressed as felt experience.
+     Class prefix: .sss-ab-values-*
+     ============================================================ -->
+
+<style>
+  /* ---- VALUES ---- */
+  .sss-ab-values {
+    background-color: #F5F0E8;
+    padding: 96px 24px;
+  }
+
+  .sss-ab-values-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .sss-ab-values-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1A2332;
+    text-align: center;
+    margin: 0 0 56px 0;
+  }
+
+  .sss-ab-values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .sss-ab-values-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 40px;
+    border-top: 3px solid #DAB97E;
+  }
+
+  .sss-ab-values-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #1A2332;
+    margin: 0 0 16px 0;
+  }
+
+  .sss-ab-values-card-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #6B6560;
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ab-values {
+      padding: 64px 20px;
+    }
+
+    .sss-ab-values-heading {
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+
+    .sss-ab-values-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .sss-ab-values-card {
+      padding: 32px 28px;
+    }
+  }
+</style>
+
+<section class="sss-ab-values">
+  <div class="sss-ab-values-inner">
+
+    <h2 class="sss-ab-values-heading">What we believe</h2>
+
+    <div class="sss-ab-values-grid">
+
+      <div class="sss-ab-values-card">
+        <h3 class="sss-ab-values-card-title">The feeling comes first.</h3>
+        <p class="sss-ab-values-card-body">Every decision, from the music to the timing to the copy on this page, is made by asking what serves the guest's experience, not what serves the sales funnel.</p>
+      </div>
+
+      <div class="sss-ab-values-card">
+        <h3 class="sss-ab-values-card-title">Celebrations deserve specificity.</h3>
+        <p class="sss-ab-values-card-body">Bachelorettes are not birthdays. Anniversaries are not girls trips. Each experience is designed for the occasion, not the other way around.</p>
+      </div>
+
+      <div class="sss-ab-values-card">
+        <h3 class="sss-ab-values-card-title">No commitment until you are ready.</h3>
+        <p class="sss-ab-values-card-body">Inquiring is free. There is no deposit until you are happy with every detail. We would rather you take your time and book confidently than feel rushed and regret it.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4: BOTTOM CTA
+     Background: --sss-navy (#1A2332)
+     Two buttons: primary (gold) + secondary (ghost/cream)
+     Class prefix: .sss-ab-cta-*
+     ============================================================ -->
+
+<style>
+  /* ---- BOTTOM CTA ---- */
+  .sss-ab-cta {
+    background-color: #1A2332;
+    padding: 96px 24px;
+    text-align: center;
+  }
+
+  .sss-ab-cta-inner {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .sss-ab-cta-h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #FAF8F3;
+    margin: 0 0 20px 0;
+  }
+
+  .sss-ab-cta-subline {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(250, 248, 243, 0.7);
+    margin: 0 0 44px 0;
+  }
+
+  .sss-ab-cta-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .sss-ab-cta-btn-primary {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    background-color: #DAB97E;
+    color: #1A2332;
+    padding: 16px 32px;
+    border-radius: 4px;
+    border: 2px solid #DAB97E;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .sss-ab-cta-btn-primary:hover {
+    background-color: #c9a86a;
+    border-color: #c9a86a;
+    color: #1A2332;
+  }
+
+  .sss-ab-cta-btn-secondary {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    background-color: transparent;
+    color: #FAF8F3;
+    padding: 16px 32px;
+    border-radius: 4px;
+    border: 2px solid #FAF8F3;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .sss-ab-cta-btn-secondary:hover {
+    background-color: rgba(250, 248, 243, 0.08);
+    color: #FAF8F3;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ab-cta {
+      padding: 64px 20px;
+    }
+
+    .sss-ab-cta-h2 {
+      font-size: 30px;
+    }
+
+    .sss-ab-cta-subline {
+      font-size: 16px;
+    }
+
+    .sss-ab-cta-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sss-ab-cta-btn-primary,
+    .sss-ab-cta-btn-secondary {
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+  }
+</style>
+
+<section class="sss-ab-cta">
+  <div class="sss-ab-cta-inner">
+    <h2 class="sss-ab-cta-h2">Ready to see what we have planned?</h2>
+    <p class="sss-ab-cta-subline">Browse the experiences and submit a request when you are ready. No pressure, no commitment.</p>
+    <div class="sss-ab-cta-buttons">
+      <a href="/experiences/" class="sss-ab-cta-btn-primary">View the Experiences</a>
+      <a href="/request-to-book/" class="sss-ab-cta-btn-secondary">Request to Book</a>
+    </div>
+  </div>
+</section>

@@ -398,9 +398,11 @@ The GTM snippet has two parts.
 
 **Part 1: Head snippet.** Goes in the `<head>` of every page.
 
-Open Insert Headers and Footers > Scripts in Header. Paste:
+Open Insert Headers and Footers > Scripts in Header. Paste the entire block below as one unit -- the dataLayer line must come first:
 
 ```html
+<script>window.dataLayer = window.dataLayer || [];</script>
+
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -409,8 +411,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-TZ5KNRTH');</script>
 <!-- End Google Tag Manager -->
 ```
-
-**Important:** The `window.dataLayer = window.dataLayer || [];` line must appear in the head BEFORE this GTM snippet. Verify this ordering after saving.
 
 **Part 2: Body noscript fallback.** Goes immediately after the `<body>` opening tag.
 

@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Request Your Experience | She Said Sail</title>
+  <meta name="description" content="Tell us what you are envisioning. She Said Sail curates private yacht charters around the atmosphere you want to create. Rosé days, sunset escapes, and elevated group experiences in Miami and Fort Lauderdale.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://shesaidsail.com/request-to-book/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Request Your Experience | She Said Sail">
+  <meta property="og:description" content="Every experience is tailored around the atmosphere you want to create. Tell us what you are envisioning and a concierge will respond within business hours.">
+  <meta property="og:url" content="https://shesaidsail.com/request-to-book/">
+  <meta property="og:site_name" content="She Said Sail">
+  <meta property="og:image" content="https://shesaidsail.com/wp-content/uploads/2026/03/sse-og-request.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Request Your Experience | She Said Sail">
+  <meta name="twitter:description" content="A concierge reviews every request personally. Yacht options are curated manually for your group.">
+  <meta name="twitter:image" content="https://shesaidsail.com/wp-content/uploads/2026/03/sse-og-request.jpg">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Request Your Experience",
+    "description": "Private yacht charter inquiry form for She Said Sail. Curated luxury experiences in Miami and Fort Lauderdale.",
+    "url": "https://shesaidsail.com/request-to-book/",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "She Said Sail",
+      "telephone": "754-701-2228",
+      "email": "bookings@shesaidsail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- GTM -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-WWTT27Z3');</script>
+
+  <style>
+    /* ============================
+       DESIGN TOKENS
+    ============================ */
+    :root {
+      --navy:       #1A2332;
+      --gold:       #DAB97E;
+      --gold-mid:   #B8935A;
+      --gold-soft:  rgba(184,147,90,0.15);
+      --gold-line:  rgba(184,147,90,0.22);
+      --cream:      #FAF8F3;
+      --cream-warm: #F5EDE0;
+      --cream-deep: #EDE4D8;
+      --text-dark:  #1A1A1A;
+      --text-mid:   #4A4035;
+      --text-soft:  #9A8E80;
+      --text-muted: #B8AFA4;
+      --white:      #FFFFFF;
+      --error:      #C0392B;
+      --success:    #2C6E49;
+      --radius:     6px;
+      --input-h:    52px;
+      --shadow-sm:  0 2px 12px rgba(26,35,50,0.07);
+      --shadow-md:  0 4px 24px rgba(26,35,50,0.10);
+      --transition: 0.22s ease;
+    }
+
+    /* ============================
+       RESET + BASE
+    ============================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: var(--text-dark);
+      background: var(--cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    input, select, textarea, button { font-family: inherit; }
+
+    /* ============================
+       PAGE WRAPPER
+    ============================ */
+    .sse-rtb-page {
+      min-height: 100vh;
+      background: var(--cream);
+    }
+
+    /* ============================
+       HERO HEADER
+    ============================ */
+    .sse-rtb-hero {
+      background: var(--navy);
+      padding: 72px 24px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .sse-rtb-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,185,126,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .sse-rtb-hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .sse-rtb-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .sse-rtb-hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(38px, 6vw, 56px);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.12;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .sse-rtb-hero-rule {
+      width: 44px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 20px;
+      opacity: 0.7;
+    }
+    .sse-rtb-hero-subtext {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(250,248,243,0.72);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ============================
+       TRUST BAR
+    ============================ */
+    .sse-rtb-trust-bar {
+      background: var(--navy);
+      border-top: 1px solid rgba(218,185,126,0.12);
+      padding: 20px 24px 28px;
+    }
+    .sse-rtb-trust-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .sse-rtb-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(250,248,243,0.55);
+    }
+    .sse-rtb-trust-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    /* ============================
+       FORM CONTAINER
+    ============================ */
+    .sse-rtb-form-section {
+      padding: 56px 20px 80px;
+    }
+    .sse-rtb-form-container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ============================
+       FORM STEPS
+    ============================ */
+    .sse-form-step {
+      margin-bottom: 48px;
+      position: relative;
+    }
+    .sse-form-step:last-of-type { margin-bottom: 0; }
+
+    .sse-step-header {
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--gold-line);
+    }
+    .sse-step-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--gold-mid);
+      margin-bottom: 6px;
+    }
+    .sse-step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+    .sse-step-helper {
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    /* ============================
+       FORM GRID
+    ============================ */
+    .sse-field-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .sse-field-grid.cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .sse-field-grid.cols-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* ============================
+       FIELD
+    ============================ */
+    .sse-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .sse-field-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+    .sse-field-label .req {
+      color: var(--gold-mid);
+      margin-left: 3px;
+    }
+    .sse-field input,
+    .sse-field select,
+    .sse-field textarea {
+      width: 100%;
+      height: var(--input-h);
+      padding: 0 16px;
+      background: var(--white);
+      border: 1px solid rgba(184,147,90,0.2);
+      border-radius: var(--radius);
+      font-size: 15px;
+      color: var(--text-dark);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .sse-field textarea {
+      height: 120px;
+      padding: 14px 16px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .sse-field input:focus,
+    .sse-field select:focus,
+    .sse-field textarea:focus {
+      border-color: var(--gold-mid);
+      box-shadow: 0 0 0 3px rgba(184,147,90,0.10);
+    }
+    .sse-field input::placeholder,
+    .sse-field textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .sse-field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239A8E80' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    .sse-field select option { color: var(--text-dark); }
+    .sse-field-helper {
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+    .sse-field-error {
+      font-size: 11px;
+      color: var(--error);
+      display: none;
+    }
+    .sse-field.has-error input,
+    .sse-field.has-error select,
+    .sse-field.has-error textarea {
+      border-color: var(--error);
+    }
+    .sse-field.has-error .sse-field-error { display: block; }
+
+    /* Mobile: full-width single column */
+    @media (max-width: 599px) {
+      .sse-field-grid.cols-2,
+      .sse-field-grid.cols-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================
+       OCCASION CARDS
+    ============================ */
+    .sse-occasion-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 599px) {
+      .sse-occasion-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .sse-occasion-card {
+      border: 1px solid rgba(184,147,90,0.2);
+      border-radius: var(--radius);
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+      background: var(--white);
+      user-select: none;
+    }
+    .sse-occasion-card:hover {
+      border-color: var(--gold-mid);
+      background: rgba(184,147,90,0.04);
+    }
+    .sse-occasion-card.selected {
+      border-color: var(--gold-mid);
+      background: rgba(184,147,90,0.08);
+      box-shadow: 0 0 0 2px rgba(184,147,90,0.18);
+    }
+    .sse-occasion-card-icon { font-size: 20px; margin-bottom: 6px; }
+    .sse-occasion-card-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+    .sse-occasion-card.selected .sse-occasion-card-label { color: var(--gold-mid); }
+
+    /* ============================
+       EXPERIENCE SELECTOR
+    ============================ */
+    .sse-exp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .sse-exp-grid { grid-template-columns: 1fr; }
+    }
+    .sse-exp-card {
+      border: 1px solid rgba(184,147,90,0.2);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      background: var(--white);
+      user-select: none;
+    }
+    .sse-exp-card:hover { border-color: var(--gold-mid); background: rgba(184,147,90,0.03); }
+    .sse-exp-card.selected {
+      border-color: var(--gold-mid);
+      background: rgba(184,147,90,0.07);
+      box-shadow: 0 0 0 2px rgba(184,147,90,0.15);
+    }
+    .sse-exp-card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .sse-exp-card-desc {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+    .sse-exp-card.selected .sse-exp-card-name { color: var(--gold-mid); }
+
+    /* ============================
+       CONCIERGE REASSURANCE
+    ============================ */
+    .sse-concierge-note {
+      background: var(--cream-warm);
+      border: 1px solid var(--gold-line);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin: 40px 0 32px;
+    }
+    .sse-concierge-note-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-mid);
+      margin-bottom: 10px;
+    }
+    .sse-concierge-note-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sse-concierge-note-list li {
+      font-size: 13px;
+      color: var(--text-mid);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.55;
+    }
+    .sse-concierge-note-list li::before {
+      content: '';
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gold-mid);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ============================
+       SUBMIT AREA
+    ============================ */
+    .sse-submit-area {
+      padding-top: 12px;
+    }
+    .sse-cta-btn {
+      display: block;
+      width: 100%;
+      padding: 18px 32px;
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    .sse-cta-btn:hover {
+      background: var(--gold-mid);
+      color: var(--navy);
+      box-shadow: 0 6px 28px rgba(184,147,90,0.28);
+    }
+    .sse-cta-btn:active { transform: translateY(1px); }
+    .sse-cta-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .sse-submit-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    /* ============================
+       THANK YOU STATE
+    ============================ */
+    .sse-thankyou {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+    .sse-thankyou.visible { display: block; }
+    .sse-thankyou-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(184,147,90,0.12);
+      border: 1px solid var(--gold-line);
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .sse-thankyou h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 300;
+      color: var(--navy);
+      margin-bottom: 16px;
+      line-height: 1.15;
+    }
+    .sse-thankyou-rule {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 20px;
+    }
+    .sse-thankyou-body {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .sse-thankyou-detail {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      border-top: 1px solid var(--gold-line);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+    .sse-thankyou-socials {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .sse-thankyou-socials a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-mid);
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--transition);
+      padding-bottom: 2px;
+    }
+    .sse-thankyou-socials a:hover { border-color: var(--gold-mid); }
+
+    /* ============================
+       HIDDEN FIELDS WRAPPER
+    ============================ */
+    .sse-hidden-fields { display: none !important; }
+
+    /* ============================
+       MOBILE STICKY CTA
+    ============================ */
+    .sse-sticky-cta {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(250,248,243,0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--gold-line);
+      z-index: 100;
+      box-shadow: 0 -4px 20px rgba(26,35,50,0.08);
+    }
+    @media (max-width: 599px) {
+      .sse-sticky-cta { display: block; }
+      .sse-submit-area .sse-cta-btn { display: none; }
+      .sse-rtb-form-section { padding-bottom: 120px; }
+    }
+
+    /* ============================
+       FORM VISIBLE / HIDDEN
+    ============================ */
+    .sse-form-wrap.submitted { display: none; }
+
+    /* ============================
+       LOADING STATE
+    ============================ */
+    .sse-cta-btn .btn-text { display: inline; }
+    .sse-cta-btn .btn-loading { display: none; }
+    .sse-cta-btn.loading .btn-text { display: none; }
+    .sse-cta-btn.loading .btn-loading { display: inline; }
+  </style>
+</head>
+
+<body class="sse-rtb-page">
+
+  <!-- GTM noscript -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WWTT27Z3"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- HERO -->
+  <section class="sse-rtb-hero" aria-labelledby="rtb-h1">
+    <div class="sse-rtb-hero-inner">
+      <p class="sse-rtb-eyebrow">She Said Sail</p>
+      <h1 id="rtb-h1">Tell us what you<br>are envisioning.</h1>
+      <div class="sse-rtb-hero-rule" aria-hidden="true"></div>
+      <p class="sse-rtb-hero-subtext">Every experience is tailored around the atmosphere you want to create. Share a few details and a concierge will curate the best options for your group.</p>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="sse-rtb-trust-bar" role="complementary" aria-label="Service assurances">
+    <div class="sse-rtb-trust-inner">
+      <span class="sse-rtb-trust-item">
+        <span class="sse-rtb-trust-dot" aria-hidden="true"></span>
+        No payment required now
+      </span>
+      <span class="sse-rtb-trust-item">
+        <span class="sse-rtb-trust-dot" aria-hidden="true"></span>
+        Concierge reviews every request
+      </span>
+      <span class="sse-rtb-trust-item">
+        <span class="sse-rtb-trust-dot" aria-hidden="true"></span>
+        Response within business hours
+      </span>
+    </div>
+  </div>
+
+  <!-- FORM SECTION -->
+  <section class="sse-rtb-form-section" aria-labelledby="form-heading">
+    <div class="sse-rtb-form-container">
+
+      <!-- THANK YOU (hidden until submit) -->
+      <div class="sse-thankyou" id="sse-thankyou" aria-live="polite">
+        <div class="sse-thankyou-icon" aria-hidden="true">&#9788;</div>
+        <h2>Your experience is now in motion.</h2>
+        <div class="sse-thankyou-rule" aria-hidden="true"></div>
+        <p class="sse-thankyou-body">
+          Your request has been received. A concierge is now reviewing the best options for your group.<br><br>
+          We will be in touch within business hours. Everything can still be adjusted after this point.
+        </p>
+        <p class="sse-thankyou-detail">
+          Most inquiries receive a response same day. Feel free to reply to your confirmation email with any additional details.
+        </p>
+        <div class="sse-thankyou-socials">
+          <a href="https://www.instagram.com/shesaidsail" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://www.facebook.com/shesaidsail" target="_blank" rel="noopener">Facebook</a>
+          <a href="http://tiktok.com/shesaidsail" target="_blank" rel="noopener">TikTok</a>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form class="sse-form-wrap" id="sse-rtb-form" novalidate aria-labelledby="form-heading" data-webhook="M-WEBFORM-REQUEST-CAPTURE">
+        <h2 id="form-heading" class="visually-hidden">Request Your Experience</h2>
+
+        <!-- STEP 1: The Experience -->
+        <div class="sse-form-step" data-step="1">
+          <div class="sse-step-header">
+            <p class="sse-step-label">Step 1 of 4</p>
+            <h2 class="sse-step-title">What are you celebrating?</h2>
+            <p class="sse-step-helper">Choose what fits closest. We will tailor from there.</p>
+          </div>
+
+          <!-- Occasion Cards -->
+          <div class="sse-field" style="margin-bottom: 24px;">
+            <label class="sse-field-label">Occasion <span class="req" aria-hidden="true">*</span></label>
+            <div class="sse-occasion-grid" role="group" aria-label="Select occasion">
+              <button type="button" class="sse-occasion-card" data-occasion="birthday" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9728;</div>
+                <div class="sse-occasion-card-label">Birthday</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="bachelorette" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#10022;</div>
+                <div class="sse-occasion-card-label">Bachelorette</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="girls-trip" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9788;</div>
+                <div class="sse-occasion-card-label">Girls Trip</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="anniversary" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9825;</div>
+                <div class="sse-occasion-card-label">Anniversary</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="corporate" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9670;</div>
+                <div class="sse-occasion-card-label">Corporate</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="brunch" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9728;</div>
+                <div class="sse-occasion-card-label">Day on the Water</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="proposal" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9825;</div>
+                <div class="sse-occasion-card-label">Proposal</div>
+              </button>
+              <button type="button" class="sse-occasion-card" data-occasion="other" aria-pressed="false">
+                <div class="sse-occasion-card-icon" aria-hidden="true">&#9679;</div>
+                <div class="sse-occasion-card-label">Something Else</div>
+              </button>
+            </div>
+            <input type="hidden" name="occasion" id="sse-occasion-input">
+          </div>
+
+          <!-- Experience Type -->
+          <div class="sse-field" style="margin-bottom: 24px;">
+            <label class="sse-field-label" for="sse-experience">Experience Type <span class="req" aria-hidden="true">*</span></label>
+            <div class="sse-exp-grid" role="group" aria-label="Select experience">
+              <button type="button" class="sse-exp-card" data-exp="rose" aria-pressed="false">
+                <div class="sse-exp-card-name">Rose Day Club</div>
+                <div class="sse-exp-card-desc">Sun, champagne, and an effortless day on the water</div>
+              </button>
+              <button type="button" class="sse-exp-card" data-exp="sunset" aria-pressed="false">
+                <div class="sse-exp-card-name">Golden Hour Escape</div>
+                <div class="sse-exp-card-desc">Drift into the evening with a signature sunset sail</div>
+              </button>
+              <button type="button" class="sse-exp-card" data-exp="pinkpalm" aria-pressed="false">
+                <div class="sse-exp-card-name">Pink Palm Club</div>
+                <div class="sse-exp-card-desc">The full elevated day-party experience</div>
+              </button>
+              <button type="button" class="sse-exp-card" data-exp="monaco" aria-pressed="false">
+                <div class="sse-exp-card-name">Monaco Social</div>
+                <div class="sse-exp-card-desc">Premium, high-touch, and impeccably styled</div>
+              </button>
+            </div>
+            <input type="hidden" name="experience" id="sse-experience">
+          </div>
+
+          <div class="sse-field-grid cols-2">
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-date">Preferred Date <span class="req" aria-hidden="true">*</span></label>
+              <input type="date" id="sse-date" name="date" required autocomplete="off"
+                     aria-describedby="sse-date-helper" aria-required="true">
+              <span id="sse-date-helper" class="sse-field-helper">A few weeks of flexibility helps us find the perfect vessel.</span>
+            </div>
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-guests">Guest Count <span class="req" aria-hidden="true">*</span></label>
+              <input type="number" id="sse-guests" name="guests" required min="2" max="100"
+                     placeholder="How many guests?" autocomplete="off" aria-required="true"
+                     inputmode="numeric">
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Contact -->
+        <div class="sse-form-step" data-step="2">
+          <div class="sse-step-header">
+            <p class="sse-step-label">Step 2 of 4</p>
+            <h2 class="sse-step-title">How should we reach you?</h2>
+          </div>
+
+          <div class="sse-field-grid cols-2" style="margin-bottom: 20px;">
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-fname">First Name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="sse-fname" name="mf-listing-fname" required
+                     autocomplete="given-name" aria-required="true" placeholder="First name">
+            </div>
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-lname">Last Name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="sse-lname" name="last_name" required
+                     autocomplete="family-name" aria-required="true" placeholder="Last name">
+            </div>
+          </div>
+
+          <div class="sse-field-grid cols-2">
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-email">Email Address <span class="req" aria-hidden="true">*</span></label>
+              <input type="email" id="sse-email" name="email" required
+                     autocomplete="email" aria-required="true" placeholder="Your email" inputmode="email">
+            </div>
+            <div class="sse-field">
+              <label class="sse-field-label" for="sse-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+              <input type="tel" id="sse-phone" name="phone" required
+                     autocomplete="tel" aria-required="true" placeholder="Best number" inputmode="tel">
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Vision -->
+        <div class="sse-form-step" data-step="3">
+          <div class="sse-step-header">
+            <p class="sse-step-label">Step 3 of 4</p>
+            <h2 class="sse-step-title">What are you envisioning?</h2>
+            <p class="sse-step-helper">None of this is locked in. Share as much or as little as you like.</p>
+          </div>
+
+          <div class="sse-field" style="margin-bottom: 20px;">
+            <label class="sse-field-label" for="sse-budget">Budget Range</label>
+            <select id="sse-budget" name="budget_range">
+              <option value="" disabled selected>Select a range</option>
+              <option value="under-10k">Under $10,000</option>
+              <option value="10k-15k">$10,000 to $15,000</option>
+              <option value="15k-25k">$15,000 to $25,000</option>
+              <option value="25k-40k">$25,000 to $40,000</option>
+              <option value="40k-plus">$40,000 and above</option>
+              <option value="flexible">Flexible, show me what fits</option>
+            </select>
+            <span class="sse-field-helper">Helps us match the right vessel and package.</span>
+          </div>
+
+          <div class="sse-field" style="margin-bottom: 20px;">
+            <label class="sse-field-label" for="sse-vision">Anything You Are Envisioning?</label>
+            <textarea id="sse-vision" name="vision" placeholder="Themes, music preferences, decor ideas, dietary needs, anything at all..." aria-describedby="sse-vision-helper"></textarea>
+            <span id="sse-vision-helper" class="sse-field-helper">The more you share, the more precisely we can curate.</span>
+          </div>
+
+          <div class="sse-field">
+            <label class="sse-field-label" for="sse-special">Special Requests</label>
+            <input type="text" id="sse-special" name="mf-textarea" placeholder="Anything else we should know?">
+          </div>
+        </div>
+
+        <!-- STEP 4: Submit -->
+        <div class="sse-form-step" data-step="4">
+          <div class="sse-step-header">
+            <p class="sse-step-label">Step 4 of 4</p>
+            <h2 class="sse-step-title">We will take it from here.</h2>
+          </div>
+
+          <!-- Concierge Reassurance -->
+          <div class="sse-concierge-note" role="note" aria-label="What happens next">
+            <p class="sse-concierge-note-eyebrow">What happens next</p>
+            <ul class="sse-concierge-note-list">
+              <li>A concierge reviews every request personally.</li>
+              <li>Yacht options are curated manually based on your group size, date, and vision.</li>
+              <li>Everything can still be customized after submission.</li>
+              <li>Most inquiries receive a response within business hours.</li>
+            </ul>
+          </div>
+
+          <div class="sse-submit-area">
+            <button type="submit" class="sse-cta-btn" id="sse-submit-btn" aria-label="Submit your experience request">
+              <span class="btn-text">Begin Planning</span>
+              <span class="btn-loading" aria-live="polite">Sending your request...</span>
+            </button>
+            <p class="sse-submit-note">No payment required at this stage. No commitment. Just a conversation.</p>
+          </div>
+        </div>
+
+        <!-- HIDDEN TRACKING FIELDS -->
+        <div class="sse-hidden-fields" aria-hidden="true">
+          <input type="hidden" name="utm_source" id="sse-utm-source">
+          <input type="hidden" name="utm_medium" id="sse-utm-medium">
+          <input type="hidden" name="utm_campaign" id="sse-utm-campaign">
+          <input type="hidden" name="utm_content" id="sse-utm-content">
+          <input type="hidden" name="utm_term" id="sse-utm-term">
+          <input type="hidden" name="creative_id" id="sse-creative-id">
+          <input type="hidden" name="landing_page" id="sse-landing-page">
+          <input type="hidden" name="source_url" id="sse-source-url">
+          <input type="hidden" name="referrer_url" id="sse-referrer-url">
+          <input type="hidden" name="first_seen_at" id="sse-first-seen-at">
+          <input type="hidden" name="submission_page" id="sse-submission-page">
+          <input type="hidden" name="brand" value="she-said-sail">
+          <input type="hidden" name="service_category" value="private-yacht-charter">
+          <input type="hidden" name="form_version" value="rtb-overhaul-v2">
+          <!-- Pricing fields passed through from MetForm integration -->
+          <input type="hidden" name="quoted_price" id="sse-quoted-price">
+          <input type="hidden" name="base_price" id="sse-base-price">
+          <input type="hidden" name="addons_total" id="sse-addons-total">
+          <input type="hidden" name="addons_list" id="sse-addons-list">
+          <input type="hidden" name="yacht_name" id="sse-yacht-name">
+          <input type="hidden" name="yacht_slug" id="sse-yacht-slug">
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- MOBILE STICKY CTA -->
+  <div class="sse-sticky-cta" id="sse-sticky-cta" aria-hidden="true">
+    <button type="button" class="sse-cta-btn" id="sse-sticky-btn" onclick="document.getElementById('sse-rtb-form').requestSubmit()">
+      <span class="btn-text">Begin Planning</span>
+      <span class="btn-loading">Sending...</span>
+    </button>
+  </div>
+
+  <style>
+    .visually-hidden {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+
+  <!-- GTM + ANALYTICS LAYER -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    // GTM event helpers
+    function datalayerPush(event, data) {
+      window.dataLayer.push(Object.assign({ event: event, page_type: 'request_page', brand: 'she_said_sail' }, data || {}));
+    }
+
+    // Meta Pixel stub (fires when pixel loads)
+    function metaPixelEvent(event, data) {
+      if (typeof fbq === 'function') {
+        fbq('track', event, data || {});
+      }
+    }
+
+    // TikTok Pixel stub
+    function ttqEvent(event, data) {
+      if (typeof ttq !== 'undefined' && ttq.track) {
+        ttq.track(event, data || {});
+      }
+    }
+
+    // GA4 stub
+    function ga4Event(event, data) {
+      if (typeof gtag === 'function') {
+        gtag('event', event, Object.assign({ page_type: 'request_page' }, data || {}));
+      }
+    }
+  </script>
+
+  <!-- MAIN PAGE SCRIPT -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ---- UTM + Session capture ----
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name) || '';
+    }
+
+    function getStoredLanding() {
+      try { return sessionStorage.getItem('sse_landing_page') || ''; } catch(e) { return ''; }
+    }
+
+    function storeLanding(url) {
+      try { sessionStorage.setItem('sse_landing_page', url); } catch(e) {}
+    }
+
+    function getFirstSeen() {
+      try {
+        var ts = localStorage.getItem('sse_first_seen');
+        if (!ts) { ts = new Date().toISOString(); localStorage.setItem('sse_first_seen', ts); }
+        return ts;
+      } catch(e) { return new Date().toISOString(); }
+    }
+
+    function populateHiddenFields() {
+      var landing = getStoredLanding();
+      if (!landing) { storeLanding(window.location.href); landing = window.location.href; }
+
+      var fields = {
+        'sse-utm-source':    getParam('utm_source'),
+        'sse-utm-medium':    getParam('utm_medium'),
+        'sse-utm-campaign':  getParam('utm_campaign'),
+        'sse-utm-content':   getParam('utm_content'),
+        'sse-utm-term':      getParam('utm_term'),
+        'sse-creative-id':   getParam('creative_id') || getParam('ad_id'),
+        'sse-landing-page':  landing,
+        'sse-source-url':    window.location.href,
+        'sse-referrer-url':  document.referrer,
+        'sse-first-seen-at': getFirstSeen(),
+        'sse-submission-page': window.location.pathname
+      };
+
+      Object.keys(fields).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && fields[id]) el.value = fields[id];
+      });
+    }
+
+    // ---- Occasion cards ----
+    function initOccasionCards() {
+      var cards = document.querySelectorAll('.sse-occasion-card');
+      var hidden = document.getElementById('sse-occasion-input');
+      cards.forEach(function(card) {
+        card.addEventListener('click', function() {
+          cards.forEach(function(c) { c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
+          card.classList.add('selected');
+          card.setAttribute('aria-pressed','true');
+          if (hidden) hidden.value = card.dataset.occasion || '';
+          datalayerPush('select_occasion', { occasion: card.dataset.occasion });
+        });
+      });
+    }
+
+    // ---- Experience cards ----
+    var selectedExp = '';
+    function initExperienceCards() {
+      var cards = document.querySelectorAll('.sse-exp-card');
+      var hidden = document.getElementById('sse-experience');
+      cards.forEach(function(card) {
+        card.addEventListener('click', function() {
+          cards.forEach(function(c) { c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
+          card.classList.add('selected');
+          card.setAttribute('aria-pressed','true');
+          selectedExp = card.dataset.exp || '';
+          if (hidden) hidden.value = selectedExp;
+          datalayerPush('select_experience_type', { experience: selectedExp });
+        });
+      });
+    }
+
+    // ---- Field completion tracking ----
+    function initFieldTracking() {
+      var fields = document.querySelectorAll('#sse-rtb-form input:not([type=hidden]), #sse-rtb-form select, #sse-rtb-form textarea');
+      var completed = {};
+      fields.forEach(function(field) {
+        field.addEventListener('change', function() {
+          if (field.value && !completed[field.name]) {
+            completed[field.name] = true;
+            datalayerPush('field_completion_progress', {
+              field_name: field.name,
+              fields_completed: Object.keys(completed).length
+            });
+          }
+        });
+      });
+
+      // First focus = start_booking_form
+      var started = false;
+      fields[0] && fields[0].addEventListener('focus', function() {
+        if (!started) {
+          started = true;
+          datalayerPush('start_booking_form');
+          ga4Event('start_booking_form');
+          metaPixelEvent('InitiateCheckout');
+        }
+      }, { once: true });
+    }
+
+    // ---- Validation ----
+    function validateForm(form) {
+      var valid = true;
+      var required = form.querySelectorAll('[required]');
+      required.forEach(function(field) {
+        var wrapper = field.closest('.sse-field');
+        if (!field.value.trim()) {
+          valid = false;
+          if (wrapper) wrapper.classList.add('has-error');
+          var errEl = wrapper && wrapper.querySelector('.sse-field-error');
+          if (errEl) { errEl.textContent = 'This field is required.'; errEl.style.display = 'block'; }
+        } else {
+          if (wrapper) wrapper.classList.remove('has-error');
+          var errEl = wrapper && wrapper.querySelector('.sse-field-error');
+          if (errEl) errEl.style.display = 'none';
+        }
+      });
+      // Email format
+      var emailField = form.querySelector('input[type=email]');
+      if (emailField && emailField.value) {
+        var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRe.test(emailField.value)) {
+          valid = false;
+          var wrapper = emailField.closest('.sse-field');
+          if (wrapper) { wrapper.classList.add('has-error'); }
+          var errEl = wrapper && wrapper.querySelector('.sse-field-error');
+          if (errEl) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; }
+        }
+      }
+      return valid;
+    }
+
+    // ---- Submit ----
+    function initFormSubmit() {
+      var form = document.getElementById('sse-rtb-form');
+      if (!form) return;
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!validateForm(form)) {
+          var firstError = form.querySelector('.has-error');
+          if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        var btn = document.getElementById('sse-submit-btn');
+        var stickyBtn = document.getElementById('sse-sticky-btn');
+        if (btn) btn.classList.add('loading');
+        if (stickyBtn) stickyBtn.classList.add('loading');
+
+        // Analytics
+        datalayerPush('submit_booking_form', {
+          experience: selectedExp,
+          occasion: (document.getElementById('sse-occasion-input') || {}).value || '',
+          guest_count: (document.getElementById('sse-guests') || {}).value || ''
+        });
+        ga4Event('submit_booking_form', { experience: selectedExp });
+        metaPixelEvent('Lead', { content_name: 'request_to_book' });
+        ttqEvent('SubmitForm');
+
+        // Collect form data for webhook
+        var data = {};
+        new FormData(form).forEach(function(v, k) { data[k] = v; });
+
+        // Route to MetForm webhook via hidden form submit OR direct webhook
+        var webhookUrl = 'https://hook.us1.make.com/sse-webform-request-capture';
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(function() { showThankYou(); })
+        .catch(function() {
+          // Graceful fallback: show thank you anyway, log error
+          console.warn('Webhook submission failed. Form data logged to dataLayer.');
+          window.dataLayer.push({ event: 'form_submission_error', form_data: data });
+          showThankYou();
+        });
+      });
+    }
+
+    function showThankYou() {
+      var form = document.querySelector('.sse-form-wrap');
+      var ty = document.getElementById('sse-thankyou');
+      var sticky = document.getElementById('sse-sticky-cta');
+      if (form) form.style.display = 'none';
+      if (ty) { ty.classList.add('visible'); ty.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      if (sticky) sticky.style.display = 'none';
+      datalayerPush('view_thank_you_page');
+      ga4Event('purchase', { currency: 'USD', transaction_id: 'sse-' + Date.now(), value: 0 });
+    }
+
+    // ---- Page view event ----
+    function firePageView() {
+      datalayerPush('view_request_page');
+      ga4Event('view_request_page');
+    }
+
+    // ---- CTA click tracking ----
+    function initCtaTracking() {
+      var btn = document.getElementById('sse-submit-btn');
+      if (btn) {
+        btn.addEventListener('mousedown', function() {
+          datalayerPush('click_request_cta');
+        });
+      }
+    }
+
+    // ---- Sticky CTA visibility ----
+    function initStickyVisibility() {
+      var sticky = document.getElementById('sse-sticky-cta');
+      if (!sticky) return;
+      window.addEventListener('scroll', function() {
+        var scrollY = window.scrollY || window.pageYOffset;
+        sticky.setAttribute('aria-hidden', scrollY < 300 ? 'true' : 'false');
+      }, { passive: true });
+    }
+
+    // ---- INIT ----
+    document.addEventListener('DOMContentLoaded', function() {
+      populateHiddenFields();
+      initOccasionCards();
+      initExperienceCards();
+      initFieldTracking();
+      initFormSubmit();
+      initCtaTracking();
+      initStickyVisibility();
+      firePageView();
+
+      // Set min date to today
+      var dateInput = document.getElementById('sse-date');
+      if (dateInput) {
+        var today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+      }
+    });
+
+  }());
+  </script>
+
+</body>
+</html>

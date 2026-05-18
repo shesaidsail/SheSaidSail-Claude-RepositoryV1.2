@@ -1,0 +1,855 @@
+/*
+  GOLDEN HOUR ESCAPE — PAGE STYLES
+  FILE: DEPLOYMENT_PACK/golden-hour-escape/styles.css
+  VERSION: 1.0 | DATE: May 2026
+
+  IMPLEMENTATION: Paste into Webflow's Custom CSS panel for this page,
+  or add to the global stylesheet if applying to multiple experience pages.
+
+  All styles are namespaced to .ghe- prefix to avoid conflicts with
+  Webflow global styles and other pages.
+*/
+
+/* ==========================================================================
+   VARIABLES
+   ========================================================================== */
+
+:root {
+  --navy: #0a2342;
+  --gold: #c9a84c;
+  --gold-light: #e8d5a3;
+  --cream: #f4f1ec;
+  --stone: #f9f6f0;
+  --white: #ffffff;
+  --text-body: #555555;
+  --text-muted: #999999;
+  --border-gold: rgba(201, 168, 76, 0.2);
+}
+
+/* ==========================================================================
+   BASE TYPOGRAPHY
+   ========================================================================== */
+
+.ghe-page {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--navy);
+  background-color: var(--cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ghe-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 14px;
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+
+.ghe-hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--navy);
+}
+
+.ghe-hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  loading: eager;
+}
+
+.ghe-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 35, 66, 0.25) 0%,
+    rgba(10, 35, 66, 0.55) 60%,
+    rgba(10, 35, 66, 0.75) 100%
+  );
+}
+
+.ghe-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 780px;
+  padding: 0 24px;
+}
+
+.ghe-hero__label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 20px;
+}
+
+.ghe-hero__headline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(36px, 5vw, 54px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--white);
+  margin: 0 0 20px 0;
+  letter-spacing: 0.5px;
+}
+
+.ghe-hero__sub {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 36px 0;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.ghe-btn-primary {
+  display: inline-block;
+  background-color: var(--gold);
+  color: var(--navy);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 17px 44px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: 54px;
+  line-height: 1;
+}
+
+.ghe-btn-primary:hover {
+  background-color: #b8963d;
+}
+
+.ghe-btn-secondary {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--gold);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px 44px;
+  border: 1.5px solid var(--gold);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 54px;
+  line-height: 1;
+}
+
+.ghe-btn-secondary:hover {
+  background-color: var(--gold);
+  color: var(--navy);
+}
+
+/* ==========================================================================
+   OVERVIEW STRIP
+   ========================================================================== */
+
+.ghe-overview {
+  background-color: var(--navy);
+  padding: 40px 0;
+  border-top: 1px solid rgba(201, 168, 76, 0.3);
+}
+
+.ghe-overview__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.ghe-overview__item {
+  text-align: center;
+  padding: 16px 24px;
+  border-right: 1px solid rgba(201, 168, 76, 0.15);
+}
+
+.ghe-overview__item:last-child {
+  border-right: none;
+}
+
+.ghe-overview__value {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--white);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.ghe-overview__label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ==========================================================================
+   EXPERIENCE SECTION
+   ========================================================================== */
+
+.ghe-experience {
+  padding: 96px 0;
+  background-color: var(--white);
+}
+
+.ghe-experience__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.ghe-experience__copy {}
+
+.ghe-experience__headline {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--navy);
+  margin: 0 0 28px 0;
+}
+
+.ghe-experience__body {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--text-body);
+  margin: 0 0 20px 0;
+}
+
+.ghe-experience__body:last-of-type {
+  margin-bottom: 36px;
+}
+
+.ghe-experience__image-wrap {
+  position: relative;
+}
+
+.ghe-experience__image {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+/* ==========================================================================
+   INCLUDES SECTION
+   ========================================================================== */
+
+.ghe-includes {
+  padding: 96px 0;
+  background-color: var(--cream);
+}
+
+.ghe-includes__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.ghe-includes__headline {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--navy);
+  margin: 0 0 48px 0;
+}
+
+.ghe-includes__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.ghe-includes__item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.ghe-includes__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--gold);
+}
+
+.ghe-includes__item-text {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.ghe-includes__note {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  border-top: 1px solid var(--border-gold);
+  padding-top: 24px;
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   ADD-ONS SECTION
+   ========================================================================== */
+
+.ghe-addons {
+  padding: 80px 0;
+  background-color: var(--stone);
+}
+
+.ghe-addons__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.ghe-addons__headline {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--navy);
+  margin: 0 0 48px 0;
+}
+
+.ghe-addons__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  text-align: left;
+}
+
+.ghe-addon-card {
+  background-color: var(--white);
+  padding: 28px 24px;
+  border-radius: 4px;
+  border-top: 2px solid var(--gold);
+}
+
+.ghe-addon-card__name {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--navy);
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.ghe-addon-card__desc {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-body);
+  margin: 0;
+}
+
+/* ==========================================================================
+   REVIEWS SECTION
+   ========================================================================== */
+
+.ghe-reviews {
+  padding: 96px 0;
+  background-color: var(--navy);
+}
+
+.ghe-reviews__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.ghe-reviews__headline {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--white);
+  margin: 0 0 56px 0;
+}
+
+.ghe-reviews__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: left;
+}
+
+.ghe-review-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  padding: 32px 28px;
+  border-radius: 4px;
+}
+
+.ghe-review-card__stars {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.ghe-review-card__quote {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 20px 0;
+  font-style: italic;
+}
+
+.ghe-review-card__attribution {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ==========================================================================
+   FORM SECTION
+   ========================================================================== */
+
+.ghe-form-section {
+  padding: 96px 0;
+  background-color: var(--white);
+}
+
+.ghe-form-section__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.ghe-form-section__headline {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--navy);
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.ghe-form-section__intro {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text-body);
+  text-align: center;
+  margin: 0 0 48px 0;
+}
+
+.ghe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ghe-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ghe-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ghe-form__field.ghe-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.ghe-form__label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ghe-form__label span.required {
+  color: var(--gold);
+  margin-left: 2px;
+}
+
+.ghe-form__input,
+.ghe-form__select,
+.ghe-form__textarea {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--navy);
+  background-color: var(--cream);
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  padding: 13px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 50px;
+}
+
+.ghe-form__input:focus,
+.ghe-form__select:focus,
+.ghe-form__textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.ghe-form__textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.ghe-form__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.ghe-form__submit {
+  background-color: var(--gold);
+  color: var(--navy);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 2px;
+  padding: 18px 44px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: 56px;
+  align-self: flex-start;
+}
+
+.ghe-form__submit:hover {
+  background-color: #b8963d;
+}
+
+.ghe-form__reassurance {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   SECTION DIVIDER
+   ========================================================================== */
+
+.ghe-rule {
+  width: 60px;
+  height: 1px;
+  background-color: var(--gold);
+  margin: 0 auto 20px auto;
+}
+
+.ghe-rule--left {
+  margin-left: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE — TABLET
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .ghe-overview__inner {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 24px;
+  }
+
+  .ghe-overview__item:nth-child(2) {
+    border-right: none;
+  }
+
+  .ghe-overview__item:nth-child(3) {
+    border-right: 1px solid rgba(201, 168, 76, 0.15);
+  }
+
+  .ghe-experience__inner {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    padding: 0 24px;
+  }
+
+  .ghe-experience__image {
+    height: 360px;
+  }
+
+  .ghe-includes__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ghe-addons__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ghe-reviews__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ghe-reviews__grid .ghe-review-card:last-child {
+    grid-column: 1 / -1;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE — MOBILE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* Hero */
+  .ghe-hero {
+    min-height: 88vh;
+  }
+
+  .ghe-hero__headline {
+    font-size: 34px;
+  }
+
+  .ghe-hero__sub {
+    font-size: 16px;
+  }
+
+  .ghe-btn-primary,
+  .ghe-btn-secondary {
+    width: 100%;
+    text-align: center;
+    padding: 17px 24px;
+  }
+
+  /* Overview */
+  .ghe-overview {
+    padding: 32px 0;
+  }
+
+  .ghe-overview__inner {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 20px;
+  }
+
+  .ghe-overview__item {
+    padding: 16px 12px;
+  }
+
+  .ghe-overview__item:nth-child(2) {
+    border-right: none;
+  }
+
+  .ghe-overview__item:nth-child(3) {
+    border-right: 1px solid rgba(201, 168, 76, 0.15);
+    border-top: 1px solid rgba(201, 168, 76, 0.15);
+  }
+
+  .ghe-overview__item:nth-child(4) {
+    border-top: 1px solid rgba(201, 168, 76, 0.15);
+  }
+
+  /* Experience */
+  .ghe-experience {
+    padding: 64px 0;
+  }
+
+  .ghe-experience__inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 0 20px;
+  }
+
+  .ghe-experience__image {
+    order: -1;
+    height: 260px;
+  }
+
+  .ghe-experience__headline {
+    font-size: 24px;
+  }
+
+  /* Includes */
+  .ghe-includes {
+    padding: 64px 0;
+  }
+
+  .ghe-includes__inner {
+    padding: 0 20px;
+  }
+
+  .ghe-includes__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ghe-includes__headline {
+    font-size: 22px;
+  }
+
+  /* Add-ons */
+  .ghe-addons {
+    padding: 56px 0;
+  }
+
+  .ghe-addons__inner {
+    padding: 0 20px;
+  }
+
+  .ghe-addons__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ghe-addons__headline {
+    font-size: 22px;
+  }
+
+  /* Reviews */
+  .ghe-reviews {
+    padding: 64px 0;
+  }
+
+  .ghe-reviews__inner {
+    padding: 0 20px;
+  }
+
+  .ghe-reviews__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ghe-reviews__grid .ghe-review-card:last-child {
+    grid-column: auto;
+    max-width: none;
+  }
+
+  .ghe-reviews__headline {
+    font-size: 22px;
+  }
+
+  /* Form */
+  .ghe-form-section {
+    padding: 64px 0;
+  }
+
+  .ghe-form-section__inner {
+    padding: 0 20px;
+  }
+
+  .ghe-form-section__headline {
+    font-size: 24px;
+  }
+
+  .ghe-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .ghe-form__submit {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   STICKY MOBILE CTA BAR
+   ========================================================================== */
+
+.ghe-sticky-cta {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--navy);
+  border-top: 1px solid rgba(201, 168, 76, 0.3);
+  padding: 12px 20px;
+}
+
+.ghe-sticky-cta a {
+  display: block;
+  background-color: var(--gold);
+  color: var(--navy);
+  text-align: center;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .ghe-sticky-cta {
+    display: block;
+  }
+
+  /* add bottom padding to page so sticky bar doesn't cover content */
+  .ghe-form-section {
+    padding-bottom: 100px;
+  }
+}
+
+/* hide sticky bar once user reaches the form */
+.ghe-sticky-cta.is-hidden {
+  display: none !important;
+}

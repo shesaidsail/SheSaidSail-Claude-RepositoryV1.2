@@ -1,0 +1,370 @@
+<!--
+  GOLDEN HOUR ESCAPE — HTML SECTION SNIPPETS
+  FILE: DEPLOYMENT_PACK/golden-hour-escape/html-sections.html
+  VERSION: 1.0 | DATE: May 2026
+
+  IMPLEMENTATION:
+  These are reference HTML snippets for use in Webflow or as a standalone template.
+  In Webflow: These sections map to Webflow components/sections with the class names
+  from styles.css applied.
+
+  NOTE: Replace all placeholder image URLs with actual Webflow-hosted asset URLs.
+  Replace [FORM_WEBHOOK_URL] with the Make SSS-LEAD-INTAKE webhook URL.
+-->
+
+<!-- =====================================================
+     HERO SECTION
+     ===================================================== -->
+
+<section class="ghe-hero" aria-label="Golden Hour Escape hero">
+
+  <img
+    class="ghe-hero__image"
+    src="[REPLACE: golden-hour-hero-image.jpg]"
+    alt="Group of women celebrating on a private sailboat during golden hour, warm light over the water, champagne in hand"
+    width="1600"
+    height="900"
+    loading="eager"
+    decoding="sync"
+  >
+
+  <div class="ghe-hero__overlay" aria-hidden="true"></div>
+
+  <div class="ghe-hero__content">
+    <span class="ghe-hero__label">Private sunset sailing charter</span>
+    <h1 class="ghe-hero__headline">The light is best at the end of the day.</h1>
+    <p class="ghe-hero__sub">Three hours on the water as the sun drops and everything turns gold. Your group. Your pace. Champagne optional, warmth guaranteed.</p>
+    <a href="#reserve" class="ghe-btn-primary">Reserve your date</a>
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     OVERVIEW STRIP
+     ===================================================== -->
+
+<section class="ghe-overview" aria-label="Experience overview">
+  <div class="ghe-overview__inner">
+
+    <div class="ghe-overview__item">
+      <span class="ghe-overview__value">3 hours</span>
+      <span class="ghe-overview__label">Duration</span>
+    </div>
+
+    <div class="ghe-overview__item">
+      <span class="ghe-overview__value">Up to 13</span>
+      <span class="ghe-overview__label">Guests</span>
+    </div>
+
+    <div class="ghe-overview__item">
+      <span class="ghe-overview__value">Late afternoon</span>
+      <span class="ghe-overview__label">Departure</span>
+    </div>
+
+    <div class="ghe-overview__item">
+      <span class="ghe-overview__value">Birthdays, bachelorettes</span>
+      <span class="ghe-overview__label">Designed for</span>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     THE EXPERIENCE SECTION
+     ===================================================== -->
+
+<section class="ghe-experience">
+  <div class="ghe-experience__inner">
+
+    <div class="ghe-experience__copy">
+      <span class="ghe-label">The experience</span>
+      <div class="ghe-rule ghe-rule--left"></div>
+      <h2 class="ghe-experience__headline">An hour before sunset is everything.</h2>
+      <p class="ghe-experience__body">The Golden Hour Escape is timed around the light. You board late afternoon, once the sky has started to soften. Within the first 30 minutes on the water, that familiar shift happens: the warmth you only get when the sun is near the horizon, the kind of light that makes everyone look and feel their best.</p>
+      <p class="ghe-experience__body">Your crew handles everything from the moment you arrive. Bottles chilled, music low, ice filled. All you do is settle in and let the city shrink behind you. There is no agenda. The boat moves at the pace you want.</p>
+      <p class="ghe-experience__body">As the sun drops, the sky changes color in a way that is genuinely difficult to describe in advance. Your group has the water to yourselves. The moment is yours.</p>
+      <a href="#reserve" class="ghe-btn-secondary">Plan your escape</a>
+    </div>
+
+    <div class="ghe-experience__image-wrap">
+      <img
+        class="ghe-experience__image"
+        src="[REPLACE: golden-hour-experience-image.jpg]"
+        alt="Women sitting on the bow of a sailboat at golden hour, soft warm light, water calm behind them"
+        width="640"
+        height="480"
+        loading="lazy"
+      >
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     WHAT'S INCLUDED SECTION
+     ===================================================== -->
+
+<section class="ghe-includes">
+  <div class="ghe-includes__inner">
+
+    <span class="ghe-label">What's included</span>
+    <div class="ghe-rule"></div>
+    <h2 class="ghe-includes__headline">Everything you need. Nothing you don't.</h2>
+
+    <div class="ghe-includes__grid">
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Private charter for your group. No shared guests.</span>
+      </div>
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Experienced captain and crew on board.</span>
+      </div>
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Chilled water, soft drinks, and ice provided.</span>
+      </div>
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Bluetooth sound system. Your playlist.</span>
+      </div>
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Safety equipment and crew briefing.</span>
+      </div>
+
+      <div class="ghe-includes__item">
+        <svg class="ghe-includes__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="ghe-includes__item-text">Concierge check-in and boarding assistance.</span>
+      </div>
+
+    </div>
+
+    <p class="ghe-includes__note">Champagne, sparkling wine, catering, and add-ons are available. Ask us when you inquire.</p>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     ADD-ONS SECTION
+     ===================================================== -->
+
+<section class="ghe-addons">
+  <div class="ghe-addons__inner">
+
+    <span class="ghe-label">Make it yours</span>
+    <div class="ghe-rule"></div>
+    <h2 class="ghe-addons__headline">A few things that make the difference.</h2>
+
+    <div class="ghe-addons__grid">
+
+      <div class="ghe-addon-card">
+        <p class="ghe-addon-card__name">Champagne + Flutes</p>
+        <p class="ghe-addon-card__desc">A cold bottle and proper glasses. The classic move.</p>
+      </div>
+
+      <div class="ghe-addon-card">
+        <p class="ghe-addon-card__name">Charcuterie Board</p>
+        <p class="ghe-addon-card__desc">Curated selections. No assembly required.</p>
+      </div>
+
+      <div class="ghe-addon-card">
+        <p class="ghe-addon-card__name">Floral Arrangement</p>
+        <p class="ghe-addon-card__desc">Fresh blooms for the table. Doubles as a keepsake.</p>
+      </div>
+
+      <div class="ghe-addon-card">
+        <p class="ghe-addon-card__name">Photographer Add-On</p>
+        <p class="ghe-addon-card__desc">A photographer joins for the first 90 minutes. Golden hour portraits worth keeping.</p>
+      </div>
+
+      <div class="ghe-addon-card">
+        <p class="ghe-addon-card__name">Custom Signage</p>
+        <p class="ghe-addon-card__desc">Name, occasion, or message displayed on board.</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     REVIEWS SECTION
+     ===================================================== -->
+
+<section class="ghe-reviews" id="reviews">
+  <div class="ghe-reviews__inner">
+
+    <span class="ghe-label" style="color: var(--gold);">From past guests</span>
+    <div class="ghe-rule"></div>
+    <h2 class="ghe-reviews__headline">The reviews speak for themselves.</h2>
+
+    <div class="ghe-reviews__grid">
+
+      <div class="ghe-review-card">
+        <div class="ghe-review-card__stars" aria-label="5 stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="ghe-review-card__quote">"We had no idea what to expect and it exceeded everything. The light at the end was surreal. I've already recommended it to three friends."</p>
+        <p class="ghe-review-card__attribution">Jessica M. &nbsp;|&nbsp; Birthday celebration, Miami</p>
+      </div>
+
+      <div class="ghe-review-card">
+        <div class="ghe-review-card__stars" aria-label="5 stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="ghe-review-card__quote">"The crew anticipated everything. Drinks were filled before we noticed they were low. We were so relaxed we almost missed the sunset because we were just talking and laughing. Almost."</p>
+        <p class="ghe-review-card__attribution">Priya and the girls &nbsp;|&nbsp; Bachelorette, Fort Lauderdale</p>
+      </div>
+
+      <div class="ghe-review-card">
+        <div class="ghe-review-card__stars" aria-label="5 stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="ghe-review-card__quote">"Worth every penny. The golden hour photos alone were worth it. This is the thing to do for a girls' trip."</p>
+        <p class="ghe-review-card__attribution">Dominique R. &nbsp;|&nbsp; Girls' trip, Miami</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     INQUIRY FORM SECTION
+     ===================================================== -->
+
+<section class="ghe-form-section" id="reserve" aria-label="Reserve your date">
+  <div class="ghe-form-section__inner">
+
+    <span class="ghe-label" style="text-align: center;">Reserve your date</span>
+    <div class="ghe-rule"></div>
+    <h2 class="ghe-form-section__headline">Tell us about your group.</h2>
+    <p class="ghe-form-section__intro">We'll reach back out to confirm availability and answer any questions. No pressure, no deposit until you're ready.</p>
+
+    <form
+      id="sss-golden-hour-escape-inquiry"
+      class="ghe-form"
+      action="[REPLACE_WITH_MAKE_WEBHOOK_URL]"
+      method="POST"
+      novalidate
+    >
+
+      <!-- Hidden fields — populated by analytics.js -->
+      <input type="hidden" name="experience" value="Golden Hour Escape">
+      <input type="hidden" name="source_url" id="source_url">
+      <input type="hidden" name="utm_source" id="utm_source">
+      <input type="hidden" name="utm_medium" id="utm_medium">
+      <input type="hidden" name="utm_campaign" id="utm_campaign">
+      <input type="hidden" name="utm_content" id="utm_content">
+      <input type="hidden" name="utm_term" id="utm_term">
+      <input type="hidden" name="page_slug" id="page_slug">
+      <input type="hidden" name="referrer" id="referrer">
+
+      <!-- Row 1: Name -->
+      <div class="ghe-form__row">
+        <div class="ghe-form__field">
+          <label for="first_name" class="ghe-form__label">First name <span class="required" aria-hidden="true">*</span></label>
+          <input type="text" id="first_name" name="first_name" class="ghe-form__input" autocomplete="given-name" required>
+        </div>
+        <div class="ghe-form__field">
+          <label for="last_name" class="ghe-form__label">Last name <span class="required" aria-hidden="true">*</span></label>
+          <input type="text" id="last_name" name="last_name" class="ghe-form__input" autocomplete="family-name" required>
+        </div>
+      </div>
+
+      <!-- Row 2: Contact -->
+      <div class="ghe-form__row">
+        <div class="ghe-form__field">
+          <label for="email" class="ghe-form__label">Email <span class="required" aria-hidden="true">*</span></label>
+          <input type="email" id="email" name="email" class="ghe-form__input" autocomplete="email" required>
+        </div>
+        <div class="ghe-form__field">
+          <label for="phone" class="ghe-form__label">Phone <span class="required" aria-hidden="true">*</span></label>
+          <input type="tel" id="phone" name="phone" class="ghe-form__input" autocomplete="tel" required>
+        </div>
+      </div>
+
+      <!-- Row 3: Date + Guests -->
+      <div class="ghe-form__row">
+        <div class="ghe-form__field">
+          <label for="preferred_date" class="ghe-form__label">Preferred date <span class="required" aria-hidden="true">*</span></label>
+          <input type="date" id="preferred_date" name="preferred_date" class="ghe-form__input" required>
+        </div>
+        <div class="ghe-form__field">
+          <label for="guest_count" class="ghe-form__label">Number of guests <span class="required" aria-hidden="true">*</span></label>
+          <input type="number" id="guest_count" name="guest_count" class="ghe-form__input" min="2" max="13" placeholder="2 to 13" required>
+        </div>
+      </div>
+
+      <!-- Row 4: Occasion + City -->
+      <div class="ghe-form__row">
+        <div class="ghe-form__field">
+          <label for="occasion" class="ghe-form__label">Occasion <span class="required" aria-hidden="true">*</span></label>
+          <select id="occasion" name="occasion" class="ghe-form__select" required>
+            <option value="" disabled selected>Select occasion</option>
+            <option value="Birthday">Birthday</option>
+            <option value="Bachelorette">Bachelorette</option>
+            <option value="Girls Trip">Girls' trip</option>
+            <option value="Anniversary">Anniversary</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="ghe-form__field">
+          <label for="city" class="ghe-form__label">City <span class="required" aria-hidden="true">*</span></label>
+          <select id="city" name="city" class="ghe-form__select" required>
+            <option value="" disabled selected>Select city</option>
+            <option value="Miami">Miami</option>
+            <option value="Fort Lauderdale">Fort Lauderdale</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Add-ons (optional) -->
+      <div class="ghe-form__field">
+        <label for="add_ons" class="ghe-form__label">Add-ons you're considering</label>
+        <input type="text" id="add_ons" name="add_ons" class="ghe-form__input" placeholder="Champagne, photographer, florals...">
+      </div>
+
+      <!-- Special requests (optional) -->
+      <div class="ghe-form__field">
+        <label for="special_requests" class="ghe-form__label">Anything else we should know?</label>
+        <textarea id="special_requests" name="special_requests" class="ghe-form__textarea" placeholder="Tell us about the occasion, any surprises planned, or questions you have."></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="ghe-form__submit">Send my inquiry</button>
+
+    </form>
+
+    <p class="ghe-form__reassurance">We typically respond within a few hours Monday through Friday. Your inquiry is never shared with third parties.</p>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     STICKY MOBILE CTA BAR
+     ===================================================== -->
+
+<div class="ghe-sticky-cta" aria-label="Reserve your date" role="complementary">
+  <a href="#reserve">Reserve your date</a>
+</div>

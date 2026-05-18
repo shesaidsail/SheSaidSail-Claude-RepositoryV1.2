@@ -1,0 +1,869 @@
+/*
+ * SHE SAID SAIL
+ * Pink Palm Club Experience Page
+ * Master Design System CSS
+ * Version: 1.0 | May 2026
+ *
+ * Apply in Webflow: Page Settings > Custom Code > Head
+ */
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+
+:root {
+  --sss-navy:    #0a2342;
+  --sss-gold:    #c9a84c;
+  --sss-cream:   #f4f1ec;
+  --sss-white:   #ffffff;
+  --sss-text:    #2a2a2a;
+  --sss-muted:   #6b6b6b;
+  --sss-border:  #e8e3da;
+
+  --font-serif:  Georgia, 'Times New Roman', serif;
+  --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --space-xs:    8px;
+  --space-sm:    16px;
+  --space-md:    24px;
+  --space-lg:    48px;
+  --space-xl:    80px;
+  --space-2xl:   120px;
+}
+
+/* ============================================================
+   BASE RESET (scoped to PPC sections)
+   ============================================================ */
+
+.ppc-section *,
+.ppc-section *::before,
+.ppc-section *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   GLOBAL CONTAINER
+   ============================================================ */
+
+.ppc-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.ppc-container--narrow {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+
+.ppc-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+  display: block;
+  margin-bottom: 16px;
+}
+
+.ppc-headline {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--sss-navy);
+  margin: 0 0 24px 0;
+}
+
+.ppc-headline--white {
+  color: var(--sss-white);
+}
+
+.ppc-headline--large {
+  font-size: 64px;
+  line-height: 1.1;
+}
+
+.ppc-subheadline {
+  font-family: var(--font-serif);
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: var(--sss-navy);
+  margin: 0 0 24px 0;
+}
+
+.ppc-subheadline--white {
+  color: var(--sss-white);
+}
+
+.ppc-body {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--sss-text);
+  margin: 0 0 20px 0;
+}
+
+.ppc-body--white {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.ppc-body--muted {
+  color: var(--sss-muted);
+}
+
+.ppc-body:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================
+   GOLD DIVIDER
+   ============================================================ */
+
+.ppc-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--sss-gold);
+  margin: 0 0 32px 0;
+}
+
+.ppc-divider--centered {
+  margin: 0 auto 32px auto;
+}
+
+/* ============================================================
+   CTA BUTTONS
+   ============================================================ */
+
+.ppc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0 32px;
+  height: 52px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  transition: filter 200ms ease, transform 200ms ease;
+  white-space: nowrap;
+}
+
+.ppc-btn:hover {
+  filter: brightness(0.92);
+}
+
+.ppc-btn--primary {
+  background: var(--sss-gold);
+  color: var(--sss-navy);
+}
+
+.ppc-btn--secondary {
+  background: transparent;
+  color: var(--sss-gold);
+  border: 1.5px solid var(--sss-gold);
+}
+
+.ppc-btn--ghost {
+  background: transparent;
+  color: var(--sss-white);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+}
+
+.ppc-btn--ghost:hover {
+  border-color: var(--sss-white);
+  filter: none;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+
+.ppc-hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.ppc-hero__bg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.ppc-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 35, 66, 0.80) 0%,
+    rgba(10, 35, 66, 0.45) 50%,
+    rgba(10, 35, 66, 0.15) 100%
+  );
+  z-index: 1;
+}
+
+.ppc-hero__content {
+  position: relative;
+  z-index: 2;
+  padding: 80px 32px;
+  max-width: 780px;
+}
+
+.ppc-hero__headline {
+  font-family: var(--font-serif);
+  font-size: 60px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: var(--sss-white);
+  margin: 0 0 20px 0;
+}
+
+.ppc-hero__subhead {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 36px 0;
+  max-width: 560px;
+}
+
+.ppc-hero__cta-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   INTRO SECTION
+   ============================================================ */
+
+.ppc-intro {
+  background: var(--sss-cream);
+  padding: var(--space-xl) 0;
+  text-align: center;
+}
+
+.ppc-intro .ppc-body {
+  text-align: left;
+}
+
+/* ============================================================
+   EXPERIENCE DETAILS SECTION
+   ============================================================ */
+
+.ppc-details {
+  background: var(--sss-white);
+  padding: var(--space-xl) 0;
+}
+
+.ppc-details__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.ppc-details__image {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.ppc-details__list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0 0;
+}
+
+.ppc-details__list li {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--sss-text);
+  padding: 10px 0 10px 24px;
+  position: relative;
+  border-bottom: 1px solid var(--sss-border);
+}
+
+.ppc-details__list li:last-child {
+  border-bottom: none;
+}
+
+.ppc-details__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 1px;
+  background: var(--sss-gold);
+}
+
+/* ============================================================
+   LOGISTICS / STATS SECTION
+   ============================================================ */
+
+.ppc-stats {
+  background: var(--sss-navy);
+  padding: var(--space-xl) 0;
+}
+
+.ppc-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(201, 168, 76, 0.2);
+}
+
+.ppc-stats__item {
+  background: var(--sss-navy);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.ppc-stats__label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.ppc-stats__value {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--sss-white);
+  display: block;
+  line-height: 1.2;
+}
+
+.ppc-stats__note {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  display: block;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   ADD-ONS SECTION
+   ============================================================ */
+
+.ppc-addons {
+  background: var(--sss-cream);
+  padding: var(--space-xl) 0;
+}
+
+.ppc-addons__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.ppc-addon-card {
+  background: var(--sss-white);
+  border: 1px solid var(--sss-border);
+  border-radius: 4px;
+  padding: 32px;
+  transition: transform 200ms ease;
+}
+
+.ppc-addon-card:hover {
+  transform: translateY(-2px);
+}
+
+.ppc-addon-card__name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--sss-navy);
+  margin: 0 0 8px 0;
+}
+
+.ppc-addon-card__desc {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--sss-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   SOCIAL PROOF SECTION
+   ============================================================ */
+
+.ppc-proof {
+  background: var(--sss-white);
+  padding: var(--space-xl) 0;
+}
+
+.ppc-proof__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.ppc-proof__quote {
+  padding: 32px;
+  background: var(--sss-cream);
+  border-radius: 4px;
+  position: relative;
+}
+
+.ppc-proof__text {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--sss-text);
+  font-style: italic;
+  margin: 0 0 20px 0;
+}
+
+.ppc-proof__attribution {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+}
+
+/* ============================================================
+   BOOKING CTA SECTION
+   ============================================================ */
+
+.ppc-cta-section {
+  background: var(--sss-navy);
+  padding: var(--space-xl) 0;
+  text-align: center;
+}
+
+.ppc-cta-section .ppc-subheadline--white {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ppc-cta-section .ppc-body--white {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 36px;
+}
+
+/* ============================================================
+   INQUIRY FORM SECTION
+   ============================================================ */
+
+.ppc-form-section {
+  background: var(--sss-cream);
+  padding: var(--space-xl) 0;
+}
+
+.ppc-form-card {
+  background: var(--sss-white);
+  border: 1px solid var(--sss-border);
+  border-radius: 4px;
+  padding: 56px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ppc-form-card__header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.ppc-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.ppc-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ppc-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.ppc-form__label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--sss-navy);
+}
+
+.ppc-form__label--required::after {
+  content: ' *';
+  color: var(--sss-gold);
+}
+
+.ppc-form__input,
+.ppc-form__select,
+.ppc-form__textarea {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--sss-text);
+  background: var(--sss-white);
+  border: 1px solid var(--sss-border);
+  border-radius: 2px;
+  padding: 14px 16px;
+  width: 100%;
+  transition: border-color 200ms ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ppc-form__input:focus,
+.ppc-form__select:focus,
+.ppc-form__textarea:focus {
+  outline: none;
+  border-color: var(--sss-gold);
+}
+
+.ppc-form__input::placeholder {
+  color: #b0a898;
+}
+
+.ppc-form__textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.ppc-form__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.ppc-form__submit-wrap {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.ppc-form__submit {
+  min-width: 280px;
+}
+
+.ppc-form__note {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--sss-muted);
+  text-align: center;
+  margin-top: 16px;
+}
+
+.ppc-form__success {
+  display: none;
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.ppc-form__success.is-visible {
+  display: block;
+}
+
+.ppc-form__success-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--sss-navy);
+  margin: 0 0 16px 0;
+}
+
+.ppc-form__success-body {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--sss-muted);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   REASSURANCE STRIP
+   ============================================================ */
+
+.ppc-reassurance {
+  background: var(--sss-navy);
+  padding: 40px 0;
+}
+
+.ppc-reassurance__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+
+.ppc-reassurance__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ppc-reassurance__icon {
+  width: 28px;
+  height: 28px;
+  stroke: var(--sss-gold);
+  fill: none;
+}
+
+.ppc-reassurance__text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+.ppc-reassurance__text strong {
+  color: var(--sss-white);
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+/* ============================================================
+   FLOATING MOBILE CTA
+   ============================================================ */
+
+.ppc-floating-cta {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  background: var(--sss-navy);
+  border-top: 1px solid rgba(201, 168, 76, 0.3);
+  z-index: 1000;
+  transition: transform 300ms ease;
+}
+
+.ppc-floating-cta .ppc-btn {
+  width: 100%;
+}
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .ppc-hero__headline {
+    font-size: 48px;
+  }
+
+  .ppc-headline {
+    font-size: 42px;
+  }
+
+  .ppc-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ppc-addons__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ppc-proof__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Typography */
+  .ppc-hero__headline {
+    font-size: 36px;
+    line-height: 1.2;
+  }
+
+  .ppc-headline {
+    font-size: 32px;
+  }
+
+  .ppc-subheadline {
+    font-size: 26px;
+  }
+
+  .ppc-hero__subhead {
+    font-size: 17px;
+  }
+
+  /* Container */
+  .ppc-container,
+  .ppc-container--narrow {
+    padding: 0 20px;
+  }
+
+  /* Hero */
+  .ppc-hero {
+    min-height: 75vh;
+  }
+
+  .ppc-hero__content {
+    padding: 56px 20px;
+  }
+
+  .ppc-hero__cta-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ppc-hero__cta-group .ppc-btn {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  /* Sections */
+  .ppc-intro,
+  .ppc-details,
+  .ppc-addons,
+  .ppc-proof,
+  .ppc-cta-section,
+  .ppc-form-section {
+    padding: 56px 0;
+  }
+
+  .ppc-stats {
+    padding: 56px 0;
+  }
+
+  /* Details */
+  .ppc-details__grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  /* Stats */
+  .ppc-stats__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ppc-stats__item {
+    padding: 32px 20px;
+  }
+
+  .ppc-stats__value {
+    font-size: 26px;
+  }
+
+  /* Add-ons */
+  .ppc-addons__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Social proof */
+  .ppc-proof__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Form */
+  .ppc-form-card {
+    padding: 32px 20px;
+  }
+
+  .ppc-form__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ppc-form__field--full {
+    grid-column: 1;
+  }
+
+  .ppc-form__submit {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* Reassurance */
+  .ppc-reassurance__grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  /* Floating CTA */
+  .ppc-floating-cta {
+    display: block;
+  }
+
+  .ppc-floating-cta.is-hidden {
+    transform: translateY(100%);
+  }
+}
+
+/* ============================================================
+   SKIP NAVIGATION (accessibility)
+   ============================================================ */
+
+.ppc-skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--sss-navy);
+  color: var(--sss-white);
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: top 200ms ease;
+  z-index: 9999;
+}
+
+.ppc-skip-nav:focus {
+  top: 16px;
+}
+
+/* ============================================================
+   FOCUS STATES (accessibility)
+   ============================================================ */
+
+.ppc-btn:focus-visible,
+.ppc-form__input:focus-visible,
+.ppc-form__select:focus-visible,
+.ppc-form__textarea:focus-visible {
+  outline: 2px solid var(--sss-gold);
+  outline-offset: 2px;
+}

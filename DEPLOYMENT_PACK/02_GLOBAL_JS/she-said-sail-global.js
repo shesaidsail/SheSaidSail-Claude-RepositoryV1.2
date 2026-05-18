@@ -16,7 +16,7 @@
  *      Page views: view_homepage, view_request_page, view_experiences_page, view_experience_page
  *      CTA clicks: click_request_to_book, click_explore_experiences, click_experience_card
  *      Forms: start_booking_form, submit_booking_form, submit_email_capture
- *      Engagement: click_phone, open_chat, view_thank_you_page, scroll_50_percent, scroll_90_percent
+ *      Engagement: click_phone, open_chat, view_about_page, view_contact_page, view_thank_you_page, scroll_50_percent, scroll_90_percent
  */
 
 (function () {
@@ -694,7 +694,27 @@
     }
 
     /* ----------------------------------------------------------
-       l. VIEW_THANK_YOU_PAGE
+       l. VIEW_ABOUT_PAGE
+       Fires on the about page.
+    ---------------------------------------------------------- */
+    if (path === '/about/' || path === '/about') {
+      dlPush('view_about_page', {
+        page_location: window.location.href
+      });
+    }
+
+    /* ----------------------------------------------------------
+       m. VIEW_CONTACT_PAGE
+       Fires on the contact page.
+    ---------------------------------------------------------- */
+    if (path === '/contact/' || path === '/contact') {
+      dlPush('view_contact_page', {
+        page_location: window.location.href
+      });
+    }
+
+    /* ----------------------------------------------------------
+       n. VIEW_THANK_YOU_PAGE
        Fires on confirmation or thank-you pages.
     ---------------------------------------------------------- */
     if (

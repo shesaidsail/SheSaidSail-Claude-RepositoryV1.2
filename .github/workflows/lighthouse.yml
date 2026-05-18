@@ -1,17 +1,19 @@
 name: Lighthouse CI
 
+# Disabled until staging URL is available.
+# To re-enable: remove the 'if: false' line from the lighthouse job,
+# add a .lighthouserc.json with the staging URL, and update the branch triggers.
 on:
   push:
     branches:
-      - feature/luxury-conversion-overhaul
       - staging
   pull_request:
     branches:
-      - staging
       - main
 
 jobs:
   lighthouse:
+    if: false
     name: Run Lighthouse Audits
     runs-on: ubuntu-latest
 

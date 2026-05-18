@@ -1,0 +1,633 @@
+<!-- ============================================================
+     She Said Sail | Contact Page HTML Snippets
+     Page: /contact/
+     Class prefix: .sss-ct-*
+     Last updated: 2026-05-18
+     NOTE: No em dashes used anywhere in this file.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     SECTION 1: Page Header
+     Background: --sss-cream (#FAF8F3)
+     ============================================================ -->
+
+<section class="sss-ct-header">
+  <style>
+    .sss-ct-header {
+      background-color: #FAF8F3;
+      padding: 96px 0;
+      text-align: center;
+    }
+
+    .sss-ct-header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .sss-ct-header-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #DAB97E;
+      margin: 0 0 20px 0;
+      display: block;
+    }
+
+    .sss-ct-header-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 20px 0;
+      line-height: 1.15;
+    }
+
+    .sss-ct-header-subline {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--sss-muted, #6B6B6B);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 767px) {
+      .sss-ct-header {
+        padding: 64px 0;
+      }
+
+      .sss-ct-header-h1 {
+        font-size: 36px;
+      }
+
+      .sss-ct-header-subline {
+        font-size: 16px;
+      }
+    }
+  </style>
+
+  <div class="sss-ct-header-inner">
+    <span class="sss-ct-header-eyebrow">Get in Touch</span>
+    <h1 class="sss-ct-header-h1">Questions, press, and partnerships.</h1>
+    <p class="sss-ct-header-subline">For booking a charter, use the Request to Book form. For everything else, you are in the right place.</p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: Booking Redirect Banner + Contact Form
+     Background: #FFFFFF (white)
+     ============================================================ -->
+
+<section class="sss-ct-form-section">
+  <style>
+    .sss-ct-form-section {
+      background-color: #FFFFFF;
+      padding: 96px 0;
+    }
+
+    .sss-ct-form-section-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Booking redirect banner */
+    .sss-ct-redirect-banner {
+      background: #F5F0E8;
+      border-left: 4px solid #DAB97E;
+      border-radius: 8px;
+      padding: 32px 40px;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .sss-ct-redirect-arrow {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sss-ct-redirect-arrow::before {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 10px solid #DAB97E;
+    }
+
+    .sss-ct-redirect-content {
+      flex: 1;
+    }
+
+    .sss-ct-redirect-heading {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1A2332;
+      margin: 0 0 10px 0;
+    }
+
+    .sss-ct-redirect-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: #2C2C2C;
+      margin: 0 0 20px 0;
+      line-height: 1.6;
+    }
+
+    .sss-ct-redirect-btn {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #1A2332;
+      background-color: #DAB97E;
+      padding: 14px 28px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .sss-ct-redirect-btn:hover {
+      background-color: #c9a567;
+      opacity: 1;
+    }
+
+    /* Divider */
+    .sss-ct-divider {
+      border: none;
+      border-top: 1px solid rgba(26, 35, 50, 0.12);
+      margin: 48px 0;
+    }
+
+    /* Contact form heading */
+    .sss-ct-form-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 32px 0;
+    }
+
+    /* Form layout */
+    .sss-ct-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sss-ct-form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sss-ct-form-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1A2332;
+      letter-spacing: 0.02em;
+    }
+
+    .sss-ct-form-input,
+    .sss-ct-form-select,
+    .sss-ct-form-textarea {
+      border: 1px solid rgba(218, 185, 126, 0.4);
+      border-radius: 4px;
+      padding: 14px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: #2C2C2C;
+      width: 100%;
+      box-sizing: border-box;
+      background-color: #FFFFFF;
+      transition: border-color 0.2s ease;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .sss-ct-form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A2332' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 44px;
+      cursor: pointer;
+    }
+
+    .sss-ct-form-input:focus,
+    .sss-ct-form-select:focus,
+    .sss-ct-form-textarea:focus {
+      border-color: #DAB97E;
+      outline: none;
+    }
+
+    .sss-ct-form-input::placeholder,
+    .sss-ct-form-textarea::placeholder {
+      color: rgba(44, 44, 44, 0.45);
+    }
+
+    .sss-ct-form-textarea {
+      resize: vertical;
+      min-height: 140px;
+    }
+
+    /* Submit button */
+    .sss-ct-form-submit {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #1A2332;
+      background-color: #DAB97E;
+      padding: 16px 40px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      align-self: flex-start;
+    }
+
+    .sss-ct-form-submit:hover {
+      background-color: #c9a567;
+    }
+
+    .sss-ct-form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Success and error messages */
+    .sss-ct-success,
+    .sss-ct-error {
+      display: none;
+      padding: 20px 24px;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .sss-ct-success {
+      background-color: #F0F7F0;
+      border: 1px solid rgba(80, 150, 80, 0.3);
+      color: #2C4A2C;
+    }
+
+    .sss-ct-error {
+      background-color: #FDF2F2;
+      border: 1px solid rgba(180, 60, 60, 0.3);
+      color: #5C1F1F;
+    }
+
+    /* Mobile */
+    @media (max-width: 767px) {
+      .sss-ct-form-section {
+        padding: 64px 0;
+      }
+
+      .sss-ct-redirect-banner {
+        padding: 24px;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .sss-ct-redirect-arrow {
+        display: none;
+      }
+
+      .sss-ct-redirect-btn {
+        display: block;
+        text-align: center;
+      }
+
+      .sss-ct-form-heading {
+        font-size: 26px;
+      }
+
+      .sss-ct-form-input,
+      .sss-ct-form-select,
+      .sss-ct-form-textarea {
+        font-size: 16px;
+        min-height: 44px;
+        padding: 13px 16px;
+      }
+
+      .sss-ct-form-submit {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+
+  <div class="sss-ct-form-section-inner">
+
+    <!-- Booking Redirect Banner -->
+    <div class="sss-ct-redirect-banner">
+      <div class="sss-ct-redirect-arrow" aria-hidden="true"></div>
+      <div class="sss-ct-redirect-content">
+        <p class="sss-ct-redirect-heading">Looking to book a charter?</p>
+        <p class="sss-ct-redirect-body">The booking process starts at our Request to Book page. It takes 3 minutes and a concierge will follow up within 24 hours.</p>
+        <a href="/request-to-book/" target="_self" class="sss-ct-redirect-btn">Request to Book</a>
+      </div>
+    </div>
+
+    <hr class="sss-ct-divider">
+
+    <!-- Contact Form -->
+    <h2 class="sss-ct-form-heading">Send us a message</h2>
+
+    <div class="sss-ct-success" role="alert">
+      Your message has been received. We will follow up within 48 hours.
+    </div>
+
+    <div class="sss-ct-error" role="alert">
+      Something went wrong. Please try again or email us directly.
+    </div>
+
+    <form class="sss-ct-form" novalidate>
+
+      <div class="sss-ct-form-field">
+        <label class="sss-ct-form-label" for="contact_name">Full Name</label>
+        <input
+          class="sss-ct-form-input"
+          type="text"
+          id="contact_name"
+          name="contact_name"
+          placeholder="Your full name"
+          required
+          autocomplete="name"
+        >
+      </div>
+
+      <div class="sss-ct-form-field">
+        <label class="sss-ct-form-label" for="contact_email">Email Address</label>
+        <input
+          class="sss-ct-form-input"
+          type="email"
+          id="contact_email"
+          name="contact_email"
+          placeholder="Your email address"
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="sss-ct-form-field">
+        <label class="sss-ct-form-label" for="inquiry_type">Inquiry Type</label>
+        <select
+          class="sss-ct-form-select"
+          id="inquiry_type"
+          name="inquiry_type"
+          required
+        >
+          <option value="" disabled selected>Select an inquiry type</option>
+          <option value="General Question">General Question</option>
+          <option value="Press or Media">Press or Media</option>
+          <option value="Partnership Inquiry">Partnership Inquiry</option>
+          <option value="Event Planning Collaboration">Event Planning Collaboration</option>
+          <option value="Something Else">Something Else</option>
+        </select>
+      </div>
+
+      <div class="sss-ct-form-field">
+        <label class="sss-ct-form-label" for="contact_message">Message</label>
+        <textarea
+          class="sss-ct-form-textarea"
+          id="contact_message"
+          name="contact_message"
+          rows="6"
+          placeholder="What would you like to know?"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Hidden fields: no UTM fields, no booking form fields -->
+      <input type="hidden" name="brand" value="shesaidsail">
+      <input type="hidden" name="submission_page" value="/contact/">
+      <input type="hidden" name="source_url" value="">
+
+      <div>
+        <button type="submit" class="sss-ct-form-submit">Send Message</button>
+      </div>
+
+    </form>
+
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: Contact Details
+     Background: --sss-warm (#F5F0E8)
+     ============================================================ -->
+
+<section class="sss-ct-details">
+  <style>
+    .sss-ct-details {
+      background-color: #F5F0E8;
+      padding: 96px 0;
+    }
+
+    .sss-ct-details-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .sss-ct-details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+    }
+
+    .sss-ct-details-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sss-ct-details-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #DAB97E;
+      margin: 0;
+    }
+
+    .sss-ct-details-value {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #2C2C2C;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .sss-ct-details-value a {
+      color: #2C2C2C;
+      text-decoration: none;
+    }
+
+    .sss-ct-details-value a:hover {
+      color: #1A2332;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 767px) {
+      .sss-ct-details {
+        padding: 64px 0;
+      }
+
+      .sss-ct-details-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+  </style>
+
+  <div class="sss-ct-details-inner">
+    <div class="sss-ct-details-grid">
+
+      <div class="sss-ct-details-col">
+        <p class="sss-ct-details-label">Phone</p>
+        <!-- Global JS converts bare phone number to tel: link automatically -->
+        <p class="sss-ct-details-value sss-phone">(305) 555-0190</p>
+      </div>
+
+      <div class="sss-ct-details-col">
+        <p class="sss-ct-details-label">Location</p>
+        <!-- Global JS converts location text to Google Maps link automatically -->
+        <p class="sss-ct-details-value sss-location">Miami, FL</p>
+      </div>
+
+      <div class="sss-ct-details-col">
+        <p class="sss-ct-details-label">Response Time</p>
+        <p class="sss-ct-details-value">We respond to all inquiries within 48 hours.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION JS: Contact Form Handler
+     Inline IIFE. No external dependencies.
+     Webhook placeholder: WIRE_THIS_CONTACT_WEBHOOK_URL
+     ============================================================ -->
+
+<script>
+(function () {
+  'use strict';
+
+  var form = document.querySelector('.sss-ct-form');
+  if (!form) return;
+
+  var successMsg = document.querySelector('.sss-ct-success');
+  var errorMsg = document.querySelector('.sss-ct-error');
+  var submitBtn = form.querySelector('.sss-ct-form-submit');
+
+  // Populate source_url hidden field on load
+  var sourceUrlField = form.querySelector('[name="source_url"]');
+  if (sourceUrlField) {
+    sourceUrlField.value = window.location.href;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var name = form.querySelector('[name="contact_name"]').value.trim();
+    var email = form.querySelector('[name="contact_email"]').value.trim();
+    var inquiryType = form.querySelector('[name="inquiry_type"]').value;
+    var message = form.querySelector('[name="contact_message"]').value.trim();
+    var brand = form.querySelector('[name="brand"]').value;
+    var submissionPage = form.querySelector('[name="submission_page"]').value;
+    var sourceUrl = form.querySelector('[name="source_url"]').value;
+
+    // Basic client-side validation
+    if (!name || !email || !inquiryType || !message) {
+      if (errorMsg) {
+        errorMsg.style.display = 'block';
+      }
+      return;
+    }
+
+    var payload = {
+      contact_name: name,
+      contact_email: email,
+      inquiry_type: inquiryType,
+      contact_message: message,
+      brand: brand,
+      submission_page: submissionPage,
+      source_url: sourceUrl
+    };
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+
+    if (errorMsg) {
+      errorMsg.style.display = 'none';
+    }
+
+    fetch('WIRE_THIS_CONTACT_WEBHOOK_URL', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response;
+    })
+    .then(function () {
+      // Hide form, show success
+      form.style.display = 'none';
+      if (successMsg) {
+        successMsg.style.display = 'block';
+      }
+
+      // Push to dataLayer
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'submit_contact_form',
+          inquiry_type: inquiryType,
+          page_location: window.location.href
+        });
+      }
+    })
+    .catch(function () {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+      if (errorMsg) {
+        errorMsg.style.display = 'block';
+      }
+    });
+  });
+}());
+</script>

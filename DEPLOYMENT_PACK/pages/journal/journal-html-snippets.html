@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<!--
+  FILE: journal-html-snippets.html
+  PAGE: /journal/
+  PURPOSE: HTML snippets and CSS for the She Said Sail journal index page.
+  Three sections are included below, divided by HTML comment headers.
+  The web builder copies each section into the appropriate location in Elementor or the WordPress theme.
+  No em dashes appear anywhere in this file.
+-->
+
+<!-- ============================================================
+  SECTION 1: JOURNAL HEADER
+  Usage: Place at the top of the /journal/ page, above the article grid.
+  Background: #FAF8F3 (--sss-cream)
+============================================================ -->
+
+<style>
+  /* ---- Journal Header Styles ---- */
+  .sss-jnl-header {
+    background-color: #FAF8F3;
+    padding: 96px 24px 80px;
+    text-align: center;
+  }
+
+  .sss-jnl-header-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .sss-jnl-header-h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 400;
+    color: #1A2332;
+    line-height: 1.15;
+    margin: 0 auto 24px;
+    max-width: 700px;
+  }
+
+  .sss-jnl-header-subline {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: rgba(44, 44, 44, 0.5);
+    line-height: 1.6;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  /* Mobile: 767px and below */
+  @media (max-width: 767px) {
+    .sss-jnl-header {
+      padding: 64px 20px 56px;
+    }
+
+    .sss-jnl-header-h1 {
+      font-size: 34px;
+    }
+
+    .sss-jnl-header-subline {
+      font-size: 16px;
+    }
+  }
+</style>
+
+<section class="sss-jnl-header">
+  <span class="sss-jnl-header-eyebrow">The Journal</span>
+  <h1 class="sss-jnl-header-h1">Stories, guides, and ideas for celebrating well.</h1>
+  <p class="sss-jnl-header-subline">From planning bachelorettes in Miami to knowing what to wear on the water. Practical and beautiful in equal measure.</p>
+</section>
+
+
+<!-- ============================================================
+  SECTION 2: ARTICLE CARD GRID
+  Usage: Place directly below the journal header on the /journal/ page.
+  Background: #FFFFFF
+
+  IMPORTANT NOTE FOR WEB BUILDER:
+  Article cards are template examples. The web builder replicates this card
+  structure for all journal articles in Elementor or the WordPress theme.
+  Article URLs, images, and excerpts are replaced with real content.
+  All six cards below demonstrate the intended visual format using planned
+  article topics. Do not publish these placeholder cards as live content.
+============================================================ -->
+
+<style>
+  /* ---- Article Card Grid Styles ---- */
+  .sss-jnl-grid-section {
+    background-color: #FFFFFF;
+    padding: 96px 24px;
+  }
+
+  .sss-jnl-grid-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px 32px;
+  }
+
+  /* Individual Card */
+  .sss-jnl-card {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .sss-jnl-card:hover {
+    box-shadow: 0 12px 40px rgba(26, 35, 50, 0.10);
+    transform: translateY(-4px);
+  }
+
+  /* Card Image Area */
+  .sss-jnl-card-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #E8E3DB;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+  }
+
+  .sss-jnl-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Card Body */
+  .sss-jnl-card-body {
+    padding: 24px 0 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  /* Category Pill */
+  .sss-jnl-card-category {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* Article Title */
+  .sss-jnl-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: #1A2332;
+    line-height: 1.3;
+    margin: 0 0 14px;
+  }
+
+  /* Excerpt */
+  .sss-jnl-card-excerpt {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(44, 44, 44, 0.5);
+    line-height: 1.65;
+    margin: 0 0 18px;
+    flex: 1;
+  }
+
+  /* Read Time */
+  .sss-jnl-card-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(44, 44, 44, 0.5);
+    margin-bottom: 16px;
+  }
+
+  /* Read More Link */
+  .sss-jnl-card-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #DAB97E;
+    text-decoration: none;
+    border-bottom: 1px solid #DAB97E;
+    padding-bottom: 2px;
+    display: inline-block;
+    transition: border-color 0.2s ease;
+    align-self: flex-start;
+  }
+
+  .sss-jnl-card-link:hover {
+    border-bottom-color: transparent;
+  }
+
+  /* Mobile: 767px and below */
+  @media (max-width: 767px) {
+    .sss-jnl-grid-section {
+      padding: 64px 20px;
+    }
+
+    .sss-jnl-grid-inner {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+  }
+</style>
+
+<section class="sss-jnl-grid-section">
+  <div class="sss-jnl-grid-inner">
+
+    <!-- Card 1 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">Experience</span>
+        <h2 class="sss-jnl-card-title">What to Expect on Your First Private Yacht Charter</h2>
+        <p class="sss-jnl-card-excerpt">First time chartering a private yacht? Here is everything you should know before you step on board, from what to bring to how the day actually unfolds.</p>
+        <span class="sss-jnl-card-meta">5 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">Bachelorette</span>
+        <h2 class="sss-jnl-card-title">Bachelorette Party Ideas in Miami: Beyond the Club</h2>
+        <p class="sss-jnl-card-excerpt">Miami has more to offer than crowded venues and cover charges. This guide is for the group that wants something worth remembering, out on the water.</p>
+        <span class="sss-jnl-card-meta">6 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+    <!-- Card 3 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">Planning</span>
+        <h2 class="sss-jnl-card-title">How to Plan the Perfect Girls Trip to Miami</h2>
+        <p class="sss-jnl-card-excerpt">From the right neighborhood to the right afternoon on the water, here is a practical guide for groups who want a Miami trip that feels effortless.</p>
+        <span class="sss-jnl-card-meta">7 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">On the Water</span>
+        <h2 class="sss-jnl-card-title">5 Reasons the Golden Hour is the Best Time to Be on the Water</h2>
+        <p class="sss-jnl-card-excerpt">There is a particular quality of light that happens in the last hour before sunset. On Biscayne Bay, it is something else entirely. Here is why we built an experience around it.</p>
+        <span class="sss-jnl-card-meta">4 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+    <!-- Card 5 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">Guest Stories</span>
+        <h2 class="sss-jnl-card-title">What Our Guests Say: Real Experiences on She Said Sail</h2>
+        <p class="sss-jnl-card-excerpt">Words from the women who have been out with us. Unfiltered, unscripted, and genuinely theirs.</p>
+        <span class="sss-jnl-card-meta">5 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+    <!-- Card 6 -->
+    <article class="sss-jnl-card">
+      <div class="sss-jnl-card-img">
+        <!-- Replace with actual article hero image. Recommended 800x450px, editorial photography. -->
+      </div>
+      <div class="sss-jnl-card-body">
+        <span class="sss-jnl-card-category">Planning</span>
+        <h2 class="sss-jnl-card-title">How to Choose the Right Yacht Experience for Your Group</h2>
+        <p class="sss-jnl-card-excerpt">Not every group wants the same thing. This short guide helps you figure out which She Said Sail experience fits your occasion, your group size, and your vibe.</p>
+        <span class="sss-jnl-card-meta">5 min read</span>
+        <a href="#" class="sss-jnl-card-link">Read More</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- ============================================================
+  SECTION 3: ARTICLE PAGE CTA BLOCK
+  Usage: Paste this block at the bottom of every individual journal article
+  post in Elementor. It converts readers into experience browsers.
+  Background: #F5F0E8 (--sss-warm)
+  This block is NOT placed on the journal index page. It belongs at the
+  bottom of each individual article.
+============================================================ -->
+
+<style>
+  /* ---- Article CTA Block Styles ---- */
+  .sss-jnl-article-cta {
+    background-color: #F5F0E8;
+    padding: 96px 24px;
+    text-align: center;
+  }
+
+  .sss-jnl-article-cta-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .sss-jnl-article-cta-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 400;
+    font-style: italic;
+    color: #1A2332;
+    line-height: 1.2;
+    margin: 0 auto 16px;
+    max-width: 520px;
+  }
+
+  .sss-jnl-article-cta-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(44, 44, 44, 0.5);
+    line-height: 1.6;
+    max-width: 460px;
+    margin: 0 auto 40px;
+  }
+
+  .sss-jnl-article-cta-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .sss-jnl-article-cta-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A2332;
+    text-decoration: none;
+    border: 1.5px solid #1A2332;
+    background-color: transparent;
+    padding: 14px 28px;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    display: inline-block;
+  }
+
+  .sss-jnl-article-cta-btn:hover {
+    background-color: #1A2332;
+    color: #FAF8F3;
+  }
+
+  /* Mobile: 767px and below */
+  @media (max-width: 767px) {
+    .sss-jnl-article-cta {
+      padding: 64px 20px;
+    }
+
+    .sss-jnl-article-cta-heading {
+      font-size: 28px;
+    }
+
+    .sss-jnl-article-cta-buttons {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sss-jnl-article-cta-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<section class="sss-jnl-article-cta">
+  <span class="sss-jnl-article-cta-eyebrow">Ready When You Are</span>
+  <h2 class="sss-jnl-article-cta-heading">Experience it for yourself.</h2>
+  <p class="sss-jnl-article-cta-body">Browse the experiences and submit a request when your date is in mind. No commitment required.</p>
+  <div class="sss-jnl-article-cta-buttons">
+    <a href="/experiences/" class="sss-jnl-article-cta-btn">View the Experiences</a>
+    <a href="/request-to-book/" class="sss-jnl-article-cta-btn">Request to Book</a>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--
+  FILE: journal-metadata.html
+  PAGE: /journal/
+  PURPOSE: SEO metadata for the She Said Sail journal index page.
+  Apply the index page tags to the /journal/ page in Yoast or RankMath.
+  The article template block below applies to every individual article post.
+  No em dashes appear anywhere in this file.
+-->
+
+<!-- ============================================================
+  JOURNAL INDEX PAGE METADATA
+  Apply to: /journal/ (the main journal landing/index page)
+============================================================ -->
+<head>
+
+  <!-- Primary Title -->
+  <title>The Journal | She Said Sail Private Yacht Experiences Miami</title>
+
+  <!-- Meta Description (152 characters, within 155 limit) -->
+  <meta name="description" content="Stories, guides, and ideas for women celebrating in Miami. Bachelorette planning, girls trips, what to wear, what to expect on the water.">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://shesaidsail.com/journal/">
+
+  <!-- Robots: index this page -->
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Journal | She Said Sail">
+  <meta property="og:description" content="Stories, guides, and ideas for women celebrating in Miami. Bachelorette planning, girls trips, what to wear, what to expect on the water.">
+  <meta property="og:url" content="https://shesaidsail.com/journal/">
+  <meta property="og:site_name" content="She Said Sail">
+  <!-- Replace the image src below with the actual OG image (1200x630px, editorial, branded) -->
+  <meta property="og:image" content="https://shesaidsail.com/wp-content/uploads/journal-og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The She Said Sail Journal: Stories and guides for celebrating on the water in Miami">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Journal | She Said Sail">
+  <meta name="twitter:description" content="Stories, guides, and ideas for women celebrating in Miami. Bachelorette planning, girls trips, what to wear, what to expect on the water.">
+  <!-- Replace the image src below with the actual Twitter card image (1200x630px) -->
+  <meta name="twitter:image" content="https://shesaidsail.com/wp-content/uploads/journal-og-image.jpg">
+
+  <!-- JSON-LD: WebPage Schema for Journal Index -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "The Journal | She Said Sail",
+    "description": "Stories, guides, and ideas for women celebrating in Miami. Bachelorette planning, girls trips, what to wear, what to expect on the water.",
+    "url": "https://shesaidsail.com/journal/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "She Said Sail",
+      "url": "https://shesaidsail.com"
+    }
+  }
+  </script>
+
+</head>
+
+
+<!-- ============================================================
+  ARTICLE PAGE METADATA TEMPLATE
+  Apply this template to every individual journal article in Yoast or RankMath.
+  Replace [BRACKETED] values with article-specific content.
+
+  Title: [Article Title] | She Said Sail
+  Meta description: [1-2 sentences describing the article. Under 155 chars. Mention Miami or the specific occasion.]
+  OG Title: [Article Title]
+  OG Description: [Same as meta description]
+  OG Image: [Article hero image, 1200x630px]
+  OG Type: article
+  Article Published Time: [ISO 8601 date, e.g. 2025-06-15T09:00:00-04:00]
+  Article Author: She Said Sail
+
+  JSON-LD Article Schema (paste into Yoast or RankMath Custom Schema field):
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "[Article Title]",
+    "datePublished": "[ISO 8601 date]",
+    "dateModified": "[ISO 8601 date of last update]",
+    "author": {
+      "@type": "Organization",
+      "name": "She Said Sail"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "She Said Sail",
+      "url": "https://shesaidsail.com"
+    },
+    "image": "[1200x630 article hero image URL]",
+    "url": "https://shesaidsail.com/journal/[article-slug]/",
+    "description": "[Same as meta description]"
+  }
+
+  INTERNAL LINKING REQUIREMENT (for every article):
+  Every article must contain at least one link to /experiences/ or a specific
+  experience page (/experience/[slug]/) and at least one link to /request-to-book/.
+  The Article Page CTA Block (Section 3 in journal-html-snippets.html) satisfies
+  the /request-to-book/ and /experiences/ linking requirement automatically when
+  pasted at the bottom of every article.
+============================================================ -->

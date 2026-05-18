@@ -1,0 +1,146 @@
+<!--
+  FILE: experience-description.html
+  EXPERIENCE: Monaco Social
+  PLACEMENT: Place after hero-support.html, before the social proof section. Add as Elementor HTML widget.
+-->
+
+<style>
+  .sss-ms-description {
+    background-color: #ffffff;
+    padding: 80px 40px;
+  }
+
+  .sss-ms-description-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .sss-ms-desc-heading {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 38px;
+    font-weight: 400;
+    color: #1A2332;
+    line-height: 1.2;
+    margin: 12px 0 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .sss-ms-desc-body,
+  .sss-ms-desc-body-2 {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(26, 35, 50, 0.62);
+    margin-bottom: 20px;
+  }
+
+  .sss-ms-desc-body-2 {
+    margin-bottom: 32px;
+  }
+
+  .sss-ms-desc-cta {
+    display: inline-block;
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 16px 32px;
+    border-radius: 3px;
+    background-color: #DAB97E;
+    color: #1A2332;
+    text-decoration: none;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .sss-ms-desc-cta:hover {
+    background-color: #C9A96E;
+    color: #1A2332;
+  }
+
+  .sss-ms-includes-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sss-ms-includes-item {
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1A2332;
+    padding: 16px 0 16px 20px;
+    border-bottom: 1px solid rgba(218, 185, 126, 0.18);
+    position: relative;
+  }
+
+  .sss-ms-includes-item:first-child {
+    border-top: 1px solid rgba(218, 185, 126, 0.18);
+  }
+
+  .sss-ms-includes-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #DAB97E;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ms-description {
+      padding: 64px 24px;
+    }
+
+    .sss-ms-description-inner {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .sss-ms-desc-heading {
+      font-size: 30px;
+    }
+  }
+</style>
+
+<section class="sss-ms-description">
+  <div class="sss-ms-description-inner">
+
+    <div class="sss-ms-desc-copy">
+      <p class="sss-section-eyebrow">What to expect</p>
+      <h2 class="sss-ms-desc-heading sss-reveal">A full day of social energy, exactly the way you planned it.</h2>
+      <p class="sss-ms-desc-body sss-reveal sss-reveal-delay-1">
+        Monaco Social is built for groups who want their day on the water to actually feel like a celebration from the moment they arrive. The bar is stocked and styled. The music is right. The crew anticipates what you need before you ask. The day has energy, shape, and intention.
+      </p>
+      <p class="sss-ms-desc-body-2 sss-reveal sss-reveal-delay-2">
+        This experience works best for birthday groups, milestone celebrations, and elevated gatherings where the occasion calls for a day that matches the moment.
+      </p>
+      <a href="/request-to-book/" class="sss-ms-desc-cta sss-reveal sss-reveal-delay-3" aria-label="Request to book Monaco Social">
+        Request to Book
+      </a>
+    </div>
+
+    <div class="sss-ms-what-includes">
+      <p class="sss-section-eyebrow">What is included</p>
+      <ul class="sss-ms-includes-list">
+        <li class="sss-ms-includes-item">Champagne and curated bar setup</li>
+        <li class="sss-ms-includes-item">Full crew and captain</li>
+        <li class="sss-ms-includes-item">Bluetooth sound system</li>
+        <li class="sss-ms-includes-item">Ice, glassware, and service setup</li>
+        <li class="sss-ms-includes-item">Departure from Miami marina</li>
+        <li class="sss-ms-includes-item">Custom occasion styling available on request</li>
+      </ul>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,125 @@
+<!--
+  FILE: hero-support.html
+  EXPERIENCE: Monaco Social
+  PLACEMENT: Place below the page hero section, above the main experience description. Add as Elementor HTML widget in a full-width container.
+-->
+
+<style>
+  .sss-ms-hero-support {
+    background-color: var(--sss-cream, #FAF8F3);
+    padding: 80px 40px;
+    text-align: center;
+  }
+
+  .sss-ms-hero-support-inner {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .sss-ms-name {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 52px;
+    font-weight: 400;
+    color: #1A2332;
+    letter-spacing: -0.01em;
+    margin: 8px 0 16px;
+    line-height: 1.1;
+  }
+
+  .sss-ms-tagline {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 24px;
+    font-style: italic;
+    font-weight: 400;
+    color: #1A2332;
+    line-height: 1.4;
+    margin-bottom: 0;
+  }
+
+  .sss-ms-quick-facts {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(218, 185, 126, 0.22);
+  }
+
+  .sss-ms-fact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    min-width: 120px;
+  }
+
+  .sss-ms-fact-label {
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(44, 44, 44, 0.5);
+  }
+
+  .sss-ms-fact-value {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #1A2332;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ms-hero-support {
+      padding: 64px 24px;
+    }
+
+    .sss-ms-name {
+      font-size: 40px;
+    }
+
+    .sss-ms-quick-facts {
+      gap: 24px;
+    }
+  }
+</style>
+
+<section class="sss-ms-hero-support">
+  <div class="sss-ms-hero-support-inner">
+
+    <p class="sss-section-eyebrow">The Experience</p>
+
+    <h1 class="sss-ms-name sss-reveal">Monaco Social</h1>
+
+    <p class="sss-ms-tagline sss-reveal sss-reveal-delay-1">
+      Champagne-led Riviera energy for birthdays and elevated groups.
+    </p>
+
+    <div class="sss-ms-quick-facts sss-reveal sss-reveal-delay-2">
+
+      <div class="sss-ms-fact">
+        <span class="sss-ms-fact-label">Duration</span>
+        <span class="sss-ms-fact-value">Full day or half day</span>
+      </div>
+
+      <div class="sss-ms-fact">
+        <span class="sss-ms-fact-label">Guests</span>
+        <span class="sss-ms-fact-value">Up to 15</span>
+      </div>
+
+      <div class="sss-ms-fact">
+        <span class="sss-ms-fact-label">Starting from</span>
+        <span class="sss-ms-fact-value">$10,000</span>
+      </div>
+
+    </div>
+
+    <nav class="sss-occasions-row" aria-label="Occasions for Monaco Social" style="margin-top: 28px;">
+      <span class="sss-occasion-pill">Bachelorette</span>
+      <span class="sss-occasion-pill">Birthday</span>
+      <span class="sss-occasion-pill">Milestone Celebration</span>
+      <span class="sss-occasion-pill">Elevated Group</span>
+    </nav>
+
+  </div>
+</section>

@@ -1,0 +1,123 @@
+<!--
+  FILE: pre-cta-reassurance.html
+  EXPERIENCE: Monaco Social
+  PLACEMENT: Place before the bottom CTA section, after occasion-fit.html. Add as Elementor HTML widget.
+-->
+
+<style>
+  .sss-ms-reassurance {
+    background-color: #ffffff;
+    padding: 80px 40px;
+    border-top: 1px solid rgba(218, 185, 126, 0.22);
+  }
+
+  .sss-ms-reassurance-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+
+  .sss-ms-reassurance-heading {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: #1A2332;
+    line-height: 1.2;
+    margin: 12px 0 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .sss-ms-reassurance-body,
+  .sss-ms-reassurance-body-2 {
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: rgba(26, 35, 50, 0.58);
+    margin-bottom: 16px;
+  }
+
+  .sss-ms-reassurance-body-2 {
+    margin-bottom: 0;
+  }
+
+  .sss-ms-reassurance-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sss-ms-step {
+    padding-left: 0;
+  }
+
+  .sss-ms-step-number {
+    display: block;
+    font-family: "Inter", sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #DAB97E;
+    margin-bottom: 6px;
+  }
+
+  .sss-ms-step-text {
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    color: #1A2332;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .sss-ms-reassurance {
+      padding: 64px 24px;
+    }
+
+    .sss-ms-reassurance-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .sss-ms-reassurance-heading {
+      font-size: 28px;
+    }
+  }
+</style>
+
+<section class="sss-ms-reassurance">
+  <div class="sss-ms-reassurance-inner">
+
+    <div class="sss-ms-reassurance-copy">
+      <p class="sss-section-eyebrow">Before you book</p>
+      <h2 class="sss-ms-reassurance-heading sss-reveal">Every Monaco Social booking starts with a conversation.</h2>
+      <p class="sss-ms-reassurance-body sss-reveal sss-reveal-delay-1">
+        We do not take requests and process them. We review each group, understand the occasion, and confirm that Monaco Social is the right match before anything is confirmed.
+      </p>
+      <p class="sss-ms-reassurance-body-2 sss-reveal sss-reveal-delay-2">
+        Submitting a request takes two minutes and carries no obligation.
+      </p>
+    </div>
+
+    <div class="sss-ms-reassurance-steps">
+
+      <div class="sss-ms-step">
+        <span class="sss-ms-step-number">01</span>
+        <p class="sss-ms-step-text">Submit your request. Tell us about the occasion, your group, and the date.</p>
+      </div>
+
+      <div class="sss-ms-step">
+        <span class="sss-ms-step-number">02</span>
+        <p class="sss-ms-step-text">We review it personally and follow up within 24 hours.</p>
+      </div>
+
+      <div class="sss-ms-step">
+        <span class="sss-ms-step-number">03</span>
+        <p class="sss-ms-step-text">If it is a match, you receive a proposal. No commitment until you are ready.</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,105 @@
+<!--
+  FILE: occasion-fit.html
+  EXPERIENCE: Monaco Social
+  PLACEMENT: Place after social-proof.html, above the pre-CTA reassurance. Add as Elementor HTML widget.
+-->
+
+<style>
+  .sss-ms-occasion-fit {
+    background-color: var(--sss-warm, #F5F0E8);
+    padding: 80px 40px;
+  }
+
+  .sss-ms-occasion-fit-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .sss-ms-occasion-heading {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 38px;
+    font-weight: 400;
+    font-style: italic;
+    color: #1A2332;
+    line-height: 1.2;
+    margin: 12px 0 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .sss-ms-occasion-body,
+  .sss-ms-occasion-body-2 {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(26, 35, 50, 0.62);
+    margin-bottom: 18px;
+  }
+
+  .sss-ms-occasion-body-2 {
+    margin-bottom: 0;
+  }
+
+  .sss-ms-occasion-types {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .sss-ms-occasion-type {
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    color: #1A2332;
+    line-height: 1.55;
+    padding-left: 20px;
+    border-left: 2px solid rgba(218, 185, 126, 0.6);
+  }
+
+  @media (max-width: 767px) {
+    .sss-ms-occasion-fit {
+      padding: 64px 24px;
+    }
+
+    .sss-ms-occasion-fit-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .sss-ms-occasion-heading {
+      font-size: 30px;
+    }
+  }
+</style>
+
+<section class="sss-ms-occasion-fit">
+  <div class="sss-ms-occasion-fit-inner">
+
+    <div class="sss-ms-occasion-copy">
+      <p class="sss-section-eyebrow">Who this is for</p>
+      <h2 class="sss-ms-occasion-heading sss-reveal">Built around the kind of celebration that deserves a full day.</h2>
+      <p class="sss-ms-occasion-body sss-reveal sss-reveal-delay-1">
+        Monaco Social works best when the group wants energy, intention, and a day that actually feels curated. A 30th birthday. A group of women who deserve a day that does not require them to plan anything on the water.
+      </p>
+      <p class="sss-ms-occasion-body-2 sss-reveal sss-reveal-delay-2">
+        If your group wants to arrive, be welcomed, and have the rest handled, this is the experience.
+      </p>
+    </div>
+
+    <div class="sss-ms-occasion-list">
+      <p class="sss-section-eyebrow">This experience suits</p>
+      <ul class="sss-ms-occasion-types">
+        <li class="sss-ms-occasion-type">Birthdays and milestone celebrations</li>
+        <li class="sss-ms-occasion-type">Groups of 8 to 15 who want full-day social energy</li>
+        <li class="sss-ms-occasion-type">Elevated bachelorette parties</li>
+        <li class="sss-ms-occasion-type">Women celebrating something that matters</li>
+      </ul>
+    </div>
+
+  </div>
+</section>

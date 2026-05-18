@@ -7,7 +7,7 @@ How to verify all GTM events are firing correctly before publishing the GTM cont
 ## Step 1: Open GTM Preview Mode
 
 1. Log in to Google Tag Manager at tagmanager.google.com.
-2. Select the She Said Sail container (GTM-WWTT27Z3).
+2. Select the She Said Sail container (GTM-TZ5KNRTH).
 3. Click the Preview button (top right). A new browser tab opens with the GTM debug panel connected to a preview session.
 4. The GTM debug panel (Tag Assistant) shows at the bottom of the preview browser tab.
 

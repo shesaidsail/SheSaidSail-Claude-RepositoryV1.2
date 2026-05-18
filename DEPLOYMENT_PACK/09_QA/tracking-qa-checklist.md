@@ -10,7 +10,7 @@ Reviewer: _____________________ Date: _____________________
 
 | # | Check | Pass | Fail | Notes |
 |---|---|---|---|---|
-| 1 | GTM container GTM-WWTT27Z3 is confirmed installed on the site (verify in page source: `GTM-WWTT27Z3` appears twice, once in the `<head>` and once in `<body>`) | | | |
+| 1 | GTM container GTM-TZ5KNRTH is confirmed installed on the site (verify in page source: `GTM-TZ5KNRTH` appears twice, once in the `<head>` and once in `<body>`) | | | |
 | 2 | GTM Preview mode connects to the site without errors | | | |
 | 3 | All 14 custom events are configured as GTM Triggers (CE - event_name format) | | | |
 | 4 | All GA4 event Tags are configured (one Tag per event, 14 total) | | | |

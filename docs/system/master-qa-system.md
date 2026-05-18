@@ -96,7 +96,7 @@ Test at the following breakpoints: desktop 1440px, desktop 1280px, mobile 375px,
 
 ## 7. ANALYTICS QA
 
-- [ ] GTM container (GTM-WWTT27Z3) fires on the page (verify in GTM Preview Mode)
+- [ ] GTM container (GTM-TZ5KNRTH) fires on the page (verify in GTM Preview Mode)
 - [ ] Page view event fires in the dataLayer on load with the correct event name
 - [ ] CTA click event fires when the primary CTA is clicked
 - [ ] Form start event fires on first interaction with any form field

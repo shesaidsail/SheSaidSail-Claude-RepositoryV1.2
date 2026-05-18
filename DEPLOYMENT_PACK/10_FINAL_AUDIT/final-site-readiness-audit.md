@@ -4,7 +4,7 @@ Date: May 2026
 Prepared by: Claude Code
 Audited property: shesaidsail.com
 Stack: WordPress 6.9.4, Elementor 4.0.3, Elementor Pro 3.35.1, Hello Elementor theme
-GTM: GTM-WWTT27Z3 | GA4: GT-WV3X86GZ
+GTM: GTM-TZ5KNRTH | GA4: GT-WV3X86GZ
 Backend: Airtable + Make.com (specced, not yet built)
 
 ---
@@ -139,7 +139,7 @@ This audit reflects the current state of the deployment pack and frontend work c
 ### Analytics: 3 / 10
 
 **What is done:**
-- GTM container GTM-WWTT27Z3 is installed on the site.
+- GTM container GTM-TZ5KNRTH is installed on the site.
 - GA4 property GT-WV3X86GZ is installed.
 - All 14 custom dataLayer events are coded into the global JavaScript file.
 - GA4 events, Meta Pixel tags, and TikTok Pixel tags are fully specced in GTM.

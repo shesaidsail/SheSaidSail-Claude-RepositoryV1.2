@@ -4,7 +4,7 @@
 **Date:** May 2026
 **System:** WordPress 6.9.4 + Elementor 4.0.3 + Hello Elementor theme
 **Brand:** She Said Sail, luxury yacht charter, Miami
-**GTM Container:** GTM-WWTT27Z3
+**GTM Container:** GTM-TZ5KNRTH
 **GA4 Measurement ID:** GT-WV3X86GZ
 
 ---
@@ -93,7 +93,7 @@ Confirm every item in this list before starting. If any item is false, resolve i
 
 ### Third-party accounts
 
-- [ ] Google Tag Manager: access to the GTM-WWTT27Z3 container. You need Publish permission, not just Read.
+- [ ] Google Tag Manager: access to the GTM-TZ5KNRTH container. You need Publish permission, not just Read.
 - [ ] Google Analytics 4: admin access to the property using measurement ID GT-WV3X86GZ.
 - [ ] Meta Ads Manager: access to the Business account and pixel. You will need the Pixel ID.
 - [ ] TikTok Ads Manager: access to the business account and pixel. You will need the Pixel ID.
@@ -113,7 +113,7 @@ Gather all of these before you touch a single file. You will need them mid-insta
 
 | Credential | Where to find it | Used in |
 |---|---|---|
-| GTM Container ID: GTM-WWTT27Z3 | GTM dashboard > Admin > Container Settings | WordPress head, Step 3 |
+| GTM Container ID: GTM-TZ5KNRTH | GTM dashboard > Admin > Container Settings | WordPress head, Step 3 |
 | GA4 Measurement ID: GT-WV3X86GZ | GA4 Admin > Data Streams | GTM GA4 Config tag, Step 10 |
 | Meta Pixel ID | Meta Events Manager | GTM Meta Pixel tag, Step 10 |
 | TikTok Pixel ID | TikTok Ads Manager > Assets > Events | GTM TikTok tag, Step 10 |
@@ -136,7 +136,7 @@ Follow this sequence exactly. Each phase depends on the previous.
 |---|---|---|---|
 | 1 | Apply Global CSS | `01_GLOBAL_CSS/she-said-sail-global.css` | 5 min |
 | 2 | Add Global JS to footer | `02_GLOBAL_JS/she-said-sail-global.js` | 10 min |
-| 3 | Install GTM snippet | GTM-WWTT27Z3 container code | 10 min |
+| 3 | Install GTM snippet | GTM-TZ5KNRTH container code | 10 min |
 
 ### Phase 2: Homepage
 
@@ -389,7 +389,7 @@ Open the homepage in a browser. Open DevTools > Console.
 
 ## 6. Step 3: GTM Container Setup
 
-**GTM Container ID:** GTM-WWTT27Z3
+**GTM Container ID:** GTM-TZ5KNRTH
 **Time required:** 10 minutes for snippet install; 1.5 hours for full tag configuration
 
 ### Part A: Install the GTM snippet in WordPress
@@ -406,7 +406,7 @@ Open Insert Headers and Footers > Scripts in Header. Paste:
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WWTT27Z3');</script>
+})(window,document,'script','dataLayer','GTM-TZ5KNRTH');</script>
 <!-- End Google Tag Manager -->
 ```
 
@@ -418,7 +418,7 @@ In Insert Headers and Footers > Scripts in Body (the second text area), paste:
 
 ```html
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WWTT27Z3"
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TZ5KNRTH"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 ```
@@ -1088,7 +1088,7 @@ Run QA after each phase, not only at the end. Catching issues per phase is faste
 - [ ] No JS errors in console on any page.
 - [ ] `window.__sssVid` is a valid UUID in console.
 - [ ] UTM params from URL are captured to `sessionStorage.sss_utm`.
-- [ ] GTM Preview shows "GTM-WWTT27Z3 connected."
+- [ ] GTM Preview shows "GTM-TZ5KNRTH connected."
 - [ ] `window.dataLayer` is initialized before the GTM snippet fires.
 - [ ] `view_homepage` event appears in GTM Preview on homepage load.
 

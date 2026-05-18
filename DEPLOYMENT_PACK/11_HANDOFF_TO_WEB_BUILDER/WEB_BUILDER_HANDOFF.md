@@ -89,7 +89,7 @@ See: `08_PAGE_INSTALL_GUIDES/experiences-install-guide.md` for all steps.
 
 **8. Confirm GTM is ready to publish. Time: 5 minutes.**
 
-The dataLayer events are already inside the global JS file you loaded in Step 2. GTM just needs to be published to receive them. Open Google Tag Manager (tagmanager.google.com), select the She Said Sail container (GTM-WWTT27Z3), and click Publish. Give the version a name like "v1 - She Said Sail Initial Launch."
+The dataLayer events are already inside the global JS file you loaded in Step 2. GTM just needs to be published to receive them. Open Google Tag Manager (tagmanager.google.com), select the She Said Sail container (GTM-TZ5KNRTH), and click Publish. Give the version a name like "v1 - She Said Sail Initial Launch."
 
 Do not create a new GTM container. Do not change the container ID.
 
@@ -113,7 +113,7 @@ Do not change any of the following without explicit instruction from Will:
 - The existing experience names: Monaco Social, Golden Hour Escape, Rose Day Club, Pink Palm Club
 - The existing Elementor template structure: only add HTML widgets inside existing sections, do not restructure or delete existing sections
 - The "Not Just a Charter" section copy: it is already correct
-- The GTM container ID (GTM-WWTT27Z3): do not create a new container or add a second GTM script
+- The GTM container ID (GTM-TZ5KNRTH): do not create a new container or add a second GTM script
 - The GA4 property (GT-WV3X86GZ): do not create a new GA4 property or change the measurement ID
 - The Tidio chat widget code: it is already installed and working
 - Any existing page slugs or URLs
@@ -159,12 +159,12 @@ When both are confirmed:
 
 ## CONNECT GTM
 
-GTM is already installed at GTM-WWTT27Z3. The dataLayer events are in the global JS file.
+GTM is already installed at GTM-TZ5KNRTH. The dataLayer events are in the global JS file.
 
 After applying the JS file (Step 2 above), your only GTM task is:
 
 1. Open tagmanager.google.com
-2. Select the GTM-WWTT27Z3 container
+2. Select the GTM-TZ5KNRTH container
 3. Click Publish (top right)
 4. Name the version "v1 - She Said Sail Initial Launch"
 5. Click Publish to confirm

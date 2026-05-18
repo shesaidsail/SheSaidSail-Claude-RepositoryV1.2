@@ -9,7 +9,7 @@
 
 | Platform | ID | Status |
 |---|---|---|
-| Google Tag Manager | GTM-WWTT27Z3 | Already installed |
+| Google Tag Manager | GTM-TZ5KNRTH | Already installed |
 | Google Analytics 4 | GT-WV3X86GZ | Already installed via GTM |
 | Meta Pixel | To be created in Meta Business Manager | Not yet installed |
 | TikTok Pixel | To be created in TikTok Ads Manager | Not yet installed |
@@ -243,7 +243,7 @@ Create these explorations in GA4:
 
 ## LAUNCH CHECKLIST: ANALYTICS
 
-- [ ] GTM-WWTT27Z3 verified firing on all pages (use GTM Preview Mode)
+- [ ] GTM-TZ5KNRTH verified firing on all pages (use GTM Preview Mode)
 - [ ] GA4 GT-WV3X86GZ verified receiving data (use GA4 DebugView)
 - [ ] All custom dataLayer events verified firing in GTM Preview
 - [ ] GA4 custom events appearing in DebugView

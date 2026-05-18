@@ -196,7 +196,7 @@ Replace `[hero-image-url]` with the exact URL of the hero image. Update this pre
 
 Every third-party script on the page adds latency and main thread execution time. The following documents each script, its performance impact, and the required mitigation.
 
-### GTM (GTM-WWTT27Z3)
+### GTM (GTM-TZ5KNRTH)
 
 **Load method:** Async snippet in `<head>` via WordPress plugin.
 **Performance impact:** The GTM snippet itself is async and does not block HTML parsing. However, it does add an additional HTTP request and a round trip to Google's tag servers. The GTM container JavaScript file is typically 30-80KB compressed. Container evaluation runs on the main thread.

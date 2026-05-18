@@ -1,0 +1,757 @@
+<!--
+  Rose Day Club: HTML Snippets
+  Page: /experience/rose-day-club/
+  All styles scoped to .sss-rdc-* prefix
+  Mobile breakpoint: 767px
+  No em dashes. No prohibited copy patterns.
+-->
+
+<!-- ============================================================
+     SECTION 1: HERO SUPPORT
+     Background: #FAF8F3 (--sss-cream)
+     ============================================================ -->
+
+<section class="sss-rdc-hero-support">
+  <style>
+    .sss-rdc-hero-support {
+      background-color: #FAF8F3;
+      padding: 96px 40px;
+      text-align: center;
+    }
+
+    .sss-rdc-hero-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #DAB97E;
+      margin: 0 0 20px;
+    }
+
+    .sss-rdc-hero-h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 52px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 20px;
+      line-height: 1.1;
+    }
+
+    .sss-rdc-hero-tagline {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-style: italic;
+      font-weight: 400;
+      color: #2C2C2C;
+      max-width: 640px;
+      margin: 0 auto 48px;
+      line-height: 1.5;
+    }
+
+    .sss-rdc-hero-facts {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border: 1px solid rgba(218,185,126,0.3);
+      border-radius: 4px;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      overflow: hidden;
+    }
+
+    .sss-rdc-hero-fact {
+      flex: 1;
+      padding: 20px 16px;
+      border-right: 1px solid rgba(218,185,126,0.3);
+    }
+
+    .sss-rdc-hero-fact:last-child {
+      border-right: none;
+    }
+
+    .sss-rdc-hero-fact-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #DAB97E;
+      margin: 0 0 6px;
+    }
+
+    .sss-rdc-hero-fact-value {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #1A2332;
+      margin: 0;
+    }
+
+    .sss-rdc-hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .sss-rdc-hero-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #1A2332;
+      border: 1px solid rgba(26,35,50,0.22);
+      border-radius: 100px;
+      padding: 8px 18px;
+      background: transparent;
+      display: inline-block;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-hero-support {
+        padding: 64px 24px;
+      }
+
+      .sss-rdc-hero-h1 {
+        font-size: 38px;
+      }
+
+      .sss-rdc-hero-tagline {
+        font-size: 20px;
+        margin-bottom: 36px;
+      }
+
+      .sss-rdc-hero-facts {
+        flex-direction: column;
+        max-width: 100%;
+      }
+
+      .sss-rdc-hero-fact {
+        border-right: none;
+        border-bottom: 1px solid rgba(218,185,126,0.3);
+        padding: 16px;
+      }
+
+      .sss-rdc-hero-fact:last-child {
+        border-bottom: none;
+      }
+
+      .sss-rdc-hero-pills {
+        gap: 8px;
+      }
+    }
+  </style>
+
+  <p class="sss-rdc-hero-eyebrow">Social hosting from water to table</p>
+  <h1 class="sss-rdc-hero-h1">Rose Day Club</h1>
+  <p class="sss-rdc-hero-tagline">An afternoon charter built for the kind of day your group has been promising each other all year.</p>
+
+  <div class="sss-rdc-hero-facts">
+    <div class="sss-rdc-hero-fact">
+      <p class="sss-rdc-hero-fact-label">Duration</p>
+      <p class="sss-rdc-hero-fact-value">4 to 5 Hours</p>
+    </div>
+    <div class="sss-rdc-hero-fact">
+      <p class="sss-rdc-hero-fact-label">Guests</p>
+      <p class="sss-rdc-hero-fact-value">Up to 18</p>
+    </div>
+    <div class="sss-rdc-hero-fact">
+      <p class="sss-rdc-hero-fact-label">Starting From</p>
+      <p class="sss-rdc-hero-fact-value">$10,000</p>
+    </div>
+  </div>
+
+  <div class="sss-rdc-hero-pills">
+    <span class="sss-rdc-hero-pill">Girls Trip</span>
+    <span class="sss-rdc-hero-pill">Birthday Celebration</span>
+    <span class="sss-rdc-hero-pill">Bachelorette Day</span>
+    <span class="sss-rdc-hero-pill">Friend Reunion</span>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: EXPERIENCE DESCRIPTION
+     Background: #FFFFFF
+     ============================================================ -->
+
+<section class="sss-rdc-desc-section">
+  <style>
+    .sss-rdc-desc-section {
+      background-color: #FFFFFF;
+      padding: 96px 40px;
+    }
+
+    .sss-rdc-desc-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .sss-rdc-desc-left {}
+
+    .sss-rdc-desc-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 24px;
+      line-height: 1.2;
+    }
+
+    .sss-rdc-desc-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.8;
+      margin: 0 0 16px;
+    }
+
+    .sss-rdc-desc-body:last-of-type {
+      margin-bottom: 36px;
+    }
+
+    .sss-rdc-desc-cta {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1A2332;
+      background-color: #DAB97E;
+      padding: 16px 32px;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .sss-rdc-desc-cta:hover {
+      background-color: #C9A96E;
+    }
+
+    .sss-rdc-desc-right {}
+
+    .sss-rdc-desc-includes-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #1A2332;
+      margin: 0 0 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .sss-rdc-desc-includes-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sss-rdc-desc-includes-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.6;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(26,35,50,0.08);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .sss-rdc-desc-includes-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sss-rdc-desc-includes-list li::before {
+      content: "\00B7";
+      color: #DAB97E;
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-desc-section {
+        padding: 64px 24px;
+      }
+
+      .sss-rdc-desc-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .sss-rdc-desc-heading {
+        font-size: 28px;
+      }
+    }
+  </style>
+
+  <div class="sss-rdc-desc-inner">
+    <div class="sss-rdc-desc-left">
+      <h2 class="sss-rdc-desc-heading">The Kind of Afternoon You Actually Remember</h2>
+      <p class="sss-rdc-desc-body">Rose Day Club is a private afternoon charter on the water in Miami, designed for groups who want to feel hosted, not just booked.</p>
+      <p class="sss-rdc-desc-body">You arrive, the rosé is poured, and the afternoon opens up. Good music, warm light on the water, your whole group in one place with nowhere else to be.</p>
+      <p class="sss-rdc-desc-body">It is the social afternoon you keep talking about planning: indulgent without feeling like too much, relaxed without feeling like nothing.</p>
+      <p class="sss-rdc-desc-body">No itinerary to follow. No agenda to manage. Just a few hours that feel like the best version of a girls day, set out on the water.</p>
+      <p class="sss-rdc-desc-body">Your concierge handles the details. You handle the group chat.</p>
+      <a href="/request-to-book/?selected_experience=rose-day-club" class="sss-rdc-desc-cta">Request to Book</a>
+    </div>
+    <div class="sss-rdc-desc-right">
+      <h3 class="sss-rdc-desc-includes-heading">What's Included</h3>
+      <ul class="sss-rdc-desc-includes-list">
+        <li>Private yacht charter</li>
+        <li>Professional captain and crew</li>
+        <li>Rosé and champagne welcome</li>
+        <li>Afternoon music curation</li>
+        <li>Curated hosting touches for social groups</li>
+        <li>Miami waterways and open bay access</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: SOCIAL PROOF
+     Background: #1A2332 (--sss-navy)
+     Reuses global .sss-social-proof, .sss-quotes-grid, .sss-quote-card
+     ============================================================ -->
+
+<section class="sss-social-proof sss-rdc-proof-section">
+  <style>
+    .sss-rdc-proof-section {
+      background-color: #1A2332;
+      padding: 96px 40px;
+    }
+
+    .sss-rdc-proof-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .sss-rdc-proof-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #DAB97E;
+      margin: 0 0 16px;
+    }
+
+    .sss-rdc-proof-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: #FAF8F3;
+      margin: 0 0 56px;
+      line-height: 1.2;
+    }
+
+    .sss-quotes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      text-align: left;
+    }
+
+    .sss-quote-card {
+      background-color: rgba(255,255,255,0.05);
+      border-left: 2px solid #DAB97E;
+      padding: 28px 28px 28px 24px;
+      border-radius: 2px;
+    }
+
+    .sss-rdc-proof-quote-text {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      font-style: italic;
+      font-weight: 400;
+      color: #FAF8F3;
+      line-height: 1.7;
+      margin: 0 0 20px;
+    }
+
+    .sss-rdc-proof-quote-attr {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #DAB97E;
+      margin: 0;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-proof-section {
+        padding: 64px 24px;
+      }
+
+      .sss-quotes-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .sss-rdc-proof-heading {
+        font-size: 28px;
+        margin-bottom: 40px;
+      }
+    }
+  </style>
+
+  <div class="sss-rdc-proof-inner">
+    <p class="sss-rdc-proof-eyebrow">From Our Guests</p>
+    <h2 class="sss-rdc-proof-heading">What Groups Are Saying</h2>
+
+    <div class="sss-quotes-grid">
+      <div class="sss-quote-card">
+        <p class="sss-rdc-proof-quote-text">"We did Rose Day Club for our annual girls trip and it has become the standard everything else gets measured against. Good wine, good music, everyone together. That is it."</p>
+        <p class="sss-rdc-proof-quote-attr">Natalie S. &nbsp;·&nbsp; Girls Trip</p>
+      </div>
+      <div class="sss-quote-card">
+        <p class="sss-rdc-proof-quote-text">"I threw my best friend's 30th on Rose Day Club. The entire afternoon felt effortless, which is exactly what I wanted. Everyone left asking when we could do it again."</p>
+        <p class="sss-rdc-proof-quote-attr">Jade M. &nbsp;·&nbsp; Birthday Celebration</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4: OCCASION FIT
+     Background: #F5F0E8 (--sss-warm)
+     ============================================================ -->
+
+<section class="sss-rdc-occasion-section">
+  <style>
+    .sss-rdc-occasion-section {
+      background-color: #F5F0E8;
+      padding: 96px 40px;
+    }
+
+    .sss-rdc-occasion-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .sss-rdc-occasion-left {}
+
+    .sss-rdc-occasion-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 24px;
+      line-height: 1.2;
+    }
+
+    .sss-rdc-occasion-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.8;
+      margin: 0 0 16px;
+    }
+
+    .sss-rdc-occasion-body:last-child {
+      margin-bottom: 0;
+    }
+
+    .sss-rdc-occasion-right {}
+
+    .sss-rdc-occasion-list-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #1A2332;
+      margin: 0 0 24px;
+    }
+
+    .sss-rdc-occasion-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sss-rdc-occasion-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.6;
+      border-left: 2px solid #DAB97E;
+      padding: 10px 0 10px 16px;
+      margin-bottom: 12px;
+    }
+
+    .sss-rdc-occasion-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-occasion-section {
+        padding: 64px 24px;
+      }
+
+      .sss-rdc-occasion-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .sss-rdc-occasion-heading {
+        font-size: 28px;
+      }
+    }
+  </style>
+
+  <div class="sss-rdc-occasion-inner">
+    <div class="sss-rdc-occasion-left">
+      <h2 class="sss-rdc-occasion-heading">Who This Experience Is For</h2>
+      <p class="sss-rdc-occasion-body">Rose Day Club is built for groups who want an afternoon that feels hosted and indulgent, not just scheduled.</p>
+      <p class="sss-rdc-occasion-body">If you are celebrating a friend, marking something worth marking, or finally following through on that trip you have all been talking about, this is the format that delivers.</p>
+      <p class="sss-rdc-occasion-body">It works for tight groups of eight and bigger crews of eighteen. The feeling is the same: a long, warm afternoon with the people you actually want to be around.</p>
+      <p class="sss-rdc-occasion-body">You do not need a reason. You just need a date.</p>
+    </div>
+    <div class="sss-rdc-occasion-right">
+      <h3 class="sss-rdc-occasion-list-heading">Occasions That Fit Perfectly</h3>
+      <ul class="sss-rdc-occasion-list">
+        <li>Girls Trips and Annual Friend Gatherings</li>
+        <li>Birthday Afternoons and Celebrations</li>
+        <li>Bachelorette Day Charters or Pre-Event Experiences</li>
+        <li>Friend Reunions Worth Marking</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 5: PRE-CTA REASSURANCE
+     Background: #FFFFFF
+     Border-top: 1px solid rgba(218,185,126,0.22)
+     ============================================================ -->
+
+<section class="sss-rdc-reassurance-section">
+  <style>
+    .sss-rdc-reassurance-section {
+      background-color: #FFFFFF;
+      border-top: 1px solid rgba(218,185,126,0.22);
+      padding: 96px 40px;
+    }
+
+    .sss-rdc-reassurance-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .sss-rdc-reassurance-left {}
+
+    .sss-rdc-reassurance-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: #1A2332;
+      margin: 0 0 24px;
+      line-height: 1.2;
+    }
+
+    .sss-rdc-reassurance-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.8;
+      margin: 0 0 14px;
+    }
+
+    .sss-rdc-reassurance-body:last-child {
+      margin-bottom: 0;
+    }
+
+    .sss-rdc-reassurance-right {}
+
+    .sss-rdc-reassurance-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .sss-rdc-reassurance-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .sss-rdc-reassurance-step-num {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #DAB97E;
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 48px;
+    }
+
+    .sss-rdc-reassurance-step-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #2C2C2C;
+      line-height: 1.7;
+      padding-top: 6px;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-reassurance-section {
+        padding: 64px 24px;
+      }
+
+      .sss-rdc-reassurance-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .sss-rdc-reassurance-heading {
+        font-size: 28px;
+      }
+    }
+  </style>
+
+  <div class="sss-rdc-reassurance-inner">
+    <div class="sss-rdc-reassurance-left">
+      <h2 class="sss-rdc-reassurance-heading">How It Works</h2>
+      <p class="sss-rdc-reassurance-body">Submit a request and a concierge contacts you within 24 hours to discuss your group, your date, and any details you want to get right.</p>
+      <p class="sss-rdc-reassurance-body">No commitment until you are happy with every detail. The process is as easy as the afternoon itself.</p>
+    </div>
+    <div class="sss-rdc-reassurance-right">
+      <ol class="sss-rdc-reassurance-steps">
+        <li class="sss-rdc-reassurance-step">
+          <span class="sss-rdc-reassurance-step-num">01</span>
+          <span class="sss-rdc-reassurance-step-text">Submit your request with your preferred date and group size.</span>
+        </li>
+        <li class="sss-rdc-reassurance-step">
+          <span class="sss-rdc-reassurance-step-num">02</span>
+          <span class="sss-rdc-reassurance-step-text">Your concierge reaches out within 24 hours to discuss details.</span>
+        </li>
+        <li class="sss-rdc-reassurance-step">
+          <span class="sss-rdc-reassurance-step-num">03</span>
+          <span class="sss-rdc-reassurance-step-text">Confirm when you are ready, with no commitment until then.</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 6: BOTTOM CTA
+     Background: #1A2332 (--sss-navy)
+     Full width
+     ============================================================ -->
+
+<section class="sss-rdc-cta-section">
+  <style>
+    .sss-rdc-cta-section {
+      background-color: #1A2332;
+      padding: 96px 40px;
+      text-align: center;
+    }
+
+    .sss-rdc-cta-heading {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 44px;
+      font-style: italic;
+      font-weight: 400;
+      color: #FAF8F3;
+      margin: 0 0 16px;
+      line-height: 1.2;
+    }
+
+    .sss-rdc-cta-subline {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(250,248,243,0.72);
+      margin: 0 0 40px;
+      line-height: 1.6;
+    }
+
+    .sss-rdc-cta-button {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1A2332;
+      background-color: #DAB97E;
+      padding: 18px 40px;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      margin-bottom: 24px;
+    }
+
+    .sss-rdc-cta-button:hover {
+      background-color: #C9A96E;
+    }
+
+    .sss-rdc-cta-disclaimer {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(250,248,243,0.45);
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 767px) {
+      .sss-rdc-cta-section {
+        padding: 64px 24px;
+      }
+
+      .sss-rdc-cta-heading {
+        font-size: 32px;
+      }
+
+      .sss-rdc-cta-subline {
+        font-size: 15px;
+        margin-bottom: 32px;
+      }
+
+      .sss-rdc-cta-button {
+        padding: 16px 32px;
+        width: 100%;
+        max-width: 340px;
+        text-align: center;
+      }
+    }
+  </style>
+
+  <h2 class="sss-rdc-cta-heading">Ready to request Rose Day Club?</h2>
+  <p class="sss-rdc-cta-subline">Submit your details and a concierge will reach out within 24 hours.</p>
+  <a href="/request-to-book/?selected_experience=rose-day-club" class="sss-rdc-cta-button">Request Rose Day Club</a>
+  <span class="sss-rdc-cta-disclaimer">No deposit required to inquire. No commitment until you are ready.</span>
+</section>

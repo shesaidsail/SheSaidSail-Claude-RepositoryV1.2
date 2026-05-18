@@ -1,4 +1,4 @@
-# She Said Sail — WordPress Implementation Guide
+# She Said Sail: WordPress Implementation Guide
 **Version:** 2.0
 **Branch:** feature/luxury-conversion-overhaul
 
@@ -212,13 +212,138 @@ After applying all changes, check:
 
 ---
 
+## STEP 9: Add GTM DataLayer Events Script
+
+**Time required:** 5 minutes
+
+This script sends conversion events to Google Tag Manager so GA4, Meta Pixel, and TikTok Pixel
+can track CTA clicks, form submissions, and experience card interactions.
+
+**Where to load:**
+Option A (via GTM, recommended):
+1. In Google Tag Manager, create a new Tag
+2. Tag type: Custom HTML
+3. Paste the entire contents of `custom-js/gtm-datalayer-events.js` wrapped in `<script>` tags
+4. Trigger: All Pages
+5. Save and publish
+
+Option B (via Insert Headers and Footers):
+1. Go to Settings > Insert Headers and Footers
+2. In "Scripts in Footer", add a second `<script defer>` block
+3. Paste the entire contents of `custom-js/gtm-datalayer-events.js`
+4. Save
+
+**Important:** Do NOT load this script before `luxury-enhancements.js`. Load order matters.
+luxury-enhancements.js should be first in the footer, gtm-datalayer-events.js second.
+
+---
+
+## STEP 10: Add Hidden Tracking Fields to the Booking Form
+
+**Time required:** 15 minutes (requires developer)
+
+The booking form at /request-to-book/ needs hidden input fields to capture UTM attribution.
+These fields are populated by JavaScript before the form submits.
+
+If using MetForm:
+1. Open the MetForm editor for the request-to-book form
+2. Add a Hidden Field widget for each of the following field names:
+   - utm_source
+   - utm_medium
+   - utm_campaign
+   - utm_content
+   - utm_term
+   - creative_id
+   - landing_page
+   - source_url
+   - referrer_url
+   - first_seen_at
+   - submission_page
+   - brand (default value: "shesaidsail")
+   - service_category (default value: "yacht-charter")
+3. Save the form
+4. Verify: submit a test form with UTMs in the URL, check the Make.com scenario payload to confirm fields are populated
+
+See `docs/backend/form-tracking-spec.md` for full field specifications and the JavaScript that populates them.
+
+---
+
+## STEP 11: Wire Forms to Make.com
+
+**Time required:** 30 minutes (requires developer)
+
+After creating Make.com scenarios per `docs/backend/make-webhook-spec.md`:
+
+**For the booking form:**
+1. Open `custom-js/luxury-enhancements.js` in the Insert Headers and Footers editor
+2. Find the comment that says "Wire this fetch() to your Make.com webhook before going live"
+3. Replace the `setTimeout` placeholder with the real `fetch()` call:
+```javascript
+fetch('https://hook.us1.make.com/YOUR_REQUEST_WEBHOOK_ID', {
+  method:  'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body:    JSON.stringify(payload)
+}).then(function () {
+  showEmailSuccess(form);
+}).catch(function () {
+  showEmailSuccess(form);
+});
+```
+4. Replace YOUR_REQUEST_WEBHOOK_ID with the actual Make.com webhook ID
+5. Save
+
+**For the email capture form:**
+1. In the same file, find the email capture section
+2. Replace the placeholder fetch() similarly, using the email capture webhook ID from Make.com
+3. Save and test
+
+**Testing:**
+1. Submit the booking form with test data and UTMs in the URL: `?utm_source=test&utm_medium=test&utm_campaign=form-test`
+2. Check Airtable: new Request record should appear with all UTM fields populated
+3. Check email inbox: confirmation email should arrive within 2 minutes
+4. Check Slack: #new-leads should show the alert
+
+---
+
+## STEP 12: Rollback Instructions
+
+If any change causes a problem after going live, here is how to undo each one:
+
+**Rollback CSS (2 minutes):**
+1. Go to WordPress > Appearance > Customize > Additional CSS
+2. Delete the luxury-overhaul.css content (or restore previous CSS if you saved it)
+3. Click Publish
+
+**Rollback JavaScript (2 minutes):**
+1. Go to Settings > Insert Headers and Footers
+2. Delete the script block(s) from Scripts in Footer
+3. Save
+
+**Rollback an HTML snippet (5 minutes each):**
+1. Open Elementor on the homepage
+2. Find the HTML widget for the section you want to remove
+3. Right-click the widget, select Delete
+4. Update/Publish
+
+**Rollback SEO tags (2 minutes):**
+1. Go to Settings > Insert Headers and Footers
+2. Delete the meta tags from Scripts in Header (if applied there)
+3. OR in Yoast/RankMath: clear the fields you filled
+
+**No git commands needed for WordPress rollback.** WordPress changes are independent of git.
+Git rollback (`git revert HEAD`) is only needed if you committed database or config files.
+
+---
+
 ## PRIORITY ORDER IF TIME IS LIMITED
 
 Do these first for the highest conversion impact:
 
-1. Custom CSS (Step 1) — immediate visual upgrade
-2. Social proof strip (Step 4) — highest trust impact
-3. SEO meta tags (Step 3) — fixes immediate technical gaps
-4. JavaScript enhancements (Step 2) — fixes trust bugs
-5. Occasion pills (Step 5) — adds audience targeting
-6. Email capture (Step 6) — starts nurture list
+1. Custom CSS (Step 1): immediate visual upgrade, 5 minutes
+2. Social proof strip (Step 4): highest trust impact, 15 minutes
+3. SEO meta tags (Step 3): fixes immediate technical gaps, 10 minutes
+4. JavaScript enhancements (Step 2): fixes trust bugs, 5 minutes
+5. Occasion pills (Step 5): adds audience targeting, 10 minutes
+6. Email capture (Step 6): starts nurture list, 15 minutes
+7. GTM events (Step 9): enables analytics tracking, 5 minutes
+8. Hidden form fields + Make.com wiring (Steps 10 and 11): closes data loop, 45 minutes

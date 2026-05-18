@@ -1,4 +1,4 @@
-# She Said Sail — Landing Page Conversion Audit
+# She Said Sail: Landing Page Conversion Audit
 **Date:** May 2026
 **Auditor:** Claude (AI, She Said Sail operational system)
 **Score Before:** 6.5 / 10
@@ -9,7 +9,7 @@
 
 ## WHAT WAS WORKING (Score Drivers)
 
-- Visual identity: navy/gold palette, Cormorant Garamond typography — on-brand and calm
+- Visual identity: navy/gold palette, Cormorant Garamond typography, on-brand and calm
 - Photography (Susan Berry shoot): golden light, emotional moments, visually premium
 - Named experience cards (Monaco Social, Golden Hour Escape, etc.): differentiated, editorial
 - "Not Just a Charter" section: strongest converting copy on the page
@@ -24,12 +24,12 @@
 ### 1. Zero Social Proof
 No testimonials, reviews, or trust signals anywhere. For a $10,000+ purchase, this is the single biggest conversion barrier.
 
-**Fix:** Social proof strip — 3 curated quotes between experience cards and "Not Just a Charter" section.
+**Fix:** Social proof strip: 3 curated quotes between experience cards and "Not Just a Charter" section.
 **File:** `html-snippets/social-proof-strip.html`
 
 ### 2. Hero Leads With the Vehicle, Not the Feeling
 Brand governance: "The yacht is not the product. The feeling is the product."
-Hero H1: "Curated Yacht Experiences in Miami" — leads with the vessel.
+Hero H1: "Curated Yacht Experiences in Miami". Leads with the vessel.
 
 **Fix:** Visual hierarchy unchanged (Elementor CSS), but hero overlay reduced and typography elevated to let photography lead emotionally.
 **File:** `custom-css/luxury-overhaul.css`

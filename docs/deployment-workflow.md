@@ -1,4 +1,4 @@
-# She Said Sail — Website Deployment Workflow
+# She Said Sail: Website Deployment Workflow
 **Version:** 1.0
 **Branch:** feature/luxury-conversion-overhaul
 

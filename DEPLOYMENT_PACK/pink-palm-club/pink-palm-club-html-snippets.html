@@ -1,0 +1,513 @@
+<!--
+  SHE SAID SAIL
+  Pink Palm Club Experience Page
+  HTML Snippets
+  Version: 1.0 | May 2026
+
+  IMPLEMENTATION INSTRUCTIONS:
+  - These snippets are designed for Webflow custom embed blocks
+  - Each snippet is labelled by section
+  - Place in the order shown, corresponding to the page structure
+  - CSS file goes in: Page Settings > Custom Code > Head
+  - JS file goes in: Page Settings > Custom Code > Body (before closing tag)
+  - Required: GTM container must be installed on the site globally
+-->
+
+<!-- ============================================================
+     SKIP NAVIGATION (accessibility)
+     Place at the very top of the page body
+     ============================================================ -->
+<a class="ppc-skip-nav" href="#ppc-form-section">Skip to booking form</a>
+
+
+<!-- ============================================================
+     SECTION 1: HERO
+     Replace src with actual high-quality WebP image (compressed under 300KB for mobile)
+     Image dimensions: 2400x1350 desktop, 1200x900 mobile
+     ============================================================ -->
+<section class="ppc-hero" aria-label="Pink Palm Club experience hero">
+  <img
+    class="ppc-hero__bg"
+    src="/assets/images/pink-palm-club-hero.webp"
+    alt="Group of women celebrating on a private yacht in Fort Lauderdale, golden afternoon light, calm water"
+    width="2400"
+    height="1350"
+    loading="eager"
+    fetchpriority="high"
+  >
+  <div class="ppc-hero__overlay" aria-hidden="true"></div>
+  <div class="ppc-hero__content ppc-container">
+    <span class="ppc-eyebrow">Pink Palm Club</span>
+    <h1 class="ppc-hero__headline">Your crew. Open water.<br>Everything already handled.</h1>
+    <p class="ppc-hero__subhead">A private yacht experience designed for the group that deserves a day with no details left undone.</p>
+    <div class="ppc-hero__cta-group">
+      <a
+        href="#ppc-form-section"
+        class="ppc-btn ppc-btn--primary"
+        data-cta="true"
+        data-cta-location="hero"
+        aria-label="Check availability for Pink Palm Club"
+      >
+        Check availability
+      </a>
+      <a
+        href="#ppc-details"
+        class="ppc-btn ppc-btn--ghost"
+        data-cta="true"
+        data-cta-location="hero-secondary"
+      >
+        See what is included
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: EXPERIENCE INTRODUCTION
+     ============================================================ -->
+<section class="ppc-intro ppc-section" id="ppc-intro" aria-labelledby="ppc-intro-heading">
+  <div class="ppc-container--narrow">
+    <span class="ppc-eyebrow" style="text-align:center; display:block;">The experience</span>
+    <div class="ppc-divider ppc-divider--centered"></div>
+    <h2 class="ppc-subheadline" style="text-align:center;" id="ppc-intro-heading">
+      Not a boat trip. A full afternoon designed around you.
+    </h2>
+    <div class="ppc-body">
+      <p>Pink Palm Club is She Said Sail's signature group experience. From the moment you step aboard, the day is already in motion. Music, food, a captain who knows exactly how to read the afternoon, and a deck full of the people you actually want around you.</p>
+      <p>We handle the logistics. You bring the group. The water takes care of the rest.</p>
+      <p>This experience works for bachelorettes, birthdays, girls trips, and any occasion that deserves a day that feels different from all the ones before it.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: EXPERIENCE DETAILS (what is included)
+     Replace image src with secondary experience lifestyle image
+     ============================================================ -->
+<section class="ppc-details ppc-section" id="ppc-details" aria-labelledby="ppc-details-heading">
+  <div class="ppc-container">
+    <div class="ppc-details__grid">
+      <div>
+        <img
+          class="ppc-details__image"
+          src="/assets/images/pink-palm-club-deck.webp"
+          alt="Guests relaxing on the private yacht deck with drinks, afternoon sun on the water"
+          width="600"
+          height="450"
+          loading="lazy"
+        >
+      </div>
+      <div>
+        <span class="ppc-eyebrow">What is included</span>
+        <div class="ppc-divider"></div>
+        <h2 class="ppc-subheadline" id="ppc-details-heading">Everything that makes the day run smoothly.</h2>
+        <ul class="ppc-details__list" aria-label="What is included in Pink Palm Club">
+          <li>Private yacht charter for your group only</li>
+          <li>Licensed captain and one crew member</li>
+          <li>Curated playlist and Bluetooth audio system</li>
+          <li>Full cooler with ice, mixers, and soft drinks</li>
+          <li>Snorkel gear for the group</li>
+          <li>Towels, sunscreen, and deck seating for everyone</li>
+          <li>Anchorage at a private sandbar (weather permitting)</li>
+          <li>Boarding assistance and welcome onboard</li>
+          <li>Dedicated pre-charter concierge support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4: LOGISTICS / STATS
+     Update values to match actual pricing and logistics
+     ============================================================ -->
+<section class="ppc-stats ppc-section" id="ppc-stats" aria-label="Pink Palm Club experience logistics">
+  <div class="ppc-container">
+    <div class="ppc-stats__grid">
+      <div class="ppc-stats__item">
+        <span class="ppc-stats__label">Duration</span>
+        <span class="ppc-stats__value">4 hours</span>
+        <span class="ppc-stats__note">Departure from Fort Lauderdale</span>
+      </div>
+      <div class="ppc-stats__item">
+        <span class="ppc-stats__label">Group size</span>
+        <span class="ppc-stats__value">Up to 13</span>
+        <span class="ppc-stats__note">Private charter, your group only</span>
+      </div>
+      <div class="ppc-stats__item">
+        <span class="ppc-stats__label">Starting from</span>
+        <span class="ppc-stats__value">$1,200</span>
+        <span class="ppc-stats__note">Includes captain and all listed amenities</span>
+      </div>
+      <div class="ppc-stats__item">
+        <span class="ppc-stats__label">Availability</span>
+        <span class="ppc-stats__value">7 days</span>
+        <span class="ppc-stats__note">Morning, afternoon, and sunset departures</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 5: ADD-ONS
+     Clicking an add-on card populates the hidden add_ons field in the form
+     ============================================================ -->
+<section class="ppc-addons ppc-section" id="ppc-addons" aria-labelledby="ppc-addons-heading">
+  <div class="ppc-container">
+    <div style="text-align:center; max-width:560px; margin:0 auto;">
+      <span class="ppc-eyebrow">Make it yours</span>
+      <div class="ppc-divider ppc-divider--centered"></div>
+      <h2 class="ppc-subheadline" id="ppc-addons-heading">Optional add-ons for the day.</h2>
+      <p class="ppc-body ppc-body--muted">Select what sounds right. We will include pricing in your personalized quote.</p>
+    </div>
+    <div class="ppc-addons__grid" role="group" aria-label="Optional add-ons">
+      <div class="ppc-addon-card" data-addon="Charcuterie Board" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">Charcuterie Board</h3>
+        <p class="ppc-addon-card__desc">A curated spread of cheeses, fruits, meats, and crackers for the group.</p>
+      </div>
+      <div class="ppc-addon-card" data-addon="Champagne Toast" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">Champagne Toast</h3>
+        <p class="ppc-addon-card__desc">A bottle of prosecco or champagne with glassware. Perfect for the milestone moment.</p>
+      </div>
+      <div class="ppc-addon-card" data-addon="Floating Mat" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">Floating Mat</h3>
+        <p class="ppc-addon-card__desc">Giant ocean mat for the group at the sandbar stop. The photo opportunity of the afternoon.</p>
+      </div>
+      <div class="ppc-addon-card" data-addon="Custom Floral Decor" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">Custom Floral Decor</h3>
+        <p class="ppc-addon-card__desc">Fresh florals arranged on deck. Available in a color palette to match the occasion.</p>
+      </div>
+      <div class="ppc-addon-card" data-addon="Photographer" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">On-Boat Photographer</h3>
+        <p class="ppc-addon-card__desc">A photographer joins the charter for the full experience. Gallery delivered within 48 hours.</p>
+      </div>
+      <div class="ppc-addon-card" data-addon="Birthday Setup" role="checkbox" aria-checked="false" tabindex="0">
+        <h3 class="ppc-addon-card__name">Birthday Setup</h3>
+        <p class="ppc-addon-card__desc">Balloon arch, personalized banner, and small birthday cake for the guest of honor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 6: SOCIAL PROOF
+     Replace with real guest testimonials. Keep language natural, not templated.
+     ============================================================ -->
+<section class="ppc-proof ppc-section" id="ppc-proof" aria-labelledby="ppc-proof-heading">
+  <div class="ppc-container">
+    <div style="text-align:center; max-width:560px; margin:0 auto;">
+      <span class="ppc-eyebrow">From guests</span>
+      <div class="ppc-divider ppc-divider--centered"></div>
+      <h2 class="ppc-subheadline" id="ppc-proof-heading">The kind of day they still talk about.</h2>
+    </div>
+    <div class="ppc-proof__grid" role="list">
+      <blockquote class="ppc-proof__quote" role="listitem">
+        <p class="ppc-proof__text">"We did Pink Palm Club for my best friend's bachelorette and honestly it was the best decision we made. Everything was taken care of. We just showed up and had the best afternoon of our lives."</p>
+        <cite class="ppc-proof__attribution">Gabrielle M. &mdash; Bachelorette, Fort Lauderdale</cite>
+        <!-- NOTE TO EDITOR: Replace mdash above with a real separator character in Webflow if em dash policy is enforced at the code level. In HTML rendering context, &mdash; is acceptable as a visual separator in citations. -->
+      </blockquote>
+      <blockquote class="ppc-proof__quote" role="listitem">
+        <p class="ppc-proof__text">"I planned my birthday through She Said Sail and they were responsive, organized, and genuinely thoughtful. The crew made everyone on board feel looked after. We are already planning another one."</p>
+        <cite class="ppc-proof__attribution">Danielle R. &mdash; Birthday, Fort Lauderdale</cite>
+      </blockquote>
+      <blockquote class="ppc-proof__quote" role="listitem">
+        <p class="ppc-proof__text">"Our girls trip could have been a million things. We picked the boat and we will never do anything else. The sandbar stop alone was worth every penny. Go. Just go."</p>
+        <cite class="ppc-proof__attribution">Priya K. &mdash; Girls Trip, Fort Lauderdale</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 7: BOOKING CTA SECTION
+     ============================================================ -->
+<section class="ppc-cta-section ppc-section" id="ppc-cta" aria-labelledby="ppc-cta-heading">
+  <div class="ppc-container">
+    <span class="ppc-eyebrow" style="text-align:center; display:block;">Reserve your date</span>
+    <div class="ppc-divider ppc-divider--centered" style="background:rgba(201,168,76,0.4);"></div>
+    <h2 class="ppc-subheadline ppc-subheadline--white" id="ppc-cta-heading">Availability goes fast in the season.</h2>
+    <p class="ppc-body ppc-body--white">Send us a few details and we will come back with availability and a personalized quote within one business day.</p>
+    <a
+      href="#ppc-form-section"
+      class="ppc-btn ppc-btn--primary"
+      data-cta="true"
+      data-cta-location="mid-page-cta"
+    >
+      Request this experience
+    </a>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 8: INQUIRY FORM
+     IMPORTANT: Replace [WEBHOOK_URL] with the actual Make webhook URL
+     All hidden fields must match the naming convention in master-backend-system.md
+     ============================================================ -->
+<section class="ppc-form-section ppc-section" id="ppc-form-section" aria-labelledby="ppc-form-heading">
+  <div class="ppc-container">
+    <div class="ppc-form-card">
+      <div class="ppc-form-card__header">
+        <span class="ppc-eyebrow" style="text-align:center; display:block;">Get in touch</span>
+        <div class="ppc-divider ppc-divider--centered"></div>
+        <h2 class="ppc-subheadline" id="ppc-form-heading" style="text-align:center;">Tell us about your group.</h2>
+        <p class="ppc-body ppc-body--muted" style="text-align:center;">No payment required to inquire. We will reach out with availability, pricing, and next steps.</p>
+      </div>
+
+      <!-- Webflow form wrapper. Replace action with Make webhook URL in Webflow form settings. -->
+      <form
+        id="ppc-inquiry-form"
+        name="Pink Palm Club Inquiry"
+        action="[WEBHOOK_URL]"
+        method="POST"
+        data-name="Pink Palm Club Inquiry"
+        novalidate
+        aria-label="Pink Palm Club inquiry form"
+      >
+        <div class="ppc-form__inner">
+          <div class="ppc-form__grid">
+
+            <!-- First Name -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-first-name">First name</label>
+              <input
+                class="ppc-form__input"
+                type="text"
+                id="ppc-first-name"
+                name="first_name"
+                placeholder="Your first name"
+                required
+                autocomplete="given-name"
+                aria-required="true"
+              >
+              <span class="ppc-form__error" data-error-for="first_name" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please enter your first name.</span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-last-name">Last name</label>
+              <input
+                class="ppc-form__input"
+                type="text"
+                id="ppc-last-name"
+                name="last_name"
+                placeholder="Your last name"
+                required
+                autocomplete="family-name"
+                aria-required="true"
+              >
+              <span class="ppc-form__error" data-error-for="last_name" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please enter your last name.</span>
+            </div>
+
+            <!-- Email -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-email">Email address</label>
+              <input
+                class="ppc-form__input"
+                type="email"
+                id="ppc-email"
+                name="email"
+                placeholder="you@email.com"
+                required
+                autocomplete="email"
+                aria-required="true"
+              >
+              <span class="ppc-form__error" data-error-for="email" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please enter a valid email address.</span>
+            </div>
+
+            <!-- Phone -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-phone">Phone number</label>
+              <input
+                class="ppc-form__input"
+                type="tel"
+                id="ppc-phone"
+                name="phone"
+                placeholder="(555) 000-0000"
+                required
+                autocomplete="tel"
+                aria-required="true"
+              >
+              <span class="ppc-form__error" data-error-for="phone" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please enter your phone number.</span>
+            </div>
+
+            <!-- Preferred Date -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-date">Preferred date</label>
+              <input
+                class="ppc-form__input"
+                type="date"
+                id="ppc-date"
+                name="preferred_date"
+                required
+                aria-required="true"
+                min=""
+              >
+              <span class="ppc-form__error" data-error-for="preferred_date" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please select a preferred date.</span>
+            </div>
+
+            <!-- Guest Count -->
+            <div class="ppc-form__field">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-guests">Number of guests</label>
+              <select
+                class="ppc-form__select"
+                id="ppc-guests"
+                name="guest_count"
+                required
+                aria-required="true"
+              >
+                <option value="" disabled selected>Select guest count</option>
+                <option value="2">2 guests</option>
+                <option value="4">4 guests</option>
+                <option value="6">6 guests</option>
+                <option value="8">8 guests</option>
+                <option value="10">10 guests</option>
+                <option value="12">12 guests</option>
+                <option value="13">13 guests (maximum)</option>
+              </select>
+              <span class="ppc-form__error" data-error-for="guest_count" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please select the number of guests.</span>
+            </div>
+
+            <!-- Occasion -->
+            <div class="ppc-form__field ppc-form__field--full">
+              <label class="ppc-form__label ppc-form__label--required" for="ppc-occasion">What are you celebrating?</label>
+              <select
+                class="ppc-form__select"
+                id="ppc-occasion"
+                name="occasion"
+                required
+                aria-required="true"
+              >
+                <option value="" disabled selected>Select the occasion</option>
+                <option value="Bachelorette">Bachelorette</option>
+                <option value="Birthday">Birthday</option>
+                <option value="Girls Trip">Girls trip</option>
+                <option value="Anniversary">Anniversary</option>
+                <option value="Corporate">Corporate outing</option>
+                <option value="Other">Something else</option>
+              </select>
+              <span class="ppc-form__error" data-error-for="occasion" role="alert" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Please select an occasion.</span>
+            </div>
+
+            <!-- Special Requests -->
+            <div class="ppc-form__field ppc-form__field--full">
+              <label class="ppc-form__label" for="ppc-special">Anything we should know</label>
+              <textarea
+                class="ppc-form__textarea"
+                id="ppc-special"
+                name="special_requests"
+                placeholder="Dietary needs, accessibility requirements, specific ideas, or anything else that will help us plan the perfect day."
+                rows="4"
+              ></textarea>
+            </div>
+
+            <!-- HIDDEN FIELDS - Populated by pink-palm-club.js on page load -->
+            <input type="hidden" name="experience">
+            <input type="hidden" name="yacht">
+            <input type="hidden" name="city">
+            <input type="hidden" name="duration">
+            <input type="hidden" name="boarding_location">
+            <input type="hidden" name="add_ons">
+            <input type="hidden" name="source_url">
+            <input type="hidden" name="page_slug">
+            <input type="hidden" name="utm_source">
+            <input type="hidden" name="utm_medium">
+            <input type="hidden" name="utm_campaign">
+            <input type="hidden" name="utm_content">
+            <input type="hidden" name="utm_term">
+
+          </div><!-- /.ppc-form__grid -->
+
+          <div class="ppc-form__submit-wrap">
+            <button
+              type="submit"
+              class="ppc-btn ppc-btn--primary ppc-form__submit"
+              data-cta="true"
+              data-cta-location="form-submit"
+              aria-label="Submit Pink Palm Club inquiry"
+            >
+              Request this experience
+            </button>
+            <p class="ppc-form__note">No payment required. We will be in touch within one business day.</p>
+          </div>
+
+        </div><!-- /.ppc-form__inner -->
+
+        <!-- Success state - shown after successful Webflow form submission -->
+        <div class="ppc-form__success" role="status" aria-live="polite">
+          <span class="ppc-eyebrow" style="text-align:center; display:block;">We got it</span>
+          <h3 class="ppc-form__success-title">Your request is with us.</h3>
+          <p class="ppc-form__success-body">
+            You will hear from our team within one business day with availability and pricing.
+            In the meantime, you can reach us at <a href="mailto:hello@shesaidsail.com" style="color: var(--sss-navy);">hello@shesaidsail.com</a>
+            or <a href="tel:+17547012228" style="color: var(--sss-navy);">(754) 701-2228</a>.
+          </p>
+        </div>
+
+      </form>
+    </div><!-- /.ppc-form-card -->
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 9: REASSURANCE STRIP
+     ============================================================ -->
+<section class="ppc-reassurance ppc-section" id="ppc-reassurance" aria-label="Booking reassurance">
+  <div class="ppc-container">
+    <div class="ppc-reassurance__grid">
+      <div class="ppc-reassurance__item">
+        <svg class="ppc-reassurance__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke-width="1.5"/>
+          <polyline points="12,6 12,12 16,14" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="ppc-reassurance__text">
+          <strong>Response within one business day</strong>
+          We review every inquiry personally and follow up with availability and pricing.
+        </div>
+      </div>
+      <div class="ppc-reassurance__item">
+        <svg class="ppc-reassurance__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" stroke-width="1.5"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="ppc-reassurance__text">
+          <strong>No payment to inquire</strong>
+          Submitting this form does not charge or commit you to anything.
+        </div>
+      </div>
+      <div class="ppc-reassurance__item">
+        <svg class="ppc-reassurance__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="7" r="4" stroke-width="1.5"/>
+        </svg>
+        <div class="ppc-reassurance__text">
+          <strong>Personal concierge support</strong>
+          A real person manages your experience from first inquiry to boarding.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FLOATING MOBILE CTA (fixed to bottom of screen on mobile)
+     Appears after the hero scrolls out of view
+     ============================================================ -->
+<div class="ppc-floating-cta is-hidden" role="complementary" aria-label="Quick booking access">
+  <a
+    href="#ppc-form-section"
+    class="ppc-btn ppc-btn--primary"
+    data-cta="true"
+    data-cta-location="floating-mobile"
+  >
+    Request this experience
+  </a>
+</div>

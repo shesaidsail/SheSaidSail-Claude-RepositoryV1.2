@@ -13,6 +13,10 @@
  *   8. Mobile Nav Close     - closes burger menu on link tap
  *   9. Occasion Badges      - injects badge text into experience cards
  *  10. GTM DataLayer Events - all analytics push calls
+ *      Page views: view_homepage, view_request_page, view_experiences_page, view_experience_page
+ *      CTA clicks: click_request_to_book, click_explore_experiences, click_experience_card
+ *      Forms: start_booking_form, submit_booking_form, submit_email_capture
+ *      Engagement: click_phone, open_chat, view_thank_you_page, scroll_50_percent, scroll_90_percent
  */
 
 (function () {
@@ -527,16 +531,29 @@
 
     /* ----------------------------------------------------------
        c. VIEW_EXPERIENCES_PAGE
-       Fires on the experiences index page.
+       Fires on the experiences index page only (not sub-pages).
     ---------------------------------------------------------- */
-    if (path.indexOf('/experiences/') !== -1) {
+    if (path === '/experiences/' || path === '/experiences') {
       dlPush('view_experiences_page', {
         page_location: window.location.href
       });
     }
 
     /* ----------------------------------------------------------
-       d. CLICK_REQUEST_TO_BOOK
+       d. VIEW_EXPERIENCE_PAGE
+       Fires on individual experience pages (/experience/*).
+       Captures the experience slug for segmentation.
+    ---------------------------------------------------------- */
+    if (path.indexOf('/experience/') !== -1) {
+      var expSlug = path.replace(/^\/experience\//, '').replace(/\/$/, '') || 'unknown';
+      dlPush('view_experience_page', {
+        experience_slug: expSlug,
+        page_location:   window.location.href
+      });
+    }
+
+    /* ----------------------------------------------------------
+       f. CLICK_REQUEST_TO_BOOK
        Fires on any link that points to /request-to-book/.
        Detects which page section the click originated from.
     ---------------------------------------------------------- */
@@ -562,7 +579,7 @@
     });
 
     /* ----------------------------------------------------------
-       e. CLICK_EXPLORE_EXPERIENCES
+       g. CLICK_EXPLORE_EXPERIENCES
        Fires on any link to the /experiences/ page.
     ---------------------------------------------------------- */
     document.querySelectorAll('a[href*="/experiences/"]').forEach(function (el) {
@@ -574,7 +591,7 @@
     });
 
     /* ----------------------------------------------------------
-       f. CLICK_EXPERIENCE_CARD
+       h. CLICK_EXPERIENCE_CARD
        Fires when a user clicks into a specific experience card.
        Captures the experience name from the card heading and
        the card's 1-indexed position in the loop.
@@ -596,7 +613,7 @@
     });
 
     /* ----------------------------------------------------------
-       g. START_BOOKING_FORM
+       i. START_BOOKING_FORM
        Fires on first focus or change interaction inside the
        booking form. One-shot: uses a flag to prevent repeat fires.
     ---------------------------------------------------------- */

@@ -16,7 +16,7 @@
  *      Page views: view_homepage, view_request_page, view_experiences_page, view_experience_page
  *      CTA clicks: click_request_to_book, click_explore_experiences, click_experience_card
  *      Forms: start_booking_form, submit_booking_form, submit_email_capture
- *      Engagement: click_phone, open_chat, view_about_page, view_contact_page, view_thank_you_page, scroll_50_percent, scroll_90_percent
+ *      Engagement: click_phone, open_chat, view_about_page, view_contact_page, view_faq_page, view_journal_page, view_thank_you_page, scroll_50_percent, scroll_90_percent
  */
 
 (function () {
@@ -709,6 +709,26 @@
     ---------------------------------------------------------- */
     if (path === '/contact/' || path === '/contact') {
       dlPush('view_contact_page', {
+        page_location: window.location.href
+      });
+    }
+
+    /* ----------------------------------------------------------
+       o. VIEW_FAQ_PAGE
+       Fires on the FAQ page.
+    ---------------------------------------------------------- */
+    if (path === '/faq/' || path === '/faq') {
+      dlPush('view_faq_page', {
+        page_location: window.location.href
+      });
+    }
+
+    /* ----------------------------------------------------------
+       p. VIEW_JOURNAL_PAGE
+       Fires on the journal or blog index page.
+    ---------------------------------------------------------- */
+    if (path === '/journal/' || path === '/journal' || path === '/blog/' || path === '/blog') {
+      dlPush('view_journal_page', {
         page_location: window.location.href
       });
     }

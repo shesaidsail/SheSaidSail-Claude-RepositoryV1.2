@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "source": "curated",
+  "notes": "These testimonials are used in the social proof strip on the homepage. Replace with real verified guest quotes as they come in. Keep them short, grounded, specific, human, and believable. Avoid prohibited words: amazing, unforgettable, epic, next-level.",
+
+  "testimonials": [
+    {
+      "id": "t001",
+      "quote": "I have done boat days before. This was the first time I did not have to think about anything. Not once.",
+      "name": "Gabrielle T.",
+      "occasion": "Birthday celebration, Miami",
+      "experience": "Monaco Social",
+      "verified": false,
+      "active": true
+    },
+    {
+      "id": "t002",
+      "quote": "Everything felt handled before we even arrived. The whole day had a pace to it that felt completely intentional.",
+      "name": "Simone R.",
+      "occasion": "Bachelorette weekend, Miami",
+      "experience": "Rosé Day Club",
+      "verified": false,
+      "active": true
+    },
+    {
+      "id": "t003",
+      "quote": "It felt more like being hosted by friends with incredible taste than anything I would call a charter.",
+      "name": "Alexis M.",
+      "occasion": "Girls trip, South Beach",
+      "experience": "Golden Hour Escape",
+      "verified": false,
+      "active": true
+    },
+    {
+      "id": "t004",
+      "quote": "I was the host for my best friend's birthday and I did not feel like a host once. That is exactly what I needed.",
+      "name": "Jordan K.",
+      "occasion": "Birthday group, Miami",
+      "experience": "Pink Palm Club",
+      "verified": false,
+      "active": false
+    },
+    {
+      "id": "t005",
+      "quote": "The energy was exactly right. Not too much, not too quiet. Someone had clearly thought about every detail.",
+      "name": "Naomi V.",
+      "occasion": "Girls trip, Miami Beach",
+      "experience": "Monaco Social",
+      "verified": false,
+      "active": false
+    }
+  ]
+}

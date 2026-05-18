@@ -1,14 +1,21 @@
 <!--
-  She Said Sail | Pink Palm Club
-  SEO Metadata File
-  Page: /experience/pink-palm-club/
-  Last updated: 2026-05-18
-  DEPLOYMENT: Paste into the <head> of the Pink Palm Club experience page.
+  FILE: pink-palm-club-metadata.html
+  PURPOSE: All meta tags and JSON-LD structured data for the Pink Palm Club experience page.
+  PAGE URL: https://shesaidsail.com/experience/pink-palm-club/
+  DEPLOYMENT: Paste into the <head> of the Pink Palm Club page template via Yoast SEO
+              custom fields (preferred), or Insert Headers and Footers scoped to this URL.
+  LAST UPDATED: 2026-05-18
+
+  UPDATE CHECKLIST BEFORE GO-LIVE:
+    1. Replace og:image and twitter:image placeholder paths with the final uploaded
+       Pink Palm Club hero photo (1200x630 recommended).
+    2. Confirm the booking URL query parameter matches the live form field value.
 -->
 
-<!-- ============================================================
+
+<!-- =============================================================
      PRIMARY META
-     ============================================================ -->
+     ============================================================= -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,72 +24,178 @@
 
 <meta name="description" content="Private bachelorette yacht charter in Miami. Pink Palm Club fits groups up to 22. Music, champagne, and the Miami skyline. Starting from $10,000.">
 
-<!-- ============================================================
-     CANONICAL
-     ============================================================ -->
-
 <link rel="canonical" href="https://shesaidsail.com/experience/pink-palm-club/">
 
-<!-- ============================================================
+
+<!-- =============================================================
      OPEN GRAPH
-     ============================================================ -->
+     ============================================================= -->
 
 <meta property="og:title" content="Pink Palm Club | She Said Sail">
 <meta property="og:description" content="Private bachelorette yacht charter in Miami. Pink Palm Club fits groups up to 22. Music, champagne, and the Miami skyline. Starting from $10,000.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://shesaidsail.com/experience/pink-palm-club/">
-<meta property="og:image" content="/images/experiences/pink-palm-club-hero.jpg">
-<!-- Replace with 1200x630 Pink Palm Club hero photo -->
+<!-- Replace with 1200x630 Pink Palm Club hero photo before go-live -->
+<meta property="og:image" content="https://shesaidsail.com/wp-content/uploads/pink-palm-club-hero-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pink Palm Club bachelorette yacht party with Miami skyline views">
 <meta property="og:site_name" content="She Said Sail">
 <meta property="og:locale" content="en_US">
 
-<!-- ============================================================
+
+<!-- =============================================================
      TWITTER CARD
-     ============================================================ -->
+     ============================================================= -->
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pink Palm Club | She Said Sail">
 <meta name="twitter:description" content="Private bachelorette yacht charter in Miami. Pink Palm Club fits groups up to 22. Music, champagne, and the Miami skyline. Starting from $10,000.">
-<meta name="twitter:image" content="/images/experiences/pink-palm-club-hero.jpg">
-<!-- Replace with 1200x630 Pink Palm Club hero photo -->
+<!-- Replace with 1200x630 Pink Palm Club hero photo before go-live -->
+<meta name="twitter:image" content="https://shesaidsail.com/wp-content/uploads/pink-palm-club-hero-og.jpg">
+<meta name="twitter:image:alt" content="Pink Palm Club bachelorette yacht party with Miami skyline views">
 
-<!-- ============================================================
-     JSON-LD: SERVICE SCHEMA
-     ============================================================ -->
 
+<!-- =============================================================
+     JSON-LD BLOCK 1: Service Schema
+     =============================================================
+     WHAT THIS DOES:
+       Describes Pink Palm Club as a named, structured service with pricing, audience,
+       area served, and a direct booking offer. The provider @id reference ties this
+       service back to the Organization entity declared in global-schema.html, building
+       a coherent entity graph across the site.
+       The audience field signals to AI answer engines that this experience targets
+       high-energy bachelorette parties and large group celebrations wanting music,
+       champagne, and Miami skyline views. The 22-guest capacity is the largest of
+       all four experiences and should surface in large group queries.
+       serviceType "Yacht Charter" aligns with travel and hospitality ontologies used by
+       Google, Bing, and AI trip-planning assistants.
+
+     AI SYSTEMS HELPED:
+       Google rich results for Services, AI trip-planning assistants (Perplexity, Gemini,
+       ChatGPT Browse), Bing entity graph, Google AI Overviews for bachelorette party
+       planning and large group yacht charter queries in Miami.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       - Confirm booking URL query parameter matches live form.
+       - Replace image URL placeholder once asset is uploaded.
+-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "Pink Palm Club",
-  "description": "Private bachelorette and group yacht charter for celebrations in Miami. Up to 22 guests.",
+  "serviceType": "Yacht Charter",
+  "description": "Private bachelorette and high-energy group yacht charter in Miami with Miami skyline views, music, and champagne. Up to 22 guests. The largest of the She Said Sail experiences.",
   "url": "https://shesaidsail.com/experience/pink-palm-club/",
+  "image": "https://shesaidsail.com/wp-content/uploads/pink-palm-club-hero-og.jpg",
   "brand": {
     "@type": "Brand",
     "name": "She Said Sail"
+  },
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Bachelorette parties, high-energy group celebrations, large women-led groups, Miami party boat groups"
+  },
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Miami"
+    },
+    {
+      "@type": "City",
+      "name": "Fort Lauderdale"
+    },
+    {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.7617,
+        "longitude": -80.1918
+      },
+      "geoRadius": "80000"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Pink Palm Club Booking",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Pink Palm Club Experience",
+        "description": "Private bachelorette and group yacht charter for up to 22 guests. Starting from $10,000.",
+        "price": "10000",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://shesaidsail.com/request-to-book/?selected_experience=pink-palm-club",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": "10000",
+          "priceCurrency": "USD",
+          "description": "Starting from $10,000. Final price based on group size and date."
+        }
+      }
+    ]
   },
   "offers": {
     "@type": "Offer",
     "price": "10000",
     "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://shesaidsail.com/request-to-book/?selected_experience=pink-palm-club",
     "priceSpecification": {
       "@type": "PriceSpecification",
       "minPrice": "10000",
-      "priceCurrency": "USD"
+      "priceCurrency": "USD",
+      "description": "Starting from $10,000. Final price based on group size and date."
     }
   },
   "provider": {
-    "@type": "LocalBusiness",
-    "name": "She Said Sail",
-    "url": "https://shesaidsail.com",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Miami",
-      "addressRegion": "FL",
-      "addressCountry": "US"
-    }
+    "@id": "https://shesaidsail.com/#organization"
   }
+}
+</script>
+
+
+<!-- =============================================================
+     JSON-LD BLOCK 2: BreadcrumbList
+     =============================================================
+     WHAT THIS DOES:
+       Provides the SERP breadcrumb trail for the Pink Palm Club page.
+       Breadcrumbs help Google display the page's position in site hierarchy
+       directly in search results, improving click-through rates.
+       The three-level path (Home, Experiences, Pink Palm Club) matches the
+       expected user navigation pattern and signals content hierarchy to AI systems.
+
+     AI SYSTEMS HELPED:
+       Google breadcrumb rich results, Bing breadcrumb display, AI navigation understanding.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       None required for this block.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://shesaidsail.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Experiences",
+      "item": "https://shesaidsail.com/experiences/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Pink Palm Club",
+      "item": "https://shesaidsail.com/experience/pink-palm-club/"
+    }
+  ]
 }
 </script>

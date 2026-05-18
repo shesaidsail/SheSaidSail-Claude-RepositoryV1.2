@@ -1,14 +1,20 @@
 <!--
-  She Said Sail | Golden Hour Escape
-  SEO Metadata Package
-  Page: /experience/golden-hour-escape/
-  Last updated: 2026-05-18
-  DEPLOYMENT: Add all tags inside the <head> of the Golden Hour Escape page template.
+  FILE: golden-hour-escape-metadata.html
+  PURPOSE: All meta tags and JSON-LD structured data for the Golden Hour Escape experience page.
+  PAGE URL: https://shesaidsail.com/experience/golden-hour-escape/
+  DEPLOYMENT: Paste into the <head> of the Golden Hour Escape page template via Yoast SEO
+              custom fields (preferred), or Insert Headers and Footers scoped to this URL.
+  LAST UPDATED: 2026-05-18
+
+  UPDATE CHECKLIST BEFORE GO-LIVE:
+    1. Replace og:image and twitter:image with the final uploaded Golden Hour Escape hero photo.
+    2. Confirm the booking URL query parameter matches the live form field value.
 -->
 
-<!-- ============================================================
+
+<!-- =============================================================
      CORE META
-     ============================================================ -->
+     ============================================================= -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,9 +27,9 @@
 <link rel="canonical" href="https://shesaidsail.com/experience/golden-hour-escape/">
 
 
-<!-- ============================================================
+<!-- =============================================================
      OPEN GRAPH
-     ============================================================ -->
+     ============================================================= -->
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="She Said Sail">
@@ -31,68 +37,163 @@
 <meta property="og:title" content="Golden Hour Escape | She Said Sail">
 <meta property="og:description" content="Private sunset yacht charter in Miami. Golden Hour Escape is designed for intimate groups marking milestone moments. Starting from $10,000.">
 <meta property="og:url" content="https://shesaidsail.com/experience/golden-hour-escape/">
-<!-- Replace with 1200x630 Golden Hour Escape hero photo -->
+<!-- Replace with 1200x630 Golden Hour Escape hero photo before go-live -->
 <meta property="og:image" content="https://shesaidsail.com/wp-content/uploads/golden-hour-escape-og-hero.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Golden hour over Biscayne Bay from a private yacht charter with She Said Sail">
 
 
-<!-- ============================================================
+<!-- =============================================================
      TWITTER CARD
-     ============================================================ -->
+     ============================================================= -->
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Golden Hour Escape | She Said Sail">
 <meta name="twitter:description" content="Private sunset yacht charter in Miami. Golden Hour Escape is designed for intimate groups marking milestone moments. Starting from $10,000.">
-<!-- Replace with 1200x630 Golden Hour Escape hero photo -->
+<!-- Replace with 1200x630 Golden Hour Escape hero photo before go-live -->
 <meta name="twitter:image" content="https://shesaidsail.com/wp-content/uploads/golden-hour-escape-og-hero.jpg">
 <meta name="twitter:image:alt" content="Golden hour over Biscayne Bay from a private yacht charter with She Said Sail">
 
 
-<!-- ============================================================
-     JSON-LD STRUCTURED DATA (Service Schema)
-     Validate at: https://validator.schema.org
-     ============================================================ -->
+<!-- =============================================================
+     JSON-LD BLOCK 1: Service Schema
+     =============================================================
+     WHAT THIS DOES:
+       Describes Golden Hour Escape as a named, structured service with pricing, audience,
+       area served, and a direct booking offer. The provider @id reference ties this
+       service back to the Organization entity declared in global-schema.html, building
+       a coherent entity graph across the site.
+       The audience field signals to AI answer engines that this experience targets
+       couples, small intimate groups, and people planning milestone events.
+       serviceType "Yacht Charter" aligns with travel and hospitality ontologies used by
+       Google, Bing, and AI trip-planning assistants.
 
+     AI SYSTEMS HELPED:
+       Google rich results for Services, AI trip-planning assistants (Perplexity, Gemini,
+       ChatGPT Browse), Bing entity graph, Google AI Overviews for anniversary and
+       milestone occasion queries.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       - Confirm booking URL query parameter matches live form.
+       - Confirm image URL once asset is uploaded.
+-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "Golden Hour Escape",
-  "description": "Private sunset yacht charter designed for intimate groups and milestone celebrations in Miami.",
+  "serviceType": "Yacht Charter",
+  "description": "Private sunset yacht charter designed for intimate groups and milestone celebrations in Miami. Up to 12 guests. Perfect for anniversaries, proposals, and quiet milestone moments.",
   "url": "https://shesaidsail.com/experience/golden-hour-escape/",
+  "image": "https://shesaidsail.com/wp-content/uploads/golden-hour-escape-og-hero.jpg",
   "brand": {
     "@type": "Brand",
     "name": "She Said Sail"
+  },
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Couples, intimate groups, anniversary celebrations, proposals, milestone moments, small private celebrations"
+  },
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Miami"
+    },
+    {
+      "@type": "City",
+      "name": "Fort Lauderdale"
+    },
+    {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.7617,
+        "longitude": -80.1918
+      },
+      "geoRadius": "80000"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Golden Hour Escape Booking",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Golden Hour Escape Experience",
+        "description": "Private sunset yacht charter for up to 12 guests. Starting from $10,000.",
+        "price": "10000",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://shesaidsail.com/request-to-book/?selected_experience=golden-hour-escape",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": "10000",
+          "priceCurrency": "USD",
+          "description": "Starting from $10,000. Final price based on group size and date."
+        }
+      }
+    ]
   },
   "offers": {
     "@type": "Offer",
     "price": "10000",
     "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://shesaidsail.com/request-to-book/?selected_experience=golden-hour-escape",
     "priceSpecification": {
       "@type": "PriceSpecification",
       "minPrice": "10000",
-      "priceCurrency": "USD"
-    },
-    "availability": "https://schema.org/InStock",
-    "url": "https://shesaidsail.com/request-to-book/?selected_experience=golden-hour-escape"
-  },
-  "provider": {
-    "@type": "LocalBusiness",
-    "name": "She Said Sail",
-    "url": "https://shesaidsail.com",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Miami",
-      "addressRegion": "FL",
-      "addressCountry": "US"
+      "priceCurrency": "USD",
+      "description": "Starting from $10,000. Final price based on group size and date."
     }
   },
-  "areaServed": {
-    "@type": "City",
-    "name": "Miami"
-  },
-  "category": "Yacht Charter"
+  "provider": {
+    "@id": "https://shesaidsail.com/#organization"
+  }
+}
+</script>
+
+
+<!-- =============================================================
+     JSON-LD BLOCK 2: BreadcrumbList
+     =============================================================
+     WHAT THIS DOES:
+       Provides the SERP breadcrumb trail for the Golden Hour Escape page.
+       Breadcrumbs help Google display the page's position in site hierarchy
+       directly in search results, improving click-through rates.
+       The three-level path (Home, Experiences, Golden Hour Escape) matches the
+       expected user navigation pattern and signals content hierarchy to AI systems.
+
+     AI SYSTEMS HELPED:
+       Google breadcrumb rich results, Bing breadcrumb display, AI navigation understanding.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       None required for this block.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://shesaidsail.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Experiences",
+      "item": "https://shesaidsail.com/experiences/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Golden Hour Escape",
+      "item": "https://shesaidsail.com/experience/golden-hour-escape/"
+    }
+  ]
 }
 </script>

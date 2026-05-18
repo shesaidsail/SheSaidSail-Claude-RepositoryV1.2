@@ -1,17 +1,78 @@
-<!-- Apply to ALL pages via Insert Headers and Footers plugin Scripts in Header, or via GTM Custom HTML tag fired on All Pages trigger -->
+<!--
+  FILE: global-schema.html
+  PURPOSE: Global structured data (JSON-LD) applied to every page of shesaidsail.com
+  PAGE URL: All pages (sitewide)
+  DEPLOYMENT: Paste into the Scripts in Header field of the Insert Headers and Footers plugin,
+              OR fire as a Custom HTML tag in GTM on an All Pages trigger.
+  LAST UPDATED: 2026-05-18
 
-<!-- LocalBusiness Schema -->
+  UPDATE CHECKLIST BEFORE GO-LIVE:
+    1. Replace +13051234567 with the real business phone number.
+    2. Replace UPDATE_WITH_INSTAGRAM_URL and UPDATE_WITH_TIKTOK_URL with real profile URLs.
+    3. Replace all image paths (logo, hero images) with final uploaded CDN or WordPress paths.
+    4. Confirm postalCode 33132 is the correct primary business ZIP code.
+    5. Add real Facebook URL to sameAs if applicable.
+-->
+
+
+<!-- =============================================================
+     SCHEMA BLOCK 1: Organization + LocalBusiness
+     =============================================================
+     WHAT THIS DOES:
+       Declares She Said Sail as a structured entity to all search engines and AI systems.
+       The dual @type array signals both a local place of business AND a tourism information
+       resource, broadening the entity surface area in knowledge graphs.
+       The @id URI acts as the canonical entity identifier referenced by all other schemas
+       on the site, creating a coherent entity graph.
+       knowsAbout signals topical authority to AI assistants (ChatGPT, Perplexity, Gemini)
+       so the brand appears in relevant conversational queries.
+       hasOfferCatalog exposes all four experiences as named, structured offers.
+       serviceArea with GeoCircle covers the full Miami and Fort Lauderdale operating region.
+
+     AI SYSTEMS HELPED:
+       Google Search Knowledge Panel, Google AI Overviews, Bing Copilot, ChatGPT Browse,
+       Perplexity, Gemini, Apple Maps, structured entity extraction.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       - telephone: replace placeholder
+       - sameAs: replace placeholder URLs
+       - image array: replace all placeholder image paths
+       - logo: replace placeholder path
+-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@type": ["LocalBusiness", "TouristInformationCenter"],
+  "@id": "https://shesaidsail.com/#organization",
   "name": "She Said Sail",
-  "description": "Private yacht experiences in Miami designed for women-led celebrations. Starting from $10,000.",
+  "description": "Private luxury yacht charter company in Miami and Fort Lauderdale, offering curated experiences designed for women-led celebrations. Starting from $10,000.",
   "url": "https://shesaidsail.com",
-  "logo": "https://shesaidsail.com/wp-content/uploads/she-said-sail-logo.png",
-  "image": "https://shesaidsail.com/wp-content/uploads/hero-yacht-golden-hour.jpg",
+  "foundingDate": "2022",
+  "priceRange": "From $10,000",
   "telephone": "+13051234567",
   "email": "hello@shesaidsail.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://shesaidsail.com/wp-content/uploads/she-said-sail-logo.png",
+    "caption": "She Said Sail logo"
+  },
+  "image": [
+    {
+      "@type": "ImageObject",
+      "url": "https://shesaidsail.com/wp-content/uploads/she-said-sail-hero-yacht.jpg",
+      "caption": "Private luxury yacht on Biscayne Bay, Miami"
+    },
+    {
+      "@type": "ImageObject",
+      "url": "https://shesaidsail.com/wp-content/uploads/golden-hour-escape-og-hero.jpg",
+      "caption": "Golden hour sunset view from a She Said Sail private yacht charter"
+    },
+    {
+      "@type": "ImageObject",
+      "url": "https://shesaidsail.com/wp-content/uploads/monaco-social-hero.jpg",
+      "caption": "Monaco Social champagne celebration aboard a She Said Sail private yacht"
+    }
+  ],
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Miami",
@@ -20,11 +81,75 @@
     "addressCountry": "US"
   },
   "areaServed": [
-    "Miami",
-    "Fort Lauderdale",
-    "Biscayne Bay"
+    {
+      "@type": "City",
+      "name": "Miami",
+      "sameAs": "https://www.wikidata.org/wiki/Q8646"
+    },
+    {
+      "@type": "City",
+      "name": "Fort Lauderdale",
+      "sameAs": "https://www.wikidata.org/wiki/Q208131"
+    },
+    {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.7617,
+        "longitude": -80.1918
+      },
+      "geoRadius": "80000"
+    }
   ],
-  "priceRange": "From $10000",
+  "serviceArea": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 25.7617,
+      "longitude": -80.1918
+    },
+    "geoRadius": "80000"
+  },
+  "knowsAbout": [
+    "luxury yacht charters",
+    "bachelorette party planning Miami",
+    "women-led group experiences",
+    "private yacht experiences Miami",
+    "milestone celebration planning",
+    "private boat charters Fort Lauderdale",
+    "birthday yacht parties Miami",
+    "sunset yacht cruises Miami"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "She Said Sail Experiences",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Monaco Social",
+        "description": "Champagne-led yacht experience in Miami for birthdays and elevated groups. Up to 15 guests.",
+        "url": "https://shesaidsail.com/experience/monaco-social/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Golden Hour Escape",
+        "description": "Private sunset yacht charter for intimate milestones, anniversaries, and small celebrations. Up to 12 guests.",
+        "url": "https://shesaidsail.com/experience/golden-hour-escape/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Rose Day Club",
+        "description": "Relaxed afternoon yacht charter for girls trips, social afternoons, and birthdays. Up to 15 guests.",
+        "url": "https://shesaidsail.com/experience/rose-day-club/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pink Palm Club",
+        "description": "High-energy bachelorette and group yacht charter with Miami skyline views. Up to 22 guests.",
+        "url": "https://shesaidsail.com/experience/pink-palm-club/"
+      }
+    ]
+  },
   "openingHoursSpecification": {
     "@type": "OpeningHoursSpecification",
     "dayOfWeek": [
@@ -41,17 +166,72 @@
   },
   "sameAs": [
     "UPDATE_WITH_INSTAGRAM_URL",
-    "UPDATE_WITH_TIKTOK_URL",
-    "UPDATE_WITH_FACEBOOK_URL"
+    "UPDATE_WITH_TIKTOK_URL"
   ]
 }
 </script>
 
 <!-- UPDATE REQUIRED: Replace +13051234567 with the real business phone number before going live -->
-<!-- UPDATE REQUIRED: Replace sameAs URLs above with real social media profile URLs before going live -->
-<!-- UPDATE REQUIRED: Replace logo and image paths with final uploaded file paths before going live -->
+<!-- UPDATE REQUIRED: Replace UPDATE_WITH_INSTAGRAM_URL and UPDATE_WITH_TIKTOK_URL with real social profile URLs -->
+<!-- UPDATE REQUIRED: Replace all image URL placeholders with final uploaded file paths -->
 
-<!-- BreadcrumbList Schema: Homepage -->
+
+<!-- =============================================================
+     SCHEMA BLOCK 2: WebSite
+     =============================================================
+     WHAT THIS DOES:
+       Declares the website as a named entity linked to the Organization via @id reference.
+       The SearchAction potentialAction enables Google Sitelinks Searchbox in search results,
+       allowing users to search the site directly from the SERP.
+       The publisher reference ties the site entity back to the Organization entity,
+       strengthening the knowledge graph connection.
+
+     AI SYSTEMS HELPED:
+       Google Sitelinks Searchbox, Google Search entity linking, Bing entity graph,
+       structured entity extraction for AI answer engines.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       None required. The query-input target URL can be updated if a site search
+       feature is added (e.g., ?s={search_term_string} for WordPress default search).
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://shesaidsail.com/#website",
+  "name": "She Said Sail",
+  "url": "https://shesaidsail.com",
+  "description": "Private luxury yacht charter experiences in Miami and Fort Lauderdale, designed for women-led celebrations.",
+  "publisher": {
+    "@id": "https://shesaidsail.com/#organization"
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://shesaidsail.com/?s={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+
+<!-- =============================================================
+     SCHEMA BLOCK 3: BreadcrumbList (Homepage)
+     =============================================================
+     WHAT THIS DOES:
+       Provides Google and AI systems with a canonical breadcrumb path for the homepage.
+       Breadcrumb schemas improve SERP display and help AI answer engines understand
+       site hierarchy when answering navigational queries.
+       Each page-level metadata file adds its own breadcrumb extending this root path.
+
+     AI SYSTEMS HELPED:
+       Google breadcrumb rich results, Bing breadcrumb display, AI navigation understanding.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       None required for this block.
+-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

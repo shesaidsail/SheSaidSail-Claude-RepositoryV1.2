@@ -3,49 +3,198 @@
   PAGE: /about/
   PURPOSE: All meta tags, Open Graph, Twitter Card, canonical, and JSON-LD
            for the She Said Sail About page.
-  Paste this block inside the <head> of the About page template.
+  PAGE URL: https://shesaidsail.com/about/
+  DEPLOYMENT: Paste this block inside the <head> of the About page template via Yoast SEO
+              custom fields (preferred), or Insert Headers and Footers scoped to this URL.
+  LAST UPDATED: 2026-05-18
+
+  UPDATE CHECKLIST BEFORE GO-LIVE:
+    1. Replace og:image and twitter:image with the final uploaded About page brand photo.
+    2. Replace sameAs URLs if social profile URLs have changed.
+    3. Replace telephone placeholder with the real business phone number.
 -->
 
-<!-- Primary Meta -->
+
+<!-- =============================================================
+     PRIMARY META
+     ============================================================= -->
+
 <title>About She Said Sail | Private Yacht Experiences in Miami</title>
 <meta name="description" content="She Said Sail is a private yacht charter company in Miami built for women-led celebrations. Learn the story behind the experiences.">
 
-<!-- Canonical -->
 <link rel="canonical" href="https://shesaidsail.com/about/">
 
-<!-- Open Graph -->
+
+<!-- =============================================================
+     OPEN GRAPH
+     ============================================================= -->
+
 <meta property="og:type"        content="website">
 <meta property="og:site_name"   content="She Said Sail">
 <meta property="og:locale"      content="en_US">
 <meta property="og:url"         content="https://shesaidsail.com/about/">
 <meta property="og:title"       content="About She Said Sail | Private Yacht Experiences in Miami">
 <meta property="og:description" content="She Said Sail is a private yacht charter company in Miami built for women-led celebrations. Learn the story behind the experiences.">
-<!-- Replace with 1200x630 brand photo -->
+<!-- Replace with 1200x630 brand photo before go-live -->
 <meta property="og:image"       content="https://shesaidsail.com/wp-content/uploads/og-about.jpg">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"    content="She Said Sail founders and team, private yacht charter company in Miami">
 
-<!-- Twitter Card -->
+
+<!-- =============================================================
+     TWITTER CARD
+     ============================================================= -->
+
 <meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="About She Said Sail | Private Yacht Experiences in Miami">
 <meta name="twitter:description" content="She Said Sail is a private yacht charter company in Miami built for women-led celebrations. Learn the story behind the experiences.">
-<!-- Replace with 1200x630 brand photo, same asset as OG image is acceptable -->
+<!-- Replace with 1200x630 brand photo (same asset as OG image is acceptable) -->
 <meta name="twitter:image"       content="https://shesaidsail.com/wp-content/uploads/og-about.jpg">
+<meta name="twitter:image:alt"   content="She Said Sail founders and team, private yacht charter company in Miami">
 
-<!-- JSON-LD: Organization -->
+
+<!-- =============================================================
+     JSON-LD BLOCK 1: Organization
+     =============================================================
+     WHAT THIS DOES:
+       Declares the full Organization entity on the About page, which is the most
+       appropriate page for detailed brand entity information. The @id matches the
+       global-schema.html entity identifier, telling search engines and AI systems
+       this is the same entity described sitewide.
+       foundingDate helps establish brand timeline in knowledge graphs.
+       knowsAbout signals topical authority to AI assistants so the brand surfaces
+       in relevant conversational queries even when the site is not cited directly.
+       hasOfferCatalog exposes all four experiences from the About page context,
+       reinforcing the entity-to-service connections.
+
+     AI SYSTEMS HELPED:
+       Google Knowledge Panel, Google AI Overviews, Bing Copilot, ChatGPT Browse,
+       Perplexity, Gemini, Apple Maps entity extraction.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       - Replace telephone placeholder with real number.
+       - Replace sameAs URLs with final social profile URLs.
+       - Replace logo and image paths with final uploaded file paths.
+-->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": ["Organization", "LocalBusiness"],
+  "@id": "https://shesaidsail.com/#organization",
   "name": "She Said Sail",
   "url": "https://shesaidsail.com",
-  "description": "Private yacht charter company in Miami offering curated experiences for women-led celebrations.",
+  "foundingDate": "2022",
+  "description": "Private yacht charter company in Miami and Fort Lauderdale offering curated experiences for women-led celebrations. Founded to create elevated, intentional moments on the water.",
+  "telephone": "+13051234567",
+  "email": "hello@shesaidsail.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://shesaidsail.com/wp-content/uploads/she-said-sail-logo.png",
+    "caption": "She Said Sail logo"
+  },
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://shesaidsail.com/wp-content/uploads/og-about.jpg",
+    "caption": "She Said Sail team and brand"
+  },
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Miami",
     "addressRegion": "FL",
+    "postalCode": "33132",
     "addressCountry": "US"
   },
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Miami"
+    },
+    {
+      "@type": "City",
+      "name": "Fort Lauderdale"
+    }
+  ],
+  "knowsAbout": [
+    "luxury yacht charters",
+    "bachelorette party planning Miami",
+    "women-led group experiences",
+    "private yacht experiences Miami",
+    "milestone celebration planning",
+    "private boat charters Fort Lauderdale",
+    "birthday yacht parties Miami",
+    "sunset yacht cruises Miami"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "She Said Sail Experiences",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Monaco Social",
+        "description": "Champagne-led yacht experience in Miami for birthdays and elevated groups. Up to 15 guests.",
+        "url": "https://shesaidsail.com/experience/monaco-social/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Golden Hour Escape",
+        "description": "Private sunset yacht charter for intimate milestones, anniversaries, and small celebrations. Up to 12 guests.",
+        "url": "https://shesaidsail.com/experience/golden-hour-escape/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Rose Day Club",
+        "description": "Relaxed afternoon yacht charter for girls trips, social afternoons, and birthdays. Up to 15 guests.",
+        "url": "https://shesaidsail.com/experience/rose-day-club/"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pink Palm Club",
+        "description": "High-energy bachelorette and group yacht charter with Miami skyline views. Up to 22 guests.",
+        "url": "https://shesaidsail.com/experience/pink-palm-club/"
+      }
+    ]
+  },
   "sameAs": [
-    "https://www.instagram.com/shesaidsail/"
+    "UPDATE_WITH_INSTAGRAM_URL",
+    "UPDATE_WITH_TIKTOK_URL"
+  ]
+}
+</script>
+
+
+<!-- =============================================================
+     JSON-LD BLOCK 2: BreadcrumbList
+     =============================================================
+     WHAT THIS DOES:
+       Provides the SERP breadcrumb trail for the About page.
+       Breadcrumbs help Google display the page's position in site hierarchy
+       directly in search results, improving click-through rates.
+       The two-level path (Home, About) matches the expected navigation pattern.
+
+     AI SYSTEMS HELPED:
+       Google breadcrumb rich results, Bing breadcrumb display, AI navigation understanding.
+
+     FIELDS TO UPDATE BEFORE GO-LIVE:
+       None required for this block.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://shesaidsail.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "About",
+      "item": "https://shesaidsail.com/about/"
+    }
   ]
 }
 </script>

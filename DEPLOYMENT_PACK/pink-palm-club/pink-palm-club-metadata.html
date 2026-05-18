@@ -1,0 +1,222 @@
+<!--
+  SHE SAID SAIL
+  Pink Palm Club Experience Page
+  SEO Metadata + Open Graph + Twitter Cards
+  Version: 1.0 | May 2026
+
+  IMPLEMENTATION INSTRUCTIONS:
+  Apply in Webflow: Page Settings > SEO Settings and Custom Code > Head
+  Replace [ACTUAL_IMAGE_URL] with the full absolute URL of the hero image (1200x630 cropped version)
+  Replace [CANONICAL_URL] with the production canonical URL (confirm with Will)
+  Review all meta descriptions annually for relevance and freshness
+-->
+
+<!-- ============================================================
+     PRIMARY SEO META TAGS
+     Add in Webflow Page Settings > SEO tab
+     ============================================================ -->
+
+<!--
+  PAGE TITLE (max 60 characters):
+  Pink Palm Club | Private Yacht Experience | She Said Sail
+
+  META DESCRIPTION (130-160 characters):
+  Private yacht charter in Fort Lauderdale for bachelorettes, birthdays, and girls trips. Up to 13 guests. Everything included. Inquiry in under 2 minutes.
+-->
+
+
+<!-- ============================================================
+     OPEN GRAPH TAGS
+     Add in Webflow Page Settings > Custom Code > Head
+     ============================================================ -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="She Said Sail">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://shesaidsail.com/experience/pink-palm-club/">
+<meta property="og:title" content="Pink Palm Club | Private Yacht Experience | She Said Sail">
+<meta property="og:description" content="Private yacht charter in Fort Lauderdale for bachelorettes, birthdays, and girls trips. Up to 13 guests. Captain, crew, and everything included. Inquire today.">
+<meta property="og:image" content="[ACTUAL_IMAGE_URL]">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Group of women celebrating on a private yacht, Fort Lauderdale, She Said Sail Pink Palm Club">
+
+
+<!-- ============================================================
+     TWITTER / X CARD TAGS
+     ============================================================ -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@shesaidsail">
+<meta name="twitter:title" content="Pink Palm Club | Private Yacht Experience | She Said Sail">
+<meta name="twitter:description" content="Private yacht charter for bachelorettes, birthdays, and girls trips in Fort Lauderdale. Up to 13 guests. Everything handled.">
+<meta name="twitter:image" content="[ACTUAL_IMAGE_URL]">
+<meta name="twitter:image:alt" content="Private yacht experience in Fort Lauderdale, She Said Sail Pink Palm Club">
+
+
+<!-- ============================================================
+     CANONICAL URL
+     ============================================================ -->
+<link rel="canonical" href="https://shesaidsail.com/experience/pink-palm-club/">
+
+
+<!-- ============================================================
+     STRUCTURED DATA (JSON-LD)
+     Add in Webflow Page Settings > Custom Code > Head
+     Helps Google understand the product and location context
+     ============================================================ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Pink Palm Club",
+  "description": "Private yacht charter experience for bachelorettes, birthdays, and girls trips in Fort Lauderdale, Florida. Up to 13 guests. Captain, crew, and all amenities included.",
+  "brand": {
+    "@type": "Brand",
+    "name": "She Said Sail"
+  },
+  "url": "https://shesaidsail.com/experience/pink-palm-club/",
+  "image": "[ACTUAL_IMAGE_URL]",
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "USD",
+    "price": "1200",
+    "availability": "https://schema.org/InStock",
+    "url": "https://shesaidsail.com/experience/pink-palm-club/",
+    "seller": {
+      "@type": "Organization",
+      "name": "She Said Sail",
+      "telephone": "+17547012228",
+      "email": "hello@shesaidsail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1314 East Las Olas Blvd #2597",
+        "addressLocality": "Fort Lauderdale",
+        "addressRegion": "FL",
+        "postalCode": "33301",
+        "addressCountry": "US"
+      }
+    }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5",
+    "reviewCount": "47",
+    "bestRating": "5",
+    "worstRating": "1"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "She Said Sail",
+  "image": "[ACTUAL_IMAGE_URL]",
+  "@id": "https://shesaidsail.com",
+  "url": "https://shesaidsail.com",
+  "telephone": "+17547012228",
+  "email": "hello@shesaidsail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "1314 East Las Olas Blvd #2597",
+    "addressLocality": "Fort Lauderdale",
+    "addressRegion": "FL",
+    "postalCode": "33301",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 26.1224,
+    "longitude": -80.1373
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "17:00"
+    }
+  ],
+  "sameAs": [
+    "https://www.instagram.com/shesaidsail/",
+    "https://www.tiktok.com/@shesaidsail"
+  ]
+}
+</script>
+
+
+<!-- ============================================================
+     HERO IMAGE PRELOAD
+     Preload the hero image for faster LCP
+     Replace [HERO_WEBP_URL] with actual hero image URL
+     ============================================================ -->
+<link
+  rel="preload"
+  as="image"
+  href="/assets/images/pink-palm-club-hero.webp"
+  type="image/webp"
+  fetchpriority="high"
+>
+
+
+<!-- ============================================================
+     HEADING HIERARCHY REFERENCE (for Webflow implementation)
+     This is documentation only, not live code.
+
+     H1 (one only): "Your crew. Open water. Everything already handled."
+          > Located in hero section
+          > CSS class: ppc-hero__headline
+          > Must be the only H1 on the page
+
+     H2 (major sections):
+          > "Not a boat trip. A full afternoon designed around you." (intro)
+          > "Everything that makes the day run smoothly." (details)
+          > "Optional add-ons for the day." (add-ons)
+          > "The kind of day they still talk about." (social proof)
+          > "Availability goes fast in the season." (CTA section)
+          > "Tell us about your group." (form)
+
+     H3 (cards and sub-elements):
+          > Add-on card names (Charcuterie Board, etc.)
+          > Success state heading
+
+     Never use H1 more than once.
+     Never skip from H2 to H4.
+     Eyebrow labels are span elements, not headings.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     KEYWORD NOTES (for Webflow SEO settings)
+
+     Primary keyword: "private yacht Fort Lauderdale"
+     Secondary keywords:
+       - bachelorette yacht Fort Lauderdale
+       - yacht charter Fort Lauderdale girls trip
+       - birthday boat rental Fort Lauderdale
+       - private boat charter Fort Lauderdale women
+       - Pink Palm Club She Said Sail
+
+     Do not keyword-stuff. Copy is written for humans.
+     Keywords appear naturally in headings, body, and metadata.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     ALT TEXT REFERENCE
+
+     Hero image:
+     "Group of women celebrating on a private yacht in Fort Lauderdale, golden afternoon light, calm water"
+
+     Details section image:
+     "Guests relaxing on the private yacht deck with drinks, afternoon sun on the water"
+
+     Any additional lifestyle images should follow this pattern:
+     [What is happening] + [Who] + [Setting/mood detail]
+
+     Never use:
+     - "image of..."
+     - "photo of..."
+     - Generic filenames as alt text
+     - Empty alt text on informational images
+     ============================================================ -->

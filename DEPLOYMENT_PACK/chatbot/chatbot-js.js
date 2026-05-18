@@ -450,8 +450,8 @@
 
   function startOpener() {
     setState(STATE_OPENER);
-    dlPush('chatbot_open');
-    dlPush('chatbot_start_conversation');
+    dlPush('chatbot_open', { page_location: window.location.href });
+    dlPush('chatbot_start_conversation', { page_location: window.location.href });
     addBotMessage('Hi there. What kind of day are you planning for your group?', function () {
       showQuickReplies([
         'Bachelorette party',
@@ -951,6 +951,16 @@
         finishHandoff(text);
         return;
       }
+
+      if (prev === 'out_of_scope') {
+        if (/yes|connect|sure|reach out/.test(lower)) {
+          jumpToNameCapture();
+        } else {
+          addBotMessage('No problem. Feel free to browse at your own pace at shesaidsail.com/experiences/');
+          setState(STATE_CLOSED);
+        }
+        return;
+      }
     }
 
     // State-based routing (for quick replies that do not set awaitingInput)
@@ -1028,10 +1038,10 @@
     isOpen = true;
 
     panel.classList.remove('sss-chat-closed');
+    panel.setAttribute('aria-modal', 'true');
     widget.classList.add('sss-widget-open');
     toggle.setAttribute('aria-expanded', 'true');
 
-    // Accessibility: focus the input
     setTimeout(function () {
       if (inputEl && !inputEl.disabled) { inputEl.focus(); }
     }, 350);
@@ -1048,6 +1058,7 @@
     isOpen = false;
 
     panel.classList.add('sss-chat-closed');
+    panel.setAttribute('aria-modal', 'false');
     widget.classList.remove('sss-widget-open');
     toggle.setAttribute('aria-expanded', 'false');
 
@@ -1076,23 +1087,19 @@
     if (!inputEl) { return; }
     inputEl.addEventListener('focus', function () {
       if (window.innerWidth > 767) { return; }
-      // Delay to allow keyboard to appear
-      setTimeout(function () {
-        scrollToBottom();
-      }, 400);
+      setTimeout(scrollToBottom, 400);
     });
 
-    // iOS: listen for viewport resize (keyboard appearance)
     var lastHeight = window.innerHeight;
-    window.addEventListener('resize', function () {
+    function onResize() {
       if (window.innerWidth > 767) { return; }
       var newHeight = window.innerHeight;
-      if (newHeight < lastHeight - 100) {
-        // Keyboard opened
+      if (newHeight < lastHeight - 100 && isOpen) {
         scrollToBottom();
       }
       lastHeight = newHeight;
-    });
+    }
+    window.addEventListener('resize', onResize, { passive: true });
   }
 
   // ============================================================
@@ -1100,25 +1107,26 @@
   // ============================================================
 
   function setupAutoTrigger() {
-    // Do not auto-trigger on mobile
     if (window.innerWidth <= 767) { return; }
 
-    // Do not re-trigger if already done this session
     try {
       if (sessionStorage.getItem('sss_chat_triggered')) { return; }
     } catch (e) {}
 
-    // Do not auto-trigger on request-to-book page
     var path = window.location.pathname;
     if (/\/request-to-book/i.test(path)) { return; }
 
-    var delay = 60000; // homepage default
-    if (/\/experience/i.test(path)) {
-      delay = 45000;
-    }
+    var delay = 60000;
+    if (/\/experience/i.test(path)) { delay = 45000; }
 
     var triggered = false;
     var triggerTimer = null;
+
+    function cleanup() {
+      window.removeEventListener('scroll', onActivity);
+      window.removeEventListener('mousemove', onActivity);
+      if (triggerTimer) { clearTimeout(triggerTimer); triggerTimer = null; }
+    }
 
     function onActivity() {
       if (triggered) { return; }
@@ -1127,8 +1135,7 @@
           if (triggered) { return; }
           triggered = true;
           try { sessionStorage.setItem('sss_chat_triggered', '1'); } catch (e) {}
-          window.removeEventListener('scroll', onActivity);
-          window.removeEventListener('mousemove', onActivity);
+          cleanup();
           openWidget();
         }, delay);
       }
@@ -1136,6 +1143,8 @@
 
     window.addEventListener('scroll', onActivity, { passive: true });
     window.addEventListener('mousemove', onActivity, { passive: true });
+
+    window.addEventListener('pagehide', cleanup, { once: true });
   }
 
   // ============================================================

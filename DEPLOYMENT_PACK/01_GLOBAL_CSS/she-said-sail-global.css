@@ -46,7 +46,7 @@
   --font-accent:    "Playfair Display", serif;
 
   --ease-luxury:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-slow:   0.65s var(--ease-luxury);
+  --transition-slow:   0.55s var(--ease-luxury);
   --transition-base:   0.35s var(--ease-luxury);
   --transition-fast:   0.2s var(--ease-luxury);
 }
@@ -58,6 +58,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 a {
@@ -243,12 +244,14 @@ a {
   border: 1px solid rgba(218, 185, 126, 0.1);
   transition: transform var(--transition-slow), box-shadow var(--transition-slow) !important;
   background-color: #ffffff !important;
+  will-change: transform;
 }
 
 .elementor-6715 .elementor-element-f84aeeb:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.09) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.09) !important;
   border-color: rgba(218, 185, 126, 0.28);
+  will-change: auto;
 }
 
 /* Card image */
@@ -256,7 +259,7 @@ a {
   height: 272px !important;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.85s var(--ease-luxury) !important;
+  transition: transform var(--transition-slow) !important;
   border-radius: 8px 8px 0 0 !important;
 }
 
@@ -324,6 +327,7 @@ a {
   padding: 96px 40px;
   position: relative;
   overflow: hidden;
+  contain: layout style;
 }
 
 .sss-social-proof::before,
@@ -800,16 +804,32 @@ a {
   opacity: 0;
   transform: translateY(18px);
   transition: opacity 0.75s var(--ease-luxury), transform 0.75s var(--ease-luxury);
+  will-change: transform, opacity;
 }
 
 .sss-reveal.sss-revealed {
   opacity: 1;
   transform: translateY(0);
+  will-change: auto;
 }
 
 .sss-reveal-delay-1 { transition-delay: 0.1s; }
 .sss-reveal-delay-2 { transition-delay: 0.22s; }
 .sss-reveal-delay-3 { transition-delay: 0.36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sss-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+  .sss-reveal-delay-1,
+  .sss-reveal-delay-2,
+  .sss-reveal-delay-3 {
+    transition-delay: 0s;
+  }
+}
 
 
 /* ---- OCCASION PILLS ---- */
@@ -888,18 +908,6 @@ a {
 /* Remove default focus ring only when :focus-visible is supported */
 :focus:not(:focus-visible) {
   outline: none;
-}
-
-/* Focus visible states: applied to interactive elements using .sss-* classes */
-.sss-occasion-pill:focus-visible,
-.sss-filter-pill:focus-visible,
-.sss-trust-item a:focus-visible,
-.sss-email-form input[type="email"]:focus-visible,
-.sss-email-form button:focus-visible,
-.sss-rtb-submit:focus-visible,
-.sss-quote-card:focus-visible {
-  outline: 2px solid var(--sss-gold);
-  outline-offset: 3px;
 }
 
 
@@ -1018,6 +1026,51 @@ a {
   color: var(--sss-muted);
 }
 
+/* Concierge numbered steps */
+.sss-concierge-steps {
+  list-style: none;
+  padding: 0;
+  margin: 28px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.sss-concierge-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.sss-concierge-step-number {
+  font-family: var(--font-editorial);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--sss-gold);
+  letter-spacing: 0.08em;
+  min-width: 24px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.sss-concierge-step-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--sss-muted);
+  margin: 0;
+}
+
+.sss-concierge-footer-note {
+  font-family: var(--font-editorial);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--sss-navy);
+  margin-top: 8px;
+  opacity: 0.75;
+}
+
 /* Form intro section: centered body copy above the form card */
 .sss-form-intro {
   max-width: 560px;
@@ -1133,6 +1186,30 @@ a {
   max-width: 680px;
   margin: 0 auto;
   line-height: 1.6;
+}
+
+/* Shared gold CTA button: use for anchor links acting as primary CTAs in custom HTML sections */
+.sss-cta-btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 17px 36px;
+  border-radius: 3px;
+  background-color: var(--sss-gold);
+  color: var(--sss-navy);
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: all var(--transition-base);
+  margin-top: 28px;
+}
+
+.sss-cta-btn:hover,
+.sss-cta-btn:focus {
+  background-color: var(--sss-navy);
+  color: var(--sss-cream);
 }
 
 /* Thank you confirmation message shown after successful submission */
@@ -1345,6 +1422,13 @@ a {
     gap: 6px;
   }
 
+  .sss-occasion-pill {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* Social proof */
   .sss-quotes-grid {
     grid-template-columns: 1fr;
@@ -1530,5 +1614,27 @@ a {
   .sss-quote-card,
   .elementor-6715 .elementor-element-f84aeeb {
     page-break-inside: avoid;
+  }
+}
+
+
+/* ---- REDUCED MOTION ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .elementor-6715 .elementor-element-f84aeeb {
+    will-change: auto;
+  }
+
+  .elementor-6715 .elementor-element-f2784a2 img {
+    transition: none !important;
   }
 }

@@ -16,7 +16,7 @@
  *      Page views: view_homepage, view_request_page, view_experiences_page, view_experience_page
  *      CTA clicks: click_request_to_book, click_explore_experiences, click_experience_card
  *      Forms: start_booking_form, submit_booking_form, submit_email_capture
- *      Engagement: click_phone, open_chat, view_about_page, view_contact_page, view_faq_page, view_journal_page, view_thank_you_page, scroll_50_percent, scroll_90_percent
+ *      Engagement: click_phone, view_about_page, view_contact_page, view_faq_page, view_journal_page, view_thank_you_page, scroll_50_percent, scroll_90_percent
  */
 
 (function () {
@@ -612,9 +612,10 @@
 
     /* ----------------------------------------------------------
        g. CLICK_EXPLORE_EXPERIENCES
-       Fires on any link to the /experiences/ page.
+       Fires on links that go to the /experiences/ index page.
+       Excludes links to individual experience subpages.
     ---------------------------------------------------------- */
-    document.querySelectorAll('a[href*="/experiences/"]').forEach(function (el) {
+    document.querySelectorAll('a[href$="/experiences/"], a[href="/experiences"]').forEach(function (el) {
       el.addEventListener('click', function () {
         dlPush('click_explore_experiences', {
           page_location: window.location.href
@@ -692,7 +693,7 @@
     if (emailForm) {
       emailForm.addEventListener('submit', function () {
         dlPush('submit_email_capture', {
-          form_location: window.location.href
+          page_location: window.location.href
         });
       });
     }
@@ -778,9 +779,7 @@
     var scroll50Fired = false;
     var scroll90Fired = false;
 
-    window.addEventListener('scroll', function () {
-      if (scroll50Fired && scroll90Fired) return;
-
+    function onScrollDepth() {
       var scrollTop    = document.documentElement.scrollTop || document.body.scrollTop || 0;
       var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (scrollHeight <= 0) return;
@@ -796,7 +795,13 @@
         scroll90Fired = true;
         dlPush('scroll_90_percent', { page_location: window.location.href });
       }
-    }, { passive: true });
+
+      if (scroll50Fired && scroll90Fired) {
+        window.removeEventListener('scroll', onScrollDepth);
+      }
+    }
+
+    window.addEventListener('scroll', onScrollDepth, { passive: true });
   }
 
 

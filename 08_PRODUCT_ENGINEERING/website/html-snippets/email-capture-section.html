@@ -1,0 +1,59 @@
+<!--
+  SHE SAID SAIL — EMAIL CAPTURE SECTION
+  Version: 2.0
+
+  Placement: Between the photo slideshow section and the
+  bottom navy CTA banner ("Step Into the Experience").
+
+  How to add in Elementor:
+  1. Open Elementor on the homepage
+  2. Find the spacer/slideshow section near the bottom
+  3. Below it, before the gold/navy CTA bar, add a new Container section (full width)
+  4. Inside, add an HTML widget
+  5. Paste this entire block
+  6. Wire the form action to your email platform (Klaviyo, Mailchimp,
+     ConvertKit, or a Make webhook — see custom-js/luxury-enhancements.js
+     for the fetch() call you need to configure)
+
+  Copy rationale:
+  "See what a fully curated day on the water actually looks like"
+  sells curiosity and access, not a newsletter. It is editorial,
+  not marketing funnel language.
+-->
+
+<section class="sss-email-capture" aria-label="Stay in touch">
+  <div class="sss-email-capture-inner">
+
+    <span class="sss-section-eyebrow">For the curious</span>
+
+    <h2 class="sss-email-heading sss-reveal">
+      See what a fully curated day<br>on the water actually looks like.
+    </h2>
+
+    <p class="sss-email-subtext sss-reveal sss-reveal-delay-1">
+      We share occasion planning ideas, a look inside our experiences,
+      and early access to new dates. No noise. Just the good stuff.
+    </p>
+
+    <form class="sss-email-form sss-reveal sss-reveal-delay-2"
+          aria-label="Email signup"
+          novalidate>
+      <input
+        type="email"
+        name="email"
+        placeholder="Your email address"
+        aria-label="Email address"
+        autocomplete="email"
+        required
+      />
+      <button type="submit" aria-label="Join the inside list">
+        Join
+      </button>
+    </form>
+
+    <p class="sss-email-privacy sss-reveal sss-reveal-delay-3">
+      No spam. Unsubscribe anytime. We treat your inbox the way we treat our guests.
+    </p>
+
+  </div>
+</section>

@@ -1,0 +1,556 @@
+<!--
+  She Said Sail — Rose Day Club
+  Full Page HTML Snippet
+  Version: 1.0
+
+  IMPLEMENTATION NOTES:
+  - This is a reference implementation for Webflow. Adapt to Webflow's native
+    component system where possible. Use custom code embeds for JS and
+    Webflow's style settings for layout. The CSS file handles most styling.
+  - Replace all [IMAGE_URL_*] placeholders with actual uploaded image URLs.
+  - The inquiry form section should be rebuilt in Webflow's native Form element
+    so submissions route correctly to Make.com via the Webflow webhook.
+  - Add class "rdc-page" to the Webflow body wrapper.
+-->
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="rdc-hero" aria-label="Rose Day Club hero">
+  <img
+    class="rdc-hero__bg"
+    src="[IMAGE_URL_HERO]"
+    alt="Women celebrating on a private yacht during a Rose Day Club experience in South Florida"
+    loading="eager"
+    fetchpriority="high"
+    width="1920"
+    height="1080"
+  >
+  <div class="rdc-hero__overlay" aria-hidden="true"></div>
+  <div class="rdc-hero__content">
+    <span class="rdc-hero__label">Fort Lauderdale &middot; Miami</span>
+    <h1 class="rdc-hero__headline">Sun on the water.<br>Rosé in hand.<br>Everything handled.</h1>
+    <p class="rdc-hero__sub">A full-day private yacht experience designed for the group who deserves it most.</p>
+    <div class="rdc-hero__cta-group">
+      <a href="#rdc-inquiry" class="rdc-btn rdc-btn--primary">Plan Your Day</a>
+      <a href="#rdc-inclusions" class="rdc-btn rdc-btn--ghost">What's Included</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     EDITORIAL INTRO
+     ============================================================ -->
+<section class="rdc-intro" aria-labelledby="rdc-intro-headline">
+  <div class="rdc-intro__inner">
+    <div class="rdc-divider" aria-hidden="true"></div>
+    <span class="rdc-label">The experience</span>
+    <h2 class="rdc-intro__headline" id="rdc-intro-headline">
+      The day is yours. We handle the rest.
+    </h2>
+    <p class="rdc-intro__body">
+      Rose Day Club is a full-day private yacht experience built around good company, warm water, and no agenda. Your group boards to a chilled setup of ros&eacute;, fresh provisions, and a curated soundtrack. The day unfolds at your pace.
+    </p>
+    <p class="rdc-intro__body">
+      Departing from Fort Lauderdale or Miami, every detail is arranged before you arrive. The captain handles the route. The crew handles the setup. You handle the memories.
+    </p>
+    <p class="rdc-intro__body">
+      Designed for bachelorettes, birthdays, girls trips, and any occasion that deserves a proper celebration on the water.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     DETAILS STRIP
+     ============================================================ -->
+<section class="rdc-details" aria-label="Experience details">
+  <div class="rdc-details__grid">
+    <div class="rdc-details__item rdc-reveal">
+      <span class="rdc-details__item-label">Duration</span>
+      <p class="rdc-details__item-value">Full Day</p>
+      <p class="rdc-details__item-sub">Typically 5&ndash;6 hours on water</p>
+    </div>
+    <div class="rdc-details__item rdc-reveal">
+      <span class="rdc-details__item-label">Group Size</span>
+      <p class="rdc-details__item-value">Up to 13</p>
+      <p class="rdc-details__item-sub">Private. Just your group.</p>
+    </div>
+    <div class="rdc-details__item rdc-reveal">
+      <span class="rdc-details__item-label">Departure</span>
+      <p class="rdc-details__item-value">Fort Lauderdale</p>
+      <p class="rdc-details__item-sub">Miami available on select dates</p>
+    </div>
+    <div class="rdc-details__item rdc-reveal">
+      <span class="rdc-details__item-label">Starting From</span>
+      <p class="rdc-details__item-value">Inquire</p>
+      <p class="rdc-details__item-sub">Custom pricing per group</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INCLUSIONS
+     ============================================================ -->
+<section class="rdc-inclusions" id="rdc-inclusions" aria-labelledby="rdc-inclusions-headline">
+  <div class="rdc-inclusions__inner">
+    <div>
+      <div class="rdc-divider rdc-divider--left" aria-hidden="true"></div>
+      <span class="rdc-label">What's included</span>
+      <h2 class="rdc-inclusions__headline" id="rdc-inclusions-headline">
+        Everything is already on board.
+      </h2>
+      <p class="rdc-inclusions__sub">
+        Rose Day Club is a complete experience. Nothing to coordinate, nothing to bring. Just show up.
+      </p>
+      <ul class="rdc-inclusions__list">
+        <li>Private yacht exclusively for your group</li>
+        <li>Ros&eacute; and premium bar setup</li>
+        <li>Fresh fruit and light provisions</li>
+        <li>Floating mat and water toys</li>
+        <li>Bluetooth speaker system and curated playlist</li>
+        <li>Dedicated captain and crew throughout</li>
+        <li>Sunscreen and towels on board</li>
+        <li>Custom route based on weather and preferences</li>
+        <li>Full concierge coordination before your day</li>
+      </ul>
+    </div>
+    <div>
+      <img
+        class="rdc-inclusions__image rdc-reveal"
+        src="[IMAGE_URL_INCLUSIONS]"
+        alt="Ros&eacute; and fresh fruit setup on the deck of a She Said Sail private yacht"
+        loading="lazy"
+        width="600"
+        height="500"
+      >
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     GALLERY
+     ============================================================ -->
+<section class="rdc-gallery" aria-label="Rose Day Club photo gallery">
+  <div class="rdc-gallery__header">
+    <div class="rdc-divider" aria-hidden="true"></div>
+    <span class="rdc-label">The atmosphere</span>
+    <h2 class="rdc-gallery__headline">What it actually looks like.</h2>
+  </div>
+  <div class="rdc-gallery__grid" role="list">
+    <div class="rdc-gallery__item rdc-gallery__item--tall" role="listitem">
+      <img
+        class="rdc-gallery__img"
+        src="[IMAGE_URL_GALLERY_1]"
+        alt="Group of women toasting with ros&eacute; on a private yacht in South Florida"
+        loading="lazy"
+        width="400"
+        height="560"
+      >
+    </div>
+    <div class="rdc-gallery__item" role="listitem">
+      <img
+        class="rdc-gallery__img"
+        src="[IMAGE_URL_GALLERY_2]"
+        alt="Women relaxing on the deck of a She Said Sail yacht in warm afternoon light"
+        loading="lazy"
+        width="400"
+        height="280"
+      >
+    </div>
+    <div class="rdc-gallery__item" role="listitem">
+      <img
+        class="rdc-gallery__img"
+        src="[IMAGE_URL_GALLERY_3]"
+        alt="Close-up of ros&eacute; glasses and fresh flowers arranged on the yacht deck"
+        loading="lazy"
+        width="400"
+        height="280"
+      >
+    </div>
+    <div class="rdc-gallery__item" role="listitem">
+      <img
+        class="rdc-gallery__img"
+        src="[IMAGE_URL_GALLERY_4]"
+        alt="Aerial view of a private yacht anchored in turquoise water near Fort Lauderdale"
+        loading="lazy"
+        width="400"
+        height="280"
+      >
+    </div>
+    <div class="rdc-gallery__item" role="listitem">
+      <img
+        class="rdc-gallery__img"
+        src="[IMAGE_URL_GALLERY_5]"
+        alt="Women laughing on the swim platform of a She Said Sail yacht"
+        loading="lazy"
+        width="400"
+        height="280"
+      >
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SOCIAL PROOF
+     ============================================================ -->
+<section class="rdc-social-proof" aria-labelledby="rdc-sp-headline">
+  <div class="rdc-social-proof__header">
+    <span class="rdc-social-proof__label">From the groups who came before</span>
+    <h2 class="rdc-social-proof__headline" id="rdc-sp-headline">
+      They said it better than we could.
+    </h2>
+  </div>
+  <div class="rdc-testimonials">
+    <div class="rdc-testimonial rdc-reveal">
+      <div class="rdc-testimonial__stars" aria-label="5 stars">
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <p class="rdc-testimonial__quote">"The whole day was taken care of. We just showed up and it was perfect. Our concierge answered every question before we even had it."</p>
+      <span class="rdc-testimonial__attribution">Jess &mdash; Bachelorette Party</span>
+    </div>
+    <div class="rdc-testimonial rdc-reveal">
+      <div class="rdc-testimonial__stars" aria-label="5 stars">
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <p class="rdc-testimonial__quote">"I've done boat days before. This was nothing like them. Everything felt intentional. The setup, the crew, the flow of the day. My girls are still talking about it."</p>
+      <span class="rdc-testimonial__attribution">Maya &mdash; Birthday Trip</span>
+    </div>
+    <div class="rdc-testimonial rdc-reveal">
+      <div class="rdc-testimonial__stars" aria-label="5 stars">
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="rdc-testimonial__star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <p class="rdc-testimonial__quote">"Booking was simple, communication was personal, and the day itself was beyond what I imagined. Worth every penny. Will be back next year."</p>
+      <span class="rdc-testimonial__attribution">Camille &mdash; Girls Trip</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INQUIRY FORM
+     ============================================================ -->
+<section class="rdc-inquiry" id="rdc-inquiry" aria-labelledby="rdc-inquiry-headline">
+  <div class="rdc-inquiry__inner">
+    <div class="rdc-divider" aria-hidden="true"></div>
+    <span class="rdc-label">Ready when you are</span>
+    <h2 class="rdc-inquiry__headline" id="rdc-inquiry-headline">
+      Tell us about your group.
+    </h2>
+    <p class="rdc-inquiry__sub">
+      No obligation. Just a conversation. We'll get back to you within one business day to discuss your date, your group, and everything in between.
+    </p>
+
+    <!--
+      WEBFLOW IMPLEMENTATION NOTE:
+      Replace this form with Webflow's native Form component.
+      Set the form name to "Rose Day Club Inquiry"
+      Set the success redirect or show success state in Webflow
+      Connect to Make.com SSS_LEAD_INTAKE_HOOK webhook
+      All field name attributes must match exactly as listed below
+    -->
+    <form class="rdc-form" id="rdc-inquiry-form" name="Rose Day Club Inquiry" novalidate>
+
+      <div class="rdc-form__row">
+        <div class="rdc-form__field">
+          <label class="rdc-form__label rdc-form__label--required" for="rdc-first-name">First name</label>
+          <input
+            class="rdc-form__input"
+            type="text"
+            id="rdc-first-name"
+            name="first_name"
+            placeholder="Your first name"
+            required
+            autocomplete="given-name"
+          >
+        </div>
+        <div class="rdc-form__field">
+          <label class="rdc-form__label rdc-form__label--required" for="rdc-last-name">Last name</label>
+          <input
+            class="rdc-form__input"
+            type="text"
+            id="rdc-last-name"
+            name="last_name"
+            placeholder="Your last name"
+            required
+            autocomplete="family-name"
+          >
+        </div>
+      </div>
+
+      <div class="rdc-form__row">
+        <div class="rdc-form__field">
+          <label class="rdc-form__label rdc-form__label--required" for="rdc-email">Email</label>
+          <input
+            class="rdc-form__input"
+            type="email"
+            id="rdc-email"
+            name="email"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+        <div class="rdc-form__field">
+          <label class="rdc-form__label" for="rdc-phone">Phone</label>
+          <input
+            class="rdc-form__input"
+            type="tel"
+            id="rdc-phone"
+            name="phone"
+            placeholder="(000) 000-0000"
+            autocomplete="tel"
+          >
+        </div>
+      </div>
+
+      <div class="rdc-form__row">
+        <div class="rdc-form__field">
+          <label class="rdc-form__label rdc-form__label--required" for="rdc-date">Preferred date</label>
+          <input
+            class="rdc-form__input"
+            type="date"
+            id="rdc-date"
+            name="preferred_date"
+            required
+          >
+        </div>
+        <div class="rdc-form__field">
+          <label class="rdc-form__label rdc-form__label--required" for="rdc-guests">Number of guests</label>
+          <input
+            class="rdc-form__input"
+            type="number"
+            id="rdc-guests"
+            name="guest_count"
+            placeholder="e.g. 10"
+            min="2"
+            max="13"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="rdc-form__field">
+        <label class="rdc-form__label rdc-form__label--required" for="rdc-occasion">Occasion</label>
+        <select class="rdc-form__select" id="rdc-occasion" name="occasion" required>
+          <option value="" disabled selected>Select your occasion</option>
+          <option value="Bachelorette">Bachelorette</option>
+          <option value="Birthday">Birthday</option>
+          <option value="Girls Trip">Girls Trip</option>
+          <option value="Anniversary">Anniversary</option>
+          <option value="Corporate">Corporate</option>
+          <option value="Other Celebration">Other Celebration</option>
+        </select>
+      </div>
+
+      <div class="rdc-form__field">
+        <label class="rdc-form__label" for="rdc-special-requests">Anything else we should know?</label>
+        <textarea
+          class="rdc-form__textarea"
+          id="rdc-special-requests"
+          name="special_requests"
+          placeholder="Add-ons, special moments, dietary notes, or anything you'd like us to know"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- Hidden Attribution Fields — populated by rose-day-club.js -->
+      <input type="hidden" name="experience" value="Rose Day Club">
+      <input type="hidden" name="source_url" value="">
+      <input type="hidden" name="utm_source" value="">
+      <input type="hidden" name="utm_medium" value="">
+      <input type="hidden" name="utm_campaign" value="">
+      <input type="hidden" name="utm_content" value="">
+      <input type="hidden" name="utm_term" value="">
+      <input type="hidden" name="page_name" value="rose-day-club">
+      <input type="hidden" name="brand" value="SSS">
+      <input type="hidden" name="city" value="Fort Lauderdale">
+
+      <div class="rdc-form__field">
+        <button type="submit" class="rdc-btn rdc-btn--primary rdc-form__submit">
+          Send Your Inquiry
+        </button>
+      </div>
+
+      <p class="rdc-form__reassurance">
+        No obligation. We respond within one business day.
+      </p>
+    </form>
+
+    <!-- Success state — shown after successful submission -->
+    <div class="rdc-form__success" id="rdc-form-success" aria-live="polite">
+      <div class="rdc-divider" aria-hidden="true"></div>
+      <h3 class="rdc-form__success-headline">We have your inquiry.</h3>
+      <p class="rdc-form__success-body">
+        Thank you for reaching out. You'll receive a confirmation email shortly, and a member of our team will be in touch within one business day. We can't wait to plan your day.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="rdc-faq" aria-labelledby="rdc-faq-headline">
+  <div class="rdc-faq__inner">
+    <div class="rdc-faq__header">
+      <div class="rdc-divider" aria-hidden="true"></div>
+      <span class="rdc-label">Good to know</span>
+      <h2 class="rdc-faq__headline" id="rdc-faq-headline">A few things we get asked.</h2>
+    </div>
+
+    <div class="rdc-accordion" role="list">
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-1">
+          <span class="rdc-accordion__question">What is the booking process?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-1">
+          <p class="rdc-accordion__answer">
+            Submit your inquiry here. One of our concierge team will reach out within one business day to confirm availability, walk through the details, and put together a proposal for your group. Once everything is confirmed, we collect a deposit to hold your date. The rest is handled from there.
+          </p>
+        </div>
+      </div>
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-2">
+          <span class="rdc-accordion__question">What happens if the weather is bad?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-2">
+          <p class="rdc-accordion__answer">
+            South Florida weather is unpredictable, but safety always comes first. We monitor conditions closely before every departure. If weather prevents the charter from going out, we work with you on a reschedule. Our team communicates early so your group is never left guessing.
+          </p>
+        </div>
+      </div>
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-3">
+          <span class="rdc-accordion__question">Can we bring our own food and drinks?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-3">
+          <p class="rdc-accordion__answer">
+            Rose Day Club includes a curated beverage and provision setup. You're also welcome to bring additional items. If you have specific requests, add-ons, or catering preferences, let your concierge know when you inquire and we'll arrange it in advance.
+          </p>
+        </div>
+      </div>
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-4">
+          <span class="rdc-accordion__question">What is your cancellation policy?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-4">
+          <p class="rdc-accordion__answer">
+            Our cancellation and rescheduling policy is outlined in your booking agreement. We understand plans change. When you reach out to inquire, your concierge will walk you through all terms clearly before anything is confirmed or charged.
+          </p>
+        </div>
+      </div>
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-5">
+          <span class="rdc-accordion__question">What should we bring?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-5">
+          <p class="rdc-accordion__answer">
+            Swimwear, a light cover-up, and whatever you want to wear for the day. Sunscreen and towels are on board. Your concierge will send a full preparation note before your charter so nothing is left to guess.
+          </p>
+        </div>
+      </div>
+
+      <div class="rdc-accordion__item" role="listitem">
+        <button class="rdc-accordion__trigger" aria-expanded="false" aria-controls="faq-6">
+          <span class="rdc-accordion__question">Is the yacht private or shared?</span>
+          <span class="rdc-accordion__icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="5" y1="1" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="1" y1="5" x2="9" y2="5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="rdc-accordion__body" id="faq-6">
+          <p class="rdc-accordion__answer">
+            Completely private. Rose Day Club is an exclusive charter for your group only. You have the full vessel, the crew, and the day to yourselves.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER CTA BAND
+     ============================================================ -->
+<section class="rdc-footer-cta" aria-labelledby="rdc-footer-cta-headline">
+  <div class="rdc-footer-cta__inner">
+    <div class="rdc-divider" aria-hidden="true"></div>
+    <h2 class="rdc-footer-cta__headline" id="rdc-footer-cta-headline">
+      Ready to make it happen?
+    </h2>
+    <p class="rdc-footer-cta__sub">
+      Your concierge is ready. Send an inquiry and we'll take it from there.
+    </p>
+    <a href="#rdc-inquiry" class="rdc-btn rdc-btn--ghost">Request Your Date</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     STICKY MOBILE CTA BAR
+     ============================================================ -->
+<div class="rdc-sticky-cta" role="complementary" aria-label="Quick booking bar">
+  <div class="rdc-sticky-cta__inner">
+    <div class="rdc-sticky-cta__text">
+      <strong>Rose Day Club</strong>
+      Private yacht &middot; Full day
+    </div>
+    <a href="#rdc-inquiry" class="rdc-sticky-cta__btn">Plan Your Day</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<!--
+  WEBFLOW IMPLEMENTATION NOTE:
+  Add rose-day-club.js to Webflow's custom code (before </body>) for this page.
+  GTM container tag should already be in the global site header.
+-->

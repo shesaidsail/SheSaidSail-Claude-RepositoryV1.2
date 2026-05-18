@@ -1,0 +1,1523 @@
+/* ============================================================
+   She Said Sail: Global Production CSS | Version 1.0
+   Apply via WordPress Appearance > Customize > Additional CSS
+
+   Brand: Emotionally elevated. Calm. Warm. Editorial.
+   Reference: Aman, Four Seasons, Soho House, Jacquemus.
+   The yacht is not the product. The feeling is the product.
+
+   Structure:
+   01. Design Tokens
+   02. Global Refinements
+   03. Navigation Polish
+   04. Hero Section
+   05. Section Label System
+   06. Experience Cards
+   07. Social Proof Strip
+   08. Not Just a Charter Section
+   09. Bottom CTA Banner
+   10. Email Capture Section
+   11. Footer Redesign
+   12. Scroll Reveal System
+   13. Occasion Pills
+   14. Global Component Refinements
+   15. Trust Strip
+   16. Request to Book Page
+   17. Experiences Page
+   18. Mobile and Tablet Responsive
+   19. Print Styles
+   ============================================================ */
+
+
+/* ---- DESIGN TOKENS ---- */
+
+:root {
+  --sss-navy:       #1A2332;
+  --sss-gold:       #DAB97E;
+  --sss-gold-deep:  #C9A96E;
+  --sss-cream:      #FAF8F3;
+  --sss-warm:       #F5F0E8;
+  --sss-text:       #2C2C2C;
+  --sss-muted:      rgba(44, 44, 44, 0.5);
+  --sss-border:     rgba(218, 185, 126, 0.22);
+
+  --font-editorial: "Cormorant Garamond", serif;
+  --font-body:      "Inter", sans-serif;
+  --font-accent:    "Playfair Display", serif;
+
+  --ease-luxury:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-slow:   0.65s var(--ease-luxury);
+  --transition-base:   0.35s var(--ease-luxury);
+  --transition-fast:   0.2s var(--ease-luxury);
+}
+
+
+/* ---- GLOBAL REFINEMENTS ---- */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  transition: color var(--transition-base), opacity var(--transition-base);
+}
+
+
+/* ---- NAVIGATION POLISH ---- */
+
+/* Sticky header: refined glass feel */
+.elementor-5919 .elementor-element-2defa08 {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  transition: box-shadow var(--transition-base);
+}
+
+/* Logo: proportionally refined */
+.elementor-5919 .elementor-element-0ce6f64 img {
+  width: 116px !important;
+  height: auto;
+  transition: opacity var(--transition-base);
+}
+
+.elementor-5919 .elementor-element-0ce6f64 img:hover {
+  opacity: 0.8;
+}
+
+/* Nav links */
+.elementor-5919 .elementor-nav-menu a.elementor-item {
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--sss-navy) !important;
+  transition: color var(--transition-base);
+  padding: 8px 14px;
+}
+
+.elementor-5919 .elementor-nav-menu a.elementor-item:hover,
+.elementor-5919 .elementor-nav-menu a.elementor-item-active {
+  color: var(--sss-gold-deep) !important;
+}
+
+/* Request to Book button in header */
+.elementor-5919 .elementor-element-d7a9c6f .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 12px 24px !important;
+  border-radius: 3px !important;
+  transition: all var(--transition-base) !important;
+}
+
+
+/* ---- HERO SECTION ---- */
+
+/* Reduce overlay: let photography breathe at 35% rather than 50% */
+.elementor-5928 .elementor-element-5345389::before,
+.elementor-5928 .elementor-element-5345389 > .elementor-background-slideshow::before,
+.elementor-5928 .elementor-element-5345389 > .e-con-inner > .elementor-background-slideshow::before {
+  background-color: var(--sss-navy) !important;
+  opacity: 0.36 !important;
+}
+
+/* Hero height: generous, cinematic */
+.elementor-5928 .elementor-element-5345389 {
+  --min-height: 88vh !important;
+  min-height: 88vh !important;
+}
+
+/* Hero headline: line 1 */
+.elementor-5928 .elementor-element-88c02a2 .elementor-heading-title {
+  font-family: var(--font-editorial) !important;
+  font-size: 82px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.015em;
+  line-height: 1.0;
+  color: var(--sss-cream) !important;
+  margin-bottom: 0 !important;
+}
+
+/* Hero headline: line 2 (italic, gold) */
+.elementor-5928 .elementor-element-9742d95 .elementor-heading-title {
+  font-family: var(--font-accent) !important;
+  font-size: 82px !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  line-height: 1.0;
+  color: var(--sss-gold) !important;
+  letter-spacing: -0.015em;
+  margin-top: 0 !important;
+}
+
+.elementor-5928 .elementor-element-9742d95 {
+  padding-top: 0 !important;
+  padding-bottom: 16px !important;
+}
+
+/* Hero subheadline */
+.elementor-5928 .elementor-element-452be80 {
+  font-size: 17px !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.02em;
+  line-height: 1.75;
+  color: rgba(250, 248, 243, 0.85) !important;
+  max-width: 460px;
+}
+
+/* Hero primary CTA */
+.elementor-5928 .elementor-element-93a3381 .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 17px 36px !important;
+  border-radius: 3px !important;
+  background-color: var(--sss-gold) !important;
+  color: var(--sss-navy) !important;
+  border: 1px solid transparent !important;
+  transition: all var(--transition-base) !important;
+}
+
+.elementor-5928 .elementor-element-93a3381 .elementor-button:hover,
+.elementor-5928 .elementor-element-93a3381 .elementor-button:focus {
+  background-color: transparent !important;
+  color: var(--sss-cream) !important;
+  border-color: rgba(250, 248, 243, 0.45) !important;
+}
+
+
+/* ---- SECTION LABEL SYSTEM ---- */
+
+/* Small uppercase eyebrow labels above headings */
+.elementor-5928 .elementor-element-892de33 p,
+.elementor-5928 .elementor-element-892de33,
+.elementor-5928 .elementor-element-7280208 {
+  font-family: var(--font-body) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase !important;
+  color: var(--sss-muted) !important;
+}
+
+/* Section dividers flanking labels */
+.elementor-5928 .elementor-element-df3f6f1 .elementor-divider-separator,
+.elementor-5928 .elementor-element-52bc724 .elementor-divider-separator {
+  border-color: var(--sss-gold) !important;
+  opacity: 0.55;
+}
+
+/* Main section headings */
+.elementor-5928 .elementor-element-3ad029d .elementor-heading-title,
+.elementor-5928 .elementor-element-e3f07d7 .elementor-heading-title {
+  font-family: var(--font-editorial) !important;
+  font-size: 46px !important;
+  font-weight: 400 !important;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--sss-navy) !important;
+}
+
+/* Subtext under section headings */
+.elementor-5928 .elementor-element-8af1749 {
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+  line-height: 1.75;
+  color: var(--sss-muted) !important;
+}
+
+
+/* ---- EXPERIENCE CARDS OVERHAUL ---- */
+
+/* Card wrapper */
+.elementor-6715 .elementor-element-f84aeeb {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.055) !important;
+  border: 1px solid rgba(218, 185, 126, 0.1);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow) !important;
+  background-color: #ffffff !important;
+}
+
+.elementor-6715 .elementor-element-f84aeeb:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.09) !important;
+  border-color: rgba(218, 185, 126, 0.28);
+}
+
+/* Card image */
+.elementor-6715 .elementor-element-f2784a2 img {
+  height: 272px !important;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.85s var(--ease-luxury) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.elementor-6715 .elementor-element-f84aeeb:hover .elementor-element-f2784a2 img {
+  transform: scale(1.04);
+}
+
+/* Card name title */
+.elementor-6715 .elementor-element-28317c8 .elementor-heading-title {
+  font-family: var(--font-editorial) !important;
+  font-size: 22px !important;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  color: var(--sss-navy);
+}
+
+.elementor-6715 .elementor-element-28317c8 .elementor-heading-title a {
+  color: var(--sss-navy) !important;
+  text-decoration: none !important;
+  transition: color var(--transition-base);
+}
+
+.elementor-6715 .elementor-element-28317c8 .elementor-heading-title a:hover {
+  color: var(--sss-gold-deep) !important;
+}
+
+/* Card gold dividers */
+.elementor-6715 .elementor-element-08d0cca .elementor-divider-separator,
+.elementor-6715 .elementor-element-dc0b1dd .elementor-divider-separator {
+  border-color: var(--sss-gold) !important;
+  opacity: 0.55;
+  width: 22px !important;
+}
+
+/* Card description */
+.elementor-6715 .elementor-element-abf79b9 {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-style: normal !important;
+  line-height: 1.7;
+  color: var(--sss-muted) !important;
+}
+
+/* Explore button on card */
+.elementor-6715 .elementor-element-3f1628b .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-style: normal !important;
+  padding: 14px 20px !important;
+  border-radius: 3px !important;
+  transition: all var(--transition-base) !important;
+}
+
+
+/* ---- SOCIAL PROOF STRIP ---- */
+
+/* Applied to the .sss-social-proof HTML snippet */
+.sss-social-proof {
+  background-color: var(--sss-navy);
+  padding: 96px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sss-social-proof::before,
+.sss-social-proof::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--sss-gold) 40%, var(--sss-gold) 60%, transparent 100%);
+  opacity: 0.3;
+}
+
+.sss-social-proof::before { top: 0; }
+.sss-social-proof::after  { bottom: 0; }
+
+.sss-social-proof-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.sss-social-proof-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.sss-section-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+  margin-bottom: 16px;
+}
+
+.sss-social-proof-heading {
+  font-family: var(--font-editorial);
+  font-size: 38px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sss-cream);
+  line-height: 1.2;
+}
+
+/* Quotes grid: 3-column desktop, 1-column mobile */
+.sss-quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.sss-quote-card {
+  padding: 40px 32px 32px;
+  border: 1px solid rgba(218, 185, 126, 0.16);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  position: relative;
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.sss-quote-card:hover {
+  border-color: rgba(218, 185, 126, 0.32);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sss-quote-mark {
+  font-family: var(--font-editorial);
+  font-size: 64px;
+  line-height: 1;
+  color: var(--sss-gold);
+  opacity: 0.28;
+  position: absolute;
+  top: 18px;
+  left: 28px;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.sss-quote-text {
+  font-family: var(--font-editorial);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.58;
+  color: var(--sss-cream);
+  font-style: italic;
+  margin-bottom: 28px;
+  padding-top: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.sss-quote-attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px solid rgba(218, 185, 126, 0.15);
+  padding-top: 18px;
+}
+
+.sss-quote-name {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+}
+
+.sss-quote-occasion {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(250, 248, 243, 0.38);
+  letter-spacing: 0.03em;
+}
+
+
+/* ---- NOT JUST A CHARTER SECTION ---- */
+
+.elementor-5928 .elementor-element-72d2671 {
+  background-color: rgba(232, 228, 217, 0.2) !important;
+}
+
+/* Body copy under heading */
+.elementor-5928 .elementor-element-2024bf6 {
+  font-size: 16px !important;
+  line-height: 1.85;
+  color: rgba(44, 44, 44, 0.78) !important;
+}
+
+/* Icon box titles */
+.elementor-5928 .elementor-element-070a870 .elementor-icon-box-title,
+.elementor-5928 .elementor-element-86fc99f .elementor-icon-box-title,
+.elementor-5928 .elementor-element-5d696dd .elementor-icon-box-title {
+  font-family: var(--font-editorial) !important;
+}
+
+.elementor-5928 .elementor-element-070a870 .elementor-icon-box-title span,
+.elementor-5928 .elementor-element-86fc99f .elementor-icon-box-title span,
+.elementor-5928 .elementor-element-5d696dd .elementor-icon-box-title span {
+  font-family: var(--font-editorial) !important;
+  font-size: 21px !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--sss-navy) !important;
+}
+
+/* Icon box descriptions */
+.elementor-5928 .elementor-element-070a870 .elementor-icon-box-description,
+.elementor-5928 .elementor-element-86fc99f .elementor-icon-box-description,
+.elementor-5928 .elementor-element-5d696dd .elementor-icon-box-description {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  line-height: 1.7;
+  color: var(--sss-muted) !important;
+}
+
+/* Price display label */
+.elementor-5928 .elementor-element-dc0842d {
+  font-family: var(--font-body) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--sss-muted) !important;
+}
+
+/* Price amount */
+.elementor-5928 .elementor-element-045657b {
+  font-family: var(--font-accent) !important;
+  font-size: 30px !important;
+  font-weight: 500 !important;
+  color: var(--sss-navy) !important;
+  line-height: 1.1;
+}
+
+/* Ghost underline CTA in this section */
+.elementor-5928 .elementor-element-c1fcc62 .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  font-weight: 600;
+  color: var(--sss-navy) !important;
+  padding: 0 0 3px !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(26, 35, 50, 0.35) !important;
+  border-radius: 0 !important;
+  transition: color var(--transition-base), border-color var(--transition-base) !important;
+}
+
+.elementor-5928 .elementor-element-c1fcc62 .elementor-button:hover {
+  color: var(--sss-gold-deep) !important;
+  border-color: var(--sss-gold-deep) !important;
+}
+
+/* Feature portrait image */
+.elementor-5928 .elementor-element-bc81594 img {
+  border-radius: 8px !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12) !important;
+}
+
+
+/* ---- BOTTOM CTA BANNER ---- */
+
+.elementor-5928 .elementor-element-e0a9f6c {
+  background-color: var(--sss-navy) !important;
+  padding: 96px 40px !important;
+}
+
+.elementor-5928 .elementor-element-49e6fda .elementor-heading-title {
+  font-family: var(--font-editorial) !important;
+  font-size: 50px !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  color: var(--sss-cream) !important;
+  line-height: 1.15;
+}
+
+.elementor-5928 .elementor-element-453b7fd {
+  font-family: var(--font-body) !important;
+  font-size: 16px !important;
+  line-height: 1.8;
+  color: rgba(250, 248, 243, 0.68) !important;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* CTA button in navy banner */
+.elementor-5928 .elementor-element-aaeaa3c .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  font-weight: 600;
+  padding: 18px 44px !important;
+  border-radius: 3px !important;
+  background-color: var(--sss-gold) !important;
+  color: var(--sss-navy) !important;
+  border: 1px solid transparent !important;
+  transition: all var(--transition-base) !important;
+}
+
+.elementor-5928 .elementor-element-aaeaa3c .elementor-button:hover,
+.elementor-5928 .elementor-element-aaeaa3c .elementor-button:focus {
+  background-color: var(--sss-cream) !important;
+  color: var(--sss-navy) !important;
+}
+
+
+/* ---- EMAIL CAPTURE SECTION ---- */
+
+/* Applied to the .sss-email-capture HTML snippet */
+.sss-email-capture {
+  background-color: var(--sss-warm);
+  padding: 96px 40px;
+  text-align: center;
+  border-top: 1px solid var(--sss-border);
+  border-bottom: 1px solid var(--sss-border);
+}
+
+.sss-email-capture-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.sss-email-heading {
+  font-family: var(--font-editorial);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--sss-navy);
+  margin-bottom: 12px;
+}
+
+.sss-email-subtext {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--sss-muted);
+  margin-bottom: 36px;
+}
+
+.sss-email-form {
+  display: flex;
+  max-width: 400px;
+  margin: 0 auto 14px;
+  border: 1px solid rgba(26, 35, 50, 0.22);
+  border-radius: 3px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: border-color var(--transition-base);
+}
+
+.sss-email-form:focus-within {
+  border-color: var(--sss-gold-deep);
+}
+
+/* Scoped to .sss-email-form to avoid overriding global input styles */
+.sss-email-form input[type="email"] {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 16px 20px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--sss-text);
+  background: transparent;
+}
+
+.sss-email-form input[type="email"]::placeholder {
+  color: rgba(44, 44, 44, 0.32);
+}
+
+/* Scoped to .sss-email-form to avoid overriding global button styles */
+.sss-email-form button {
+  border: none;
+  background: var(--sss-navy);
+  color: var(--sss-cream);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 16px 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+.sss-email-form button:hover {
+  background: var(--sss-gold-deep);
+  color: var(--sss-navy);
+}
+
+.sss-email-privacy {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: rgba(44, 44, 44, 0.35);
+  letter-spacing: 0.02em;
+}
+
+
+/* ---- FOOTER REDESIGN ---- */
+
+/* Footer main area */
+.elementor-5924 .elementor-element-21c42361 {
+  background-color: var(--sss-navy) !important;
+  padding-top: 88px !important;
+  padding-bottom: 64px !important;
+}
+
+/* Footer logo */
+.elementor-5924 .elementor-element-6a8350e3 img {
+  width: 108px !important;
+  opacity: 0.9;
+  transition: opacity var(--transition-base);
+}
+
+.elementor-5924 .elementor-element-6a8350e3 img:hover {
+  opacity: 1;
+}
+
+/* Footer tagline */
+.elementor-5924 .elementor-element-4e58f8c {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  line-height: 1.75;
+  color: rgba(250, 248, 243, 0.45) !important;
+  margin-top: 12px;
+}
+
+/* Footer column headings */
+.elementor-5924 .elementor-element-200b8d0f .elementor-heading-title,
+.elementor-5924 .elementor-element-b038cce .elementor-heading-title {
+  font-family: var(--font-body) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.26em !important;
+  text-transform: uppercase !important;
+  font-weight: 700;
+  color: var(--sss-gold) !important;
+  margin-bottom: 20px;
+}
+
+/* Footer nav link text */
+.elementor-5924 .elementor-element-625c2864 .elementor-icon-list-text {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 400;
+  color: rgba(250, 248, 243, 0.55) !important;
+  transition: color var(--transition-base) !important;
+}
+
+.elementor-5924 .elementor-element-625c2864 .elementor-icon-list-item:hover .elementor-icon-list-text {
+  color: var(--sss-cream) !important;
+}
+
+/* Footer contact list text */
+.elementor-5924 .elementor-element-421dcc00 .elementor-icon-list-text {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  color: rgba(250, 248, 243, 0.55) !important;
+  transition: color var(--transition-base) !important;
+}
+
+.elementor-5924 .elementor-element-421dcc00 .elementor-icon-list-item:hover .elementor-icon-list-text {
+  color: var(--sss-cream) !important;
+}
+
+/* Footer contact icons */
+.elementor-5924 .elementor-element-421dcc00 .elementor-icon-list-icon svg {
+  fill: var(--sss-gold) !important;
+  opacity: 0.65;
+}
+
+.elementor-5924 .elementor-element-421dcc00 .elementor-icon-list-item:hover .elementor-icon-list-icon svg {
+  opacity: 1;
+}
+
+/* Social icons */
+.elementor-5924 .elementor-element-9e30d07 .elementor-icon-list-icon svg,
+.elementor-5924 .elementor-element-9e30d07 .elementor-icon-list-icon i {
+  fill: rgba(250, 248, 243, 0.4) !important;
+  color: rgba(250, 248, 243, 0.4) !important;
+  transition: fill var(--transition-base), color var(--transition-base) !important;
+}
+
+.elementor-5924 .elementor-element-9e30d07 .elementor-icon-list-item:hover .elementor-icon-list-icon svg,
+.elementor-5924 .elementor-element-9e30d07 .elementor-icon-list-item:hover .elementor-icon-list-icon i {
+  fill: var(--sss-gold) !important;
+  color: var(--sss-gold) !important;
+}
+
+/* Footer bottom bar */
+.elementor-5924 .elementor-element-76fe48e5 {
+  background-color: rgba(0, 0, 0, 0.18) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-width: 1px 0 0 0 !important;
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+}
+
+/* Copyright text */
+.elementor-5924 .elementor-element-593370b3 {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  color: rgba(250, 248, 243, 0.28) !important;
+  letter-spacing: 0.04em;
+}
+
+/* Footer policy link buttons */
+.elementor-5924 .elementor-element-3c980cb .elementor-button,
+.elementor-5924 .elementor-element-56d90e7 .elementor-button,
+.elementor-5924 .elementor-element-4ffc3086 .elementor-button {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  color: rgba(250, 248, 243, 0.28) !important;
+  letter-spacing: 0.04em;
+  transition: color var(--transition-base) !important;
+}
+
+.elementor-5924 .elementor-element-3c980cb .elementor-button:hover,
+.elementor-5924 .elementor-element-56d90e7 .elementor-button:hover,
+.elementor-5924 .elementor-element-4ffc3086 .elementor-button:hover {
+  color: rgba(250, 248, 243, 0.65) !important;
+}
+
+
+/* ---- SCROLL REVEAL SYSTEM ---- */
+
+/* JS adds .sss-revealed when element enters viewport */
+.sss-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s var(--ease-luxury), transform 0.75s var(--ease-luxury);
+}
+
+.sss-reveal.sss-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sss-reveal-delay-1 { transition-delay: 0.1s; }
+.sss-reveal-delay-2 { transition-delay: 0.22s; }
+.sss-reveal-delay-3 { transition-delay: 0.36s; }
+
+
+/* ---- OCCASION PILLS ---- */
+
+/* Used in the hero HTML snippet */
+.sss-occasions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.sss-occasion-pill {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.65);
+  border: 1px solid rgba(218, 185, 126, 0.28);
+  border-radius: 2px;
+  padding: 6px 14px;
+  transition: all var(--transition-base);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.sss-occasion-pill:hover {
+  color: var(--sss-cream);
+  border-color: var(--sss-gold);
+  background: rgba(218, 185, 126, 0.08);
+}
+
+
+/* ---- GLOBAL COMPONENT REFINEMENTS ---- */
+
+/* Scrolled header state: JS adds .sss-header-scrolled to the header element */
+.sss-header-scrolled {
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Occasion badge: used inside experience cards as a category label */
+.sss-occasion-badge {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+  display: inline-block;
+}
+
+/* Skip link for keyboard and screen reader accessibility */
+.sss-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--sss-navy);
+  color: var(--sss-cream);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 12px 20px;
+  text-decoration: none;
+  z-index: 10000;
+  transition: top var(--transition-fast);
+}
+
+.sss-skip-link:focus {
+  top: 0;
+}
+
+/* Focus visible states: applied to interactive elements using .sss-* classes */
+.sss-occasion-pill:focus-visible,
+.sss-filter-pill:focus-visible,
+.sss-trust-item a:focus-visible,
+.sss-email-form input[type="email"]:focus-visible,
+.sss-email-form button:focus-visible,
+.sss-rtb-submit:focus-visible,
+.sss-quote-card:focus-visible {
+  outline: 2px solid var(--sss-gold);
+  outline-offset: 3px;
+}
+
+
+/* ---- TRUST STRIP ---- */
+
+/* Horizontal trust signal row: displays key value props below the fold */
+.sss-trust-strip {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 48px 40px;
+  background-color: var(--sss-cream);
+  border-top: 1px solid var(--sss-border);
+  border-bottom: 1px solid var(--sss-border);
+}
+
+.sss-trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* Icon placeholder or SVG color */
+.sss-trust-icon {
+  font-size: 24px;
+  color: var(--sss-gold);
+  line-height: 1;
+}
+
+.sss-trust-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--sss-gold);
+}
+
+/* Small uppercase descriptor label */
+.sss-trust-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sss-muted);
+}
+
+/* Editorial value text beneath the label */
+.sss-trust-value {
+  font-family: var(--font-editorial);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--sss-navy);
+  line-height: 1.3;
+}
+
+
+/* ---- REQUEST TO BOOK PAGE ---- */
+
+/* Page hero: navy background with editorial heading */
+.sss-rtb-hero {
+  background-color: var(--sss-navy);
+  padding: 96px 40px 80px;
+  text-align: center;
+}
+
+.sss-rtb-hero-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sss-gold);
+  margin-bottom: 20px;
+}
+
+.sss-rtb-hero-heading {
+  font-family: var(--font-editorial);
+  font-size: 52px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sss-cream);
+  line-height: 1.15;
+  margin: 0 auto;
+  max-width: 700px;
+}
+
+/* Concierge reassurance block: warm cream background, centered editorial copy */
+.sss-concierge-block {
+  background-color: var(--sss-warm);
+  padding: 64px 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--sss-border);
+}
+
+.sss-concierge-block-inner {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.sss-concierge-heading {
+  font-family: var(--font-editorial);
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sss-navy);
+  line-height: 1.3;
+  margin-bottom: 16px;
+}
+
+.sss-concierge-copy {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--sss-muted);
+}
+
+/* Form intro section: centered body copy above the form card */
+.sss-form-intro {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 56px 40px 32px;
+  text-align: center;
+}
+
+.sss-form-intro-heading {
+  font-family: var(--font-editorial);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--sss-navy);
+  margin-bottom: 10px;
+}
+
+.sss-form-intro-copy {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--sss-muted);
+}
+
+/* Form wrapper: white card containing the MetForm */
+.sss-form-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px;
+  background: #ffffff;
+  border: 1px solid var(--sss-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* MetForm input styles: scoped to .sss-form-wrapper */
+.sss-form-wrapper .mf-input,
+.sss-form-wrapper .mf-select,
+.sss-form-wrapper .mf-textarea {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  color: var(--sss-text) !important;
+  border: 1px solid rgba(26, 35, 50, 0.22) !important;
+  border-radius: 3px !important;
+  padding: 14px 16px !important;
+  background: #ffffff !important;
+  width: 100%;
+  transition: border-color var(--transition-base);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.sss-form-wrapper .mf-input:focus,
+.sss-form-wrapper .mf-select:focus,
+.sss-form-wrapper .mf-textarea:focus {
+  border-color: var(--sss-gold-deep) !important;
+  outline: none;
+}
+
+.sss-form-wrapper .mf-input::placeholder,
+.sss-form-wrapper .mf-textarea::placeholder {
+  color: rgba(44, 44, 44, 0.32);
+}
+
+.sss-form-wrapper .mf-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* MetForm label text */
+.sss-form-wrapper .mf-label,
+.sss-form-wrapper label {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sss-navy) !important;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* MetForm submit button */
+.sss-form-wrapper .mf-btn-submit,
+.sss-rtb-submit {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  font-weight: 600;
+  padding: 17px 36px !important;
+  border-radius: 3px !important;
+  background-color: var(--sss-navy) !important;
+  color: var(--sss-cream) !important;
+  border: 1px solid transparent !important;
+  cursor: pointer;
+  transition: all var(--transition-base) !important;
+  display: inline-block;
+}
+
+.sss-form-wrapper .mf-btn-submit:hover,
+.sss-rtb-submit:hover {
+  background-color: var(--sss-gold) !important;
+  color: var(--sss-navy) !important;
+}
+
+/* Trust note beneath the form */
+.sss-trust-note {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--sss-muted);
+  text-align: center;
+  padding: 20px 40px 48px;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Thank you confirmation message shown after successful submission */
+.sss-thankyou {
+  text-align: center;
+  padding: 96px 40px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.sss-thankyou-divider {
+  width: 44px;
+  height: 1px;
+  background: var(--sss-gold);
+  margin: 28px auto;
+  opacity: 0.65;
+}
+
+.sss-thankyou-heading {
+  font-family: var(--font-editorial);
+  font-size: 38px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sss-navy);
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
+.sss-thankyou-subtext {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--sss-muted);
+  margin-top: 20px;
+}
+
+
+/* ---- EXPERIENCES PAGE ---- */
+
+/* Hero support area: brief editorial copy directly below the page hero */
+.sss-exp-hero-support {
+  padding: 64px 40px;
+  background-color: var(--sss-cream);
+  text-align: center;
+}
+
+.sss-exp-hero-support-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.sss-exp-hero-support-copy {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--sss-muted);
+}
+
+/* Experience cards on the experiences page: inherit .elementor-6715 styles above */
+/* No duplication needed. The loop item template (elementor-6715) already applies. */
+
+/* Filter pills row: same visual language as occasion pills, on cream background */
+.sss-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 40px 16px;
+  background-color: var(--sss-cream);
+}
+
+.sss-filter-pill {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sss-navy);
+  border: 1px solid rgba(26, 35, 50, 0.22);
+  border-radius: 2px;
+  padding: 6px 14px;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.sss-filter-pill:hover,
+.sss-filter-pill.sss-filter-active {
+  background-color: var(--sss-navy);
+  color: var(--sss-cream);
+  border-color: var(--sss-navy);
+}
+
+/* Experiences social proof strip: reuses .sss-social-proof styles */
+/* No duplication needed. Apply the .sss-social-proof class to the strip HTML on this page. */
+
+/* Experiences bottom CTA: same pattern as homepage bottom CTA, scoped to experiences page */
+.sss-exp-bottom-cta {
+  background-color: var(--sss-navy);
+  padding: 96px 40px;
+  text-align: center;
+}
+
+.sss-exp-bottom-cta-heading {
+  font-family: var(--font-editorial);
+  font-size: 50px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sss-cream);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+
+.sss-exp-bottom-cta-copy {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: rgba(250, 248, 243, 0.68);
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+
+/* CTA button inside experiences bottom CTA */
+.sss-exp-bottom-cta .sss-exp-cta-btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 18px 44px;
+  border-radius: 3px;
+  background-color: var(--sss-gold);
+  color: var(--sss-navy);
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.sss-exp-bottom-cta .sss-exp-cta-btn:hover,
+.sss-exp-bottom-cta .sss-exp-cta-btn:focus {
+  background-color: var(--sss-cream);
+  color: var(--sss-navy);
+}
+
+
+/* ---- MOBILE AND TABLET RESPONSIVE ---- */
+
+@media (max-width: 767px) {
+
+  /* Hero */
+  .elementor-5928 .elementor-element-5345389 {
+    --min-height: 92vh !important;
+    min-height: 92vh !important;
+  }
+
+  .elementor-5928 .elementor-element-88c02a2 .elementor-heading-title {
+    font-size: 46px !important;
+    line-height: 1.05;
+  }
+
+  .elementor-5928 .elementor-element-9742d95 .elementor-heading-title {
+    font-size: 46px !important;
+  }
+
+  .elementor-5928 .elementor-element-452be80 {
+    font-size: 15px !important;
+  }
+
+  /* Section headings */
+  .elementor-5928 .elementor-element-3ad029d .elementor-heading-title,
+  .elementor-5928 .elementor-element-e3f07d7 .elementor-heading-title {
+    font-size: 34px !important;
+  }
+
+  /* Bottom CTA heading: homepage */
+  .elementor-5928 .elementor-element-49e6fda .elementor-heading-title {
+    font-size: 34px !important;
+  }
+
+  /* Bottom CTA section padding: homepage */
+  .elementor-5928 .elementor-element-e0a9f6c {
+    padding: 64px 24px !important;
+  }
+
+  /* Bottom CTA button full width on mobile: homepage */
+  .elementor-5928 .elementor-element-aaeaa3c .elementor-button {
+    width: 100%;
+    padding: 18px 24px !important;
+  }
+
+  /* Cards */
+  .elementor-6715 .elementor-element-f2784a2 img {
+    height: 240px !important;
+  }
+
+  /* Footer */
+  .elementor-5924 .elementor-element-21c42361 {
+    padding-top: 64px !important;
+    padding-bottom: 48px !important;
+  }
+
+  /* Nav logo mobile */
+  .elementor-5919 .elementor-element-0ce6f64 img {
+    width: 86px !important;
+  }
+
+  /* Occasion pills */
+  .sss-occasions-row {
+    gap: 6px;
+  }
+
+  /* Social proof */
+  .sss-quotes-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .sss-social-proof {
+    padding: 64px 24px;
+  }
+
+  .sss-social-proof-heading {
+    font-size: 28px;
+  }
+
+  /* Email capture */
+  .sss-email-capture {
+    padding: 64px 24px;
+  }
+
+  .sss-email-heading {
+    font-size: 28px;
+  }
+
+  .sss-email-form {
+    flex-direction: column;
+    border-radius: 4px;
+  }
+
+  .sss-email-form input[type="email"] {
+    border-bottom: 1px solid rgba(26, 35, 50, 0.1);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .sss-email-form button {
+    border-radius: 0 0 4px 4px;
+    padding: 15px 24px;
+  }
+
+  /* Trust strip: 2-column grid on mobile */
+  .sss-trust-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 24px;
+    padding: 40px 24px;
+  }
+
+  /* Request to Book page hero */
+  .sss-rtb-hero {
+    padding: 72px 24px 56px;
+  }
+
+  .sss-rtb-hero-heading {
+    font-size: 36px;
+  }
+
+  /* Form wrapper: full width, reduced padding on mobile */
+  .sss-form-wrapper {
+    padding: 32px 24px;
+    border-radius: 6px;
+  }
+
+  /* Concierge block */
+  .sss-concierge-block {
+    padding: 48px 24px;
+  }
+
+  /* Form intro */
+  .sss-form-intro {
+    padding: 40px 24px 24px;
+  }
+
+  /* Thank you */
+  .sss-thankyou {
+    padding: 64px 24px;
+  }
+
+  .sss-thankyou-heading {
+    font-size: 28px;
+  }
+
+  /* Experiences page hero support */
+  .sss-exp-hero-support {
+    padding: 48px 24px;
+  }
+
+  /* Filter row */
+  .sss-filter-row {
+    padding: 24px 24px 12px;
+    gap: 6px;
+  }
+
+  /* Experiences bottom CTA */
+  .sss-exp-bottom-cta {
+    padding: 64px 24px;
+  }
+
+  .sss-exp-bottom-cta-heading {
+    font-size: 34px;
+  }
+
+  .sss-exp-bottom-cta .sss-exp-cta-btn {
+    width: 100%;
+    text-align: center;
+    padding: 18px 24px;
+    display: block;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) and (min-width: 768px) {
+
+  .elementor-5928 .elementor-element-88c02a2 .elementor-heading-title {
+    font-size: 62px !important;
+  }
+
+  .elementor-5928 .elementor-element-9742d95 .elementor-heading-title {
+    font-size: 62px !important;
+  }
+
+  .sss-quotes-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+
+  .sss-form-wrapper {
+    padding: 40px 36px;
+  }
+}
+
+
+/* ---- PRINT STYLES ---- */
+
+@media print {
+
+  /* Hide navigation and footer */
+  .elementor-5919,
+  .elementor-5924 {
+    display: none !important;
+  }
+
+  /* Hide email capture and social proof sections */
+  .sss-email-capture,
+  .sss-social-proof {
+    display: none !important;
+  }
+
+  /* Hide hero overlays and decorative backgrounds */
+  .elementor-5928 .elementor-element-5345389::before,
+  .elementor-5928 .elementor-element-5345389 > .elementor-background-slideshow::before {
+    display: none !important;
+  }
+
+  /* Show main content in readable black on white */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Simplify headings for print */
+  .elementor-heading-title,
+  .sss-rtb-hero-heading,
+  .sss-thankyou-heading,
+  .sss-exp-bottom-cta-heading {
+    color: #000000 !important;
+    font-size: 24px !important;
+  }
+
+  /* Remove box shadows and decorative borders for print clarity */
+  .sss-form-wrapper,
+  .elementor-6715 .elementor-element-f84aeeb {
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+  }
+
+  /* Ensure links print with their URL */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 11px;
+    color: #555555;
+  }
+
+  /* Page break control */
+  .sss-quote-card,
+  .elementor-6715 .elementor-element-f84aeeb {
+    page-break-inside: avoid;
+  }
+}

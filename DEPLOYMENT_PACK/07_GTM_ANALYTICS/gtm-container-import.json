@@ -1,0 +1,732 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-05-19 00:00:00",
+  "containerVersion": {
+    "path": "accounts/0/containers/0/versions/0",
+    "accountId": "0",
+    "containerId": "0",
+    "containerVersionId": "0",
+    "container": {
+      "path": "accounts/0/containers/0",
+      "accountId": "0",
+      "containerId": "0",
+      "name": "She Said Sail",
+      "publicId": "GTM-TZ5KNRTH",
+      "usageContext": ["WEB"]
+    },
+    "variable": [
+      {
+        "accountId": "0", "containerId": "0", "variableId": "1",
+        "name": "DLV - event",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "event"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "2",
+        "name": "DLV - page_location",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "page_location"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "3",
+        "name": "DLV - cta_location",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "cta_location"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "4",
+        "name": "DLV - occasion",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "occasion"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "5",
+        "name": "DLV - group_size",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "group_size"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "6",
+        "name": "DLV - experience_name",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "experience_name"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "7",
+        "name": "DLV - experience_slug",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "experience_slug"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "8",
+        "name": "DLV - card_position",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "card_position"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "9",
+        "name": "DLV - form_name",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "form_name"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "10",
+        "name": "DLV - form_location",
+        "type": "v",
+        "parameter": [
+          {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"},
+          {"type": "BOOLEAN", "key": "setDefaultValue", "value": "false"},
+          {"type": "TEMPLATE", "key": "name", "value": "form_location"}
+        ]
+      },
+      {
+        "accountId": "0", "containerId": "0", "variableId": "11",
+        "name": "CJS - Page Location",
+        "type": "jsm",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "javascript", "value": "function(){ return window.location.href; }"}
+        ]
+      }
+    ],
+    "trigger": [
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "1",
+        "name": "All Pages",
+        "type": "PAGEVIEW"
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "2",
+        "name": "CE - view_homepage",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_homepage"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "3",
+        "name": "CE - view_request_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_request_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "4",
+        "name": "CE - view_experiences_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_experiences_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "5",
+        "name": "CE - view_experience_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_experience_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "6",
+        "name": "CE - view_about_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_about_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "7",
+        "name": "CE - view_contact_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_contact_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "8",
+        "name": "CE - view_faq_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_faq_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "9",
+        "name": "CE - view_journal_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_journal_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "10",
+        "name": "CE - view_thank_you_page",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "view_thank_you_page"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "11",
+        "name": "CE - click_request_to_book",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "click_request_to_book"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "12",
+        "name": "CE - click_explore_experiences",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "click_explore_experiences"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "13",
+        "name": "CE - click_experience_card",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "click_experience_card"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "14",
+        "name": "CE - start_booking_form",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "start_booking_form"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "15",
+        "name": "CE - submit_booking_form",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "submit_booking_form"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "16",
+        "name": "CE - submit_email_capture",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "submit_email_capture"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "17",
+        "name": "CE - click_phone",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "click_phone"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "18",
+        "name": "CE - scroll_50_percent",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "scroll_50_percent"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "19",
+        "name": "CE - scroll_90_percent",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "scroll_90_percent"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "20",
+        "name": "CE - chatbot_open",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_open"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "21",
+        "name": "CE - chatbot_start_conversation",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_start_conversation"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "22",
+        "name": "CE - chatbot_select_occasion",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_select_occasion"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "23",
+        "name": "CE - chatbot_select_experience",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_select_experience"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "24",
+        "name": "CE - chatbot_capture_email",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_capture_email"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "25",
+        "name": "CE - chatbot_capture_phone",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_capture_phone"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "26",
+        "name": "CE - chatbot_handoff",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_handoff"}]}]
+      },
+      {
+        "accountId": "0", "containerId": "0", "triggerId": "27",
+        "name": "CE - chatbot_complete",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [{"type": "EQUALS", "parameter": [{"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"}, {"type": "TEMPLATE", "key": "arg1", "value": "chatbot_complete"}]}]
+      }
+    ],
+    "tag": [
+      {
+        "accountId": "0", "containerId": "0", "tagId": "1",
+        "name": "GA4 - Configuration",
+        "type": "googtag",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "tagId", "value": "YOUR_GA4_MEASUREMENT_ID"}
+        ],
+        "firingTriggerId": ["1"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "2",
+        "name": "GA4 - view_homepage",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_homepage"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["2"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "3",
+        "name": "GA4 - view_request_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_request_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["3"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "4",
+        "name": "GA4 - view_experiences_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_experiences_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["4"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "5",
+        "name": "GA4 - view_experience_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_experience_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "experience_slug"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - experience_slug}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["5"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "6",
+        "name": "GA4 - view_about_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_about_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["6"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "7",
+        "name": "GA4 - view_contact_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_contact_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["7"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "8",
+        "name": "GA4 - view_faq_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_faq_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["8"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "9",
+        "name": "GA4 - view_journal_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_journal_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["9"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "10",
+        "name": "GA4 - view_thank_you_page",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "view_thank_you_page"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["10"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "11",
+        "name": "GA4 - click_request_to_book",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "click_request_to_book"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "cta_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - cta_location}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["11"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "12",
+        "name": "GA4 - click_explore_experiences",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "click_explore_experiences"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["12"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "13",
+        "name": "GA4 - click_experience_card",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "click_experience_card"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "experience_name"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - experience_name}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "card_position"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - card_position}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["13"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "14",
+        "name": "GA4 - start_booking_form",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "start_booking_form"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "form_name"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - form_name}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["14"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "15",
+        "name": "GA4 - submit_booking_form",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "submit_booking_form"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "form_name"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - form_name}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "occasion"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - occasion}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "group_size"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - group_size}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["15"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "16",
+        "name": "GA4 - submit_email_capture",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "submit_email_capture"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["16"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "17",
+        "name": "GA4 - click_phone",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "click_phone"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["17"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "18",
+        "name": "GA4 - scroll_50_percent",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "scroll_50_percent"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["18"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "19",
+        "name": "GA4 - scroll_90_percent",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "scroll_90_percent"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["19"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "20",
+        "name": "GA4 - chatbot_open",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_open"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["20"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "21",
+        "name": "GA4 - chatbot_start_conversation",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_start_conversation"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["21"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "22",
+        "name": "GA4 - chatbot_select_occasion",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_select_occasion"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "occasion"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - occasion}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["22"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "23",
+        "name": "GA4 - chatbot_select_experience",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_select_experience"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "experience_slug"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - experience_slug}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["23"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "24",
+        "name": "GA4 - chatbot_capture_email",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_capture_email"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["24"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "25",
+        "name": "GA4 - chatbot_capture_phone",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_capture_phone"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["25"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "26",
+        "name": "GA4 - chatbot_handoff",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_handoff"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "experience_slug"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - experience_slug}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "occasion"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - occasion}}"}]},
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["26"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "27",
+        "name": "GA4 - chatbot_complete",
+        "type": "gaawe",
+        "parameter": [
+          {"type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 - Configuration"},
+          {"type": "TEMPLATE", "key": "eventName", "value": "chatbot_complete"},
+          {"type": "LIST", "key": "eventParameters", "list": [
+            {"type": "MAP", "map": [{"type": "TEMPLATE", "key": "name", "value": "page_location"}, {"type": "TEMPLATE", "key": "value", "value": "{{DLV - page_location}}"}]}
+          ]}
+        ],
+        "firingTriggerId": ["27"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "28",
+        "name": "Meta Pixel - Base Code",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- Meta Pixel Base Code | She Said Sail -->\n<!-- REPLACE: change YOUR_META_PIXEL_ID (appears twice below) to your actual Meta Pixel ID -->\n<script>\n!function(f,b,e,v,n,t,s)\n{if(f.fbq)return;n=f.fbq=function(){n.callMethod?\nn.callMethod.apply(n,arguments):n.queue.push(arguments)};\nif(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';\nn.queue=[];t=b.createElement(e);t.async=!0;\nt.src=v;s=b.getElementsByTagName(e)[0];\ns.parentNode.insertBefore(t,s)}(window, document,'script',\n'https://connect.facebook.net/en_US/fbevents.js');\nfbq('init', 'YOUR_META_PIXEL_ID');\nfbq('track', 'PageView');\n</script>\n<noscript>\n<img height=\"1\" width=\"1\" style=\"display:none\"\nsrc=\"https://www.facebook.com/tr?id=YOUR_META_PIXEL_ID&ev=PageView&noscript=1\"/>\n</noscript>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["1"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "29",
+        "name": "Meta Pixel - Lead (submit_booking_form)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- Meta Pixel Lead Event | submit_booking_form -->\n<script>\n(function() {\n  if (typeof fbq === 'undefined') { return; }\n  fbq('track', 'Lead', {\n    content_name: 'Request to Book Form',\n    content_category: 'Yacht Charter',\n    currency: 'USD',\n    value: 10000\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["15"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "30",
+        "name": "Meta Pixel - Lead (chatbot_handoff)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- Meta Pixel Lead Event | chatbot_handoff -->\n<script>\n(function() {\n  if (typeof fbq === 'undefined') { return; }\n  fbq('track', 'Lead', {\n    content_name: 'Chatbot Handoff',\n    content_category: 'Yacht Charter',\n    currency: 'USD',\n    value: 10000\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["26"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "31",
+        "name": "Meta Pixel - Lead (chatbot_capture_email)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- Meta Pixel Lead Event | chatbot_capture_email -->\n<script>\n(function() {\n  if (typeof fbq === 'undefined') { return; }\n  fbq('track', 'Lead', {\n    content_name: 'Chatbot Email Capture',\n    content_category: 'Yacht Charter'\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["24"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "32",
+        "name": "TikTok Pixel - Base Code",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- TikTok Pixel Base Code | She Said Sail -->\n<!-- REPLACE: change YOUR_TIKTOK_PIXEL_ID below to your actual TikTok Pixel ID -->\n<script>\n!function (w, d, t) {\n  w.TiktokAnalyticsObject=t;\n  var ttq=w[t]=w[t]||[];\n  ttq.methods=[\"page\",\"track\",\"identify\",\"instances\",\"debug\",\"on\",\"off\",\"once\",\"ready\",\"alias\",\"group\",\"enableCookie\",\"disableCookie\"];\n  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};\n  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);\n  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};\n  ttq.load=function(e,n){var i=\"https://analytics.tiktok.com/i18n/pixel/events.js\";\n  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};\n  var o=document.createElement(\"script\");o.type=\"text/javascript\",o.async=!0,o.src=i+\"?sdkid=\"+e+\"&lib=\"+t;\n  var a=document.getElementsByTagName(\"script\")[0];a.parentNode.insertBefore(o,a)};\n  ttq.load('YOUR_TIKTOK_PIXEL_ID');\n  ttq.page();\n}(window, document, 'ttq');\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["1"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "33",
+        "name": "TikTok Pixel - SubmitForm (submit_booking_form)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- TikTok Pixel SubmitForm | submit_booking_form -->\n<script>\n(function() {\n  if (typeof ttq === 'undefined') { return; }\n  ttq.track('SubmitForm', {\n    content_name: 'Request to Book',\n    content_category: 'Yacht Charter',\n    content_id: 'request-to-book-form',\n    currency: 'USD',\n    value: 10000\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["15"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "34",
+        "name": "TikTok Pixel - CompleteRegistration (view_thank_you_page)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- TikTok Pixel CompleteRegistration | view_thank_you_page -->\n<script>\n(function() {\n  if (typeof ttq === 'undefined') { return; }\n  ttq.track('CompleteRegistration', {\n    content_name: 'Booking Inquiry Completed',\n    currency: 'USD',\n    value: 10000\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["10"]
+      },
+      {
+        "accountId": "0", "containerId": "0", "tagId": "35",
+        "name": "TikTok Pixel - Subscribe (submit_email_capture)",
+        "type": "html",
+        "parameter": [
+          {"type": "TEMPLATE", "key": "html", "value": "<!-- TikTok Pixel Subscribe | submit_email_capture -->\n<script>\n(function() {\n  if (typeof ttq === 'undefined') { return; }\n  ttq.track('Subscribe', {\n    content_name: 'Email List Signup',\n    content_category: 'Newsletter'\n  });\n})();\n</script>"},
+          {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+        ],
+        "firingTriggerId": ["16"]
+      }
+    ]
+  }
+}

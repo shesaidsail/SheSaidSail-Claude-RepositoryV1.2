@@ -1,0 +1,328 @@
+{
+  "name": "M-CHATBOT-001: Chatbot Lead Handoff",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:WebhookTrigger",
+      "version": 1,
+      "parameters": {
+        "hook": {
+          "name": "SSS Chatbot Handoff"
+        },
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "hook": { "label": "SSS Chatbot Handoff" }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "airtable:searchRecords",
+      "version": 1,
+      "parameters": {
+        "base": "WIRE_AIRTABLE_BASE_ID",
+        "table": "Contacts",
+        "maxRecords": 1
+      },
+      "mapper": {
+        "formula": "{{concat(\"{\", \"email}\", \" = '\", 1.email, \"'\")}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Contacts" }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "airtable:updateRecord",
+              "version": 1,
+              "parameters": {
+                "base": "WIRE_AIRTABLE_BASE_ID",
+                "table": "Contacts"
+              },
+              "mapper": {
+                "id": "{{2.id}}",
+                "fields": {
+                  "First Name": "{{1.first_name}}",
+                  "Phone": "{{1.phone}}",
+                  "Last Source": "chatbot",
+                  "Last UTM Source": "{{1.utm_source}}",
+                  "Last UTM Medium": "{{1.utm_medium}}",
+                  "Last UTM Campaign": "{{1.utm_campaign}}",
+                  "Last Seen At": "{{now}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": -150 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Contacts" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "Contact Exists",
+          "filter": {
+            "name": "Contact exists",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(2.records)}}",
+                  "b": "0",
+                  "o": "number:greater"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 5,
+              "module": "airtable:createRecord",
+              "version": 1,
+              "parameters": {
+                "base": "WIRE_AIRTABLE_BASE_ID",
+                "table": "Contacts"
+              },
+              "mapper": {
+                "fields": {
+                  "First Name": "{{1.first_name}}",
+                  "Email": "{{1.email}}",
+                  "Phone": "{{ifempty(1.phone, \"\")}}",
+                  "Visitor ID": "{{1.visitor_id}}",
+                  "Source": "chatbot",
+                  "UTM Source": "{{1.utm_source}}",
+                  "UTM Medium": "{{1.utm_medium}}",
+                  "UTM Campaign": "{{1.utm_campaign}}",
+                  "UTM Content": "{{1.utm_content}}",
+                  "UTM Term": "{{1.utm_term}}",
+                  "Referrer URL": "{{1.referrer_url}}",
+                  "First Seen At": "{{now}}"
+                }
+              },
+              "metadata": {
+                "designer": { "x": 600, "y": 150 },
+                "restore": {
+                  "parameters": {
+                    "base": { "label": "She Said Sail" },
+                    "table": { "label": "Contacts" }
+                  }
+                }
+              }
+            }
+          ],
+          "label": "New Contact",
+          "filter": {
+            "name": "New contact",
+            "conditions": [
+              [
+                {
+                  "a": "{{length(2.records)}}",
+                  "b": "0",
+                  "o": "number:equal"
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "designer": { "x": 450, "y": 0 }
+      }
+    },
+    {
+      "id": 6,
+      "module": "airtable:createRecord",
+      "version": 1,
+      "parameters": {
+        "base": "WIRE_AIRTABLE_BASE_ID",
+        "table": "UTMs"
+      },
+      "mapper": {
+        "fields": {
+          "UTM Source": "{{1.utm_source}}",
+          "UTM Medium": "{{1.utm_medium}}",
+          "UTM Campaign": "{{1.utm_campaign}}",
+          "UTM Content": "{{1.utm_content}}",
+          "UTM Term": "{{1.utm_term}}",
+          "Landing Page": "{{1.landing_page}}",
+          "Referrer URL": "{{1.referrer_url}}",
+          "Captured At": "{{now}}",
+          "Contact": ["{{ifempty(4.id, 5.id)}}"]
+        }
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "UTMs" }
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "module": "airtable:createRecord",
+      "version": 1,
+      "parameters": {
+        "base": "WIRE_AIRTABLE_BASE_ID",
+        "table": "Requests"
+      },
+      "mapper": {
+        "fields": {
+          "First Name": "{{1.first_name}}",
+          "Email": "{{1.email}}",
+          "Phone": "{{ifempty(1.phone, \"\")}}",
+          "Occasion": "{{1.occasion}}",
+          "Experience Requested": "{{1.selected_experience}}",
+          "Group Size": "{{toNumber(ifempty(1.guest_count, \"0\"))}}",
+          "Preferred Date": "{{ifempty(1.preferred_date, \"\")}}",
+          "Source": "chatbot",
+          "Brand": "{{1.brand}}",
+          "Status": "New",
+          "Visitor ID": "{{1.visitor_id}}",
+          "UTM Source": "{{1.utm_source}}",
+          "UTM Medium": "{{1.utm_medium}}",
+          "UTM Campaign": "{{1.utm_campaign}}",
+          "Landing Page": "{{1.landing_page}}",
+          "Submitted At": "{{now}}",
+          "Contact": ["{{ifempty(4.id, 5.id)}}"],
+          "UTM Record": ["{{6.id}}"]
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Requests" }
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "module": "airtable:createRecord",
+      "version": 1,
+      "parameters": {
+        "base": "WIRE_AIRTABLE_BASE_ID",
+        "table": "Chatbot Conversations"
+      },
+      "mapper": {
+        "fields": {
+          "Contact": ["{{ifempty(4.id, 5.id)}}"],
+          "Request": ["{{7.id}}"],
+          "Occasion": "{{1.occasion}}",
+          "Occasion Energy": "{{1.occasion_energy}}",
+          "Guest Count": "{{1.guest_count}}",
+          "Selected Experience": "{{1.selected_experience}}",
+          "Preferred Date": "{{ifempty(1.preferred_date, \"\")}}",
+          "First Name": "{{1.first_name}}",
+          "Email": "{{1.email}}",
+          "Phone": "{{ifempty(1.phone, \"\")}}",
+          "Conversation Summary": "{{1.conversation_summary}}",
+          "Landing Page": "{{1.landing_page}}",
+          "Referrer URL": "{{1.referrer_url}}",
+          "UTM Source": "{{1.utm_source}}",
+          "UTM Medium": "{{1.utm_medium}}",
+          "UTM Campaign": "{{1.utm_campaign}}",
+          "Brand": "{{1.brand}}",
+          "Visitor ID": "{{1.visitor_id}}",
+          "Completed At": "{{now}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "restore": {
+          "parameters": {
+            "base": { "label": "She Said Sail" },
+            "table": { "label": "Chatbot Conversations" }
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "module": "http:ActionSendData",
+      "version": 1,
+      "parameters": {
+        "method": "POST",
+        "url": "WIRE_AUDIT_LOG_WEBHOOK_URL",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "bodyType": "raw",
+        "body": "{\"event\": \"chatbot_lead_created\", \"request_id\": \"{{7.id}}\", \"contact_id\": \"{{ifempty(4.id, 5.id)}}\", \"source\": \"M-CHATBOT-001\", \"timestamp\": \"{{now}}\"}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 }
+      }
+    },
+    {
+      "id": 10,
+      "module": "slack:createMessage",
+      "version": 1,
+      "parameters": {
+        "channel": "WIRE_SLACK_CHANNEL_ID"
+      },
+      "mapper": {
+        "text": "*New chatbot lead* :speech_balloon:\n*Name:* {{1.first_name}}\n*Email:* {{1.email}}\n*Phone:* {{ifempty(1.phone, \"not provided\")}}\n*Occasion:* {{1.occasion}}\n*Experience:* {{1.selected_experience}}\n*Group Size:* {{1.guest_count}}\n*Date:* {{ifempty(1.preferred_date, \"not provided\")}}\n*Source:* {{ifempty(1.utm_source, \"direct\")}}\n*Summary:* {{1.conversation_summary}}"
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 200 },
+        "restore": {
+          "parameters": {
+            "channel": { "label": "#new-leads" }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

@@ -5,6 +5,11 @@
 
 Read this first. Everything else follows from here.
 
+For the fastest path to go-live, start here:
+- **What to do and in what order:** `IMPLEMENTATION_PRIORITY.md`
+- **All WordPress copy-paste blocks in one place:** `WORDPRESS_QUICK_INSTALL.md`
+- **Pass/fail QA before launch:** `STAGING_QA_CHECKLIST.md`
+
 For the complete step-by-step installation guide, see: `FINAL_IMPLEMENTATION_GUIDE.md`
 
 ---
@@ -35,7 +40,7 @@ Will (founder) approves decisions and reviews screenshots before each page is pu
 04_SEO_META/           Meta tags and schema for homepage, experiences, request-to-book, and global.
 05_AIRTABLE_BACKEND/   Table schemas and field maps for 7 core tables + 6 intelligence tables.
 06_MAKE_WEBHOOKS/      Make.com scenario specs, webhook payloads, and intelligence scenarios.
-07_GTM_ANALYTICS/      GTM event map (22 events: 14 site + 8 chatbot), GA4, Meta Pixel, TikTok Pixel.
+07_GTM_ANALYTICS/      GTM container import JSON (import-ready, 35 tags), event map (22 events), GA4, Meta Pixel, TikTok Pixel.
 08_PAGE_INSTALL_GUIDES/ Step-by-step per-page install guides. Web builder follows these.
 09_QA/                 Pass/fail checklists. Complete after each section is applied.
 10_FINAL_AUDIT/        Readiness audit. Review before merging to production.
@@ -104,7 +109,7 @@ Follow this exact sequence. Do not skip steps.
 | 19 | Build Airtable base and tables | 05_AIRTABLE_BACKEND/airtable-table-schema.md | 2 hours |
 | 20 | Create Make.com scenarios | 06_MAKE_WEBHOOKS/make-webhook-setup.md | 3 hours |
 | 21 | Wire form to Make.com webhook | 06_MAKE_WEBHOOKS/make-webhook-setup.md | 30 min |
-| 22 | Set up GTM tags and publish | 07_GTM_ANALYTICS/gtm-events-map.md | 1 hour |
+| 22 | Import GTM container and publish | 07_GTM_ANALYTICS/gtm-import-instructions.md | 15 min |
 | 23 | Add Meta Pixel via GTM | 07_GTM_ANALYTICS/meta-pixel-events.md | 30 min |
 | 24 | Add TikTok Pixel via GTM | 07_GTM_ANALYTICS/tiktok-pixel-events.md | 30 min |
 
@@ -228,6 +233,12 @@ Rolling back does not affect the git repository. CSS, JS, and HTML snippet chang
 
 ## FILES IN THIS PACK
 
+### Deployment Acceleration (start here)
+
+- `IMPLEMENTATION_PRIORITY.md` -- 4-phase execution plan with time estimates and order of operations
+- `WORDPRESS_QUICK_INSTALL.md` -- all WordPress copy-paste blocks in one file (GTM, JS, CSS, hidden fields)
+- `STAGING_QA_CHECKLIST.md` -- pass/fail QA checklist for every system area before go-live
+
 ### Global
 
 - `README_START_HERE.md` -- this file
@@ -281,8 +292,15 @@ Rolling back does not affect the git repository. CSS, JS, and HTML snippet chang
 - `06_MAKE_WEBHOOKS/email-capture-payload.json`
 - `06_MAKE_WEBHOOKS/test-payloads.md`
 
+### Make Blueprints (import-ready)
+
+- `06_MAKE_BLUEPRINTS/M-CHATBOT-001-blueprint.json` -- import-ready Make.com blueprint for chatbot lead handoff
+- `06_MAKE_BLUEPRINTS/M-CHATBOT-001-setup-guide.md` -- setup instructions, Airtable wiring, test procedure
+
 ### GTM Analytics
 
+- `07_GTM_ANALYTICS/gtm-container-import.json` -- import-ready GTM container (35 tags, 27 triggers, 11 variables)
+- `07_GTM_ANALYTICS/gtm-import-instructions.md` -- how to import the JSON and replace placeholder IDs
 - `07_GTM_ANALYTICS/gtm-events-map.md`
 - `07_GTM_ANALYTICS/ga4-events.md`
 - `07_GTM_ANALYTICS/meta-pixel-events.md`

@@ -17,14 +17,13 @@ const ROLE_HOME: Record<Role, string> = {
   Marketing: '/marketing',
 }
 
-// STAGING ONLY — set NEXT_PUBLIC_DISABLE_PORTAL_AUTH=true in Vercel to bypass login for QA.
-// Remove this env var (or set to false) to re-enable auth before going to production.
-const AUTH_DISABLED = process.env.NEXT_PUBLIC_DISABLE_PORTAL_AUTH === 'true'
-
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  if (AUTH_DISABLED) {
+  // STAGING ONLY — set DISABLE_PORTAL_AUTH=true in Vercel env vars to bypass login for QA.
+  // Read inline per-request so Vercel runtime env changes take effect without a rebuild.
+  // Remove this variable (or set to false) before going to production.
+  if (process.env.DISABLE_PORTAL_AUTH === 'true') {
     if (pathname === '/login' || pathname === '/') {
       const url = req.nextUrl.clone()
       url.pathname = '/owner/dashboard'

@@ -4,8 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { SidebarLayout } from '@/components/nav/Sidebar'
 
 export default async function ConciergeLayout({ children }: { children: React.ReactNode }) {
-  // STAGING ONLY: skip auth when NEXT_PUBLIC_DISABLE_PORTAL_AUTH=true
-  if (process.env.NEXT_PUBLIC_DISABLE_PORTAL_AUTH !== 'true') {
+  // STAGING ONLY: skip auth when DISABLE_PORTAL_AUTH=true
+  if (process.env.DISABLE_PORTAL_AUTH !== 'true') {
     const session = await getServerSession(authOptions)
     if (!session || !['Owner', 'Concierge'].includes(session.user.role)) {
       redirect('/login')

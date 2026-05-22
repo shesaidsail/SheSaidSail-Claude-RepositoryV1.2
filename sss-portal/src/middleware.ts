@@ -17,8 +17,21 @@ const ROLE_HOME: Record<Role, string> = {
   Marketing: '/marketing',
 }
 
+// STAGING ONLY — set NEXT_PUBLIC_DISABLE_PORTAL_AUTH=true in Vercel to bypass login for QA.
+// Remove this env var (or set to false) to re-enable auth before going to production.
+const AUTH_DISABLED = process.env.NEXT_PUBLIC_DISABLE_PORTAL_AUTH === 'true'
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  if (AUTH_DISABLED) {
+    if (pathname === '/login' || pathname === '/') {
+      const url = req.nextUrl.clone()
+      url.pathname = '/owner/dashboard'
+      return NextResponse.redirect(url)
+    }
+    return NextResponse.next()
+  }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 

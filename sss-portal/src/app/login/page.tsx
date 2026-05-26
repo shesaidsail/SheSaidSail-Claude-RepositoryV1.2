@@ -6,8 +6,8 @@ import { LoginForm } from './login-form'
 export const metadata: Metadata = { title: 'Sign In' }
 
 export default function LoginPage() {
-  // STAGING ONLY: second-layer bypass — catches direct navigation to /login
-  if (process.env.DISABLE_PORTAL_AUTH === 'true') redirect('/owner/dashboard')
+  // TEMPORARY QA BYPASS — redirects /login straight to dashboard. Restore before production.
+  redirect('/owner/dashboard')
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       {/* Subtle background grain */}

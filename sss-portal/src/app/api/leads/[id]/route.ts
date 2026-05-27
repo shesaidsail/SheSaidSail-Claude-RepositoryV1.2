@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { leads } from '@/lib/airtable'
+import type { LeadStatus } from '@/types'
+
+const VALID_STATUSES: LeadStatus[] = [
+  'NEW', 'CONTACTED', 'QUALIFIED', 'AVAILABILITY_CONFIRMED',
+  'PROPOSAL_SENT', 'NEGOTIATING', 'CLOSED_WON', 'CLOSED_LOST', 'NURTURE',
+]
 
 export async function PATCH(
   req: NextRequest,
@@ -11,12 +17,22 @@ export async function PATCH(
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  if (!['Owner', 'Concierge'].includes(session.user.role)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   let body: { status?: string; notes?: string; probability?: number }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
+  }
+
+  if (body.status !== undefined && !VALID_STATUSES.includes(body.status as LeadStatus)) {
+    return NextResponse.json({ error: 'Invalid status value' }, { status: 400 })
+  }
+  if (body.probability !== undefined && (body.probability < 0 || body.probability > 100)) {
+    return NextResponse.json({ error: 'Probability must be between 0 and 100' }, { status: 400 })
   }
 
   const actor = session.user.name ?? session.user.email

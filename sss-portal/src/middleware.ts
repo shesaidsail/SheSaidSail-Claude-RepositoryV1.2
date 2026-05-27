@@ -17,19 +17,49 @@ const ROLE_HOME: Record<Role, string> = {
   Marketing: '/marketing',
 }
 
-// ─── TEMPORARY QA BYPASS ─────────────────────────────────────────────────────
-// Auth is disabled for staging review. To re-enable: delete the 4 lines below
-// and uncomment the original auth logic (see git history: commit 602d259).
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  if (pathname === '/' || pathname === '/login') {
+
+  // Staging bypass — set DISABLE_PORTAL_AUTH=true in env to skip login
+  if (process.env.DISABLE_PORTAL_AUTH === 'true') {
+    if (pathname === '/login' || pathname === '/') {
+      const url = req.nextUrl.clone()
+      url.pathname = '/owner/dashboard'
+      return NextResponse.redirect(url)
+    }
+    return NextResponse.next()
+  }
+
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+  if (!token) {
+    if (pathname === '/login') return NextResponse.next()
     const url = req.nextUrl.clone()
-    url.pathname = '/owner/dashboard'
+    url.pathname = '/login'
+    url.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(url)
   }
+
+  const role = token.role as Role
+
+  for (const [prefix, allowed] of Object.entries(PROTECTED)) {
+    if (pathname.startsWith(prefix)) {
+      if (!allowed.includes(role)) {
+        const url = req.nextUrl.clone()
+        url.pathname = ROLE_HOME[role]
+        return NextResponse.redirect(url)
+      }
+    }
+  }
+
+  if (pathname === '/login' || pathname === '/') {
+    const url = req.nextUrl.clone()
+    url.pathname = ROLE_HOME[role]
+    return NextResponse.redirect(url)
+  }
+
   return NextResponse.next()
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],

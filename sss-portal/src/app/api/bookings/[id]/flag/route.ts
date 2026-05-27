@@ -24,6 +24,10 @@ export async function POST(
     return NextResponse.json({ error: 'reason is required' }, { status: 400 })
   }
 
+  if (body.reason.trim().length > 500) {
+    return NextResponse.json({ error: 'reason must be 500 characters or fewer' }, { status: 400 })
+  }
+
   const actor = session.user.name ?? session.user.email
 
   try {

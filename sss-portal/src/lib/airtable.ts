@@ -118,12 +118,12 @@ async function log(
 ): Promise<void> {
   try {
     await create(T.AUDIT_LOG, {
-      Event_Type: eventType,
-      Entity: entity,
-      Entity_ID: entityId,
+      'Action Type': eventType,
+      'Changed Table': entity,
+      'Scenario ID': entityId,
       Actor: actor,
-      Severity: severity,
-      Details: details ?? '',
+      'Severity Level': severity,
+      'Payload Summary': details ?? '',
     })
   } catch {
     // best-effort — never block the main operation
@@ -136,16 +136,14 @@ export const leads = {
   async getActive(): Promise<ATRecord[]> {
     return getAll(T.REQUESTS, {
       filterByFormula: `NOT(OR({Status}="CLOSED_WON",{Status}="CLOSED_LOST"))`,
-      'sort[0][field]': 'SLA_Status',
+      'sort[0][field]': 'Submission Date',
       'sort[0][direction]': 'desc',
-      'sort[1][field]': 'Created',
-      'sort[1][direction]': 'desc',
     })
   },
 
   async getActionRequired(): Promise<ATRecord[]> {
     return getAll(T.REQUESTS, {
-      filterByFormula: `AND({Attention_Required}=1,NOT(OR({Status}="CLOSED_WON",{Status}="CLOSED_LOST")))`,
+      filterByFormula: `AND({🔔 Response Needed}=1,NOT(OR({Status}="CLOSED_WON",{Status}="CLOSED_LOST")))`,
     })
   },
 
@@ -189,7 +187,7 @@ export const bookings = {
 
   async getActionRequired(): Promise<ATRecord[]> {
     return getAll(T.BOOKINGS, {
-      filterByFormula: `AND({Attention_Required}=1,NOT(OR({Status}="COMPLETED",{Status}="CANCELLED")))`,
+      filterByFormula: `AND({🔔 Action Due Today}=1,NOT(OR({Status}="COMPLETED",{Status}="CANCELLED")))`,
     })
   },
 
@@ -219,7 +217,7 @@ export const bookings = {
 export const activity = {
   async getRecent(limit = 50): Promise<ATRecord[]> {
     return getAll(T.AUDIT_LOG, {
-      'sort[0][field]': 'Created',
+      'sort[0][field]': 'Timestamp',
       'sort[0][direction]': 'desc',
       maxRecords: String(limit),
     })
@@ -227,12 +225,12 @@ export const activity = {
 
   async getUnresolved(): Promise<ATRecord[]> {
     return getAll(T.AUDIT_LOG, {
-      filterByFormula: `AND({Resolved}=0,OR({Severity}="ERROR",{Severity}="CRITICAL"))`,
+      filterByFormula: `AND({Follow-up Required}=1,OR({Severity Level}="ERROR",{Severity Level}="CRITICAL"))`,
     })
   },
 
   async resolve(id: string, actor: string): Promise<ATRecord> {
-    const record = await patch(T.AUDIT_LOG, id, { Resolved: true })
+    const record = await patch(T.AUDIT_LOG, id, { 'Follow-up Required': false })
     await log('ISSUE_RESOLVED', 'AuditLog', id, actor)
     return record
   },
@@ -243,16 +241,16 @@ export const activity = {
 export const approvals = {
   async getPending(): Promise<ATRecord[]> {
     return getAll(T.APPROVALS, {
-      filterByFormula: `{Status}="PENDING"`,
+      filterByFormula: `{Status/Outcome}="PENDING"`,
     })
   },
 
   async decide(id: string, approved: boolean, actor: string, note?: string): Promise<ATRecord> {
     const status = approved ? 'APPROVED' : 'REJECTED'
     const record = await patch(T.APPROVALS, id, {
-      Status: status,
-      Decided_By: actor,
-      Decision_Note: note ?? '',
+      'Status/Outcome': status,
+      'Founder Name': actor,
+      'Decision Note': note ?? '',
     })
     await log('APPROVAL_DECISION', 'Approval', id, actor, `${status}${note ? ': ' + note : ''}`)
     return record
@@ -306,19 +304,19 @@ export async function getActionItems(): Promise<ActionItem[]> {
   if (leadsRes.status === 'fulfilled') {
     for (const r of leadsRes.value) {
       const f = r.fields
-      const sla = (f.SLA_Status as SLAStatus) ?? 'GREEN'
+      const sla: SLAStatus = 'GREEN'
+      const firstName = (f['First Name'] as string) ?? ''
+      const lastName = (f['Last Name'] as string) ?? ''
+      const fullName = `${firstName} ${lastName}`.trim() || 'Unnamed Lead'
       items.push({
         id: r.id,
         source: 'lead',
         priority: slaScore(sla) + 10,
-        title: (f.Name as string) ?? 'Unnamed Lead',
-        subtitle: `${f.Status ?? ''} · ${f.Destination ?? ''} · ${f.Charter_Date ?? ''}`.replace(
-          /^ · | · $/g,
-          ''
-        ),
+        title: fullName,
+        subtitle: `${f.Status ?? ''} · ${f['Preferred Date'] ?? ''}`.replace(/^ · | · $/g, ''),
         sla,
         href: `/concierge/leads/${r.id}`,
-        badge: f.Source as string | undefined,
+        badge: f['Lead Source'] as string | undefined,
       })
     }
   }
@@ -326,16 +324,16 @@ export async function getActionItems(): Promise<ActionItem[]> {
   if (bookingsRes.status === 'fulfilled') {
     for (const r of bookingsRes.value) {
       const f = r.fields
-      const sla = (f.SLA_Status as SLAStatus) ?? 'GREEN'
+      const sla: SLAStatus = 'GREEN'
       items.push({
         id: r.id,
         source: 'booking',
         priority: slaScore(sla) + 20,
-        title: (f.Booking_Reference as string) ?? 'Booking',
-        subtitle: `${f.Client_Name ?? ''} · ${f.Charter_Date ?? ''}`.replace(/^ · | · $/g, ''),
+        title: (f['Booking ID'] as string) ?? 'Booking',
+        subtitle: `${f['Client Name'] ?? ''} · ${f['Charter Date'] ?? ''}`.replace(/^ · | · $/g, ''),
         sla,
         href: `/operations/charters`,
-        badge: f.Flagged ? 'FLAGGED' : undefined,
+        badge: f['Emergency_Flag'] ? 'FLAGGED' : undefined,
       })
     }
   }
@@ -347,8 +345,8 @@ export async function getActionItems(): Promise<ActionItem[]> {
         id: r.id,
         source: 'approval',
         priority: 80,
-        title: (f.Title as string) ?? 'Approval Required',
-        subtitle: (f.Description as string) ?? '',
+        title: (f['Request Title'] as string) ?? 'Approval Required',
+        subtitle: (f['Context'] as string) ?? '',
         sla: 'WARNING',
         href: `/owner/dashboard`,
         badge: 'APPROVAL',
@@ -398,13 +396,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const activeLeads = leadsRes.status === 'fulfilled' ? leadsRes.value.length : 0
   const attentionRequired =
     leadsRes.status === 'fulfilled'
-      ? leadsRes.value.filter((r) => r.fields.Attention_Required).length
+      ? leadsRes.value.filter((r) => r.fields['🔔 Response Needed']).length
       : 0
 
   const activeBookings = bookingsRes.status === 'fulfilled' ? bookingsRes.value.length : 0
   const monthRevenue =
     bookingsRes.status === 'fulfilled'
-      ? bookingsRes.value.reduce((sum, r) => sum + ((r.fields.Total_Value as number) ?? 0), 0)
+      ? bookingsRes.value.reduce((sum, r) => sum + ((r.fields['Total Cost'] as number) ?? 0), 0)
       : 0
 
   const pendingApprovals = approvalsRes.status === 'fulfilled' ? approvalsRes.value.length : 0

@@ -271,6 +271,8 @@ export const issues = {
 
 export const users = {
   async findByEmail(email: string): Promise<ATRecord | null> {
+    // Validate format before interpolating into formula — rejects injection attempts
+    if (!/^[^\s@"]+@[^\s@"]+\.[^\s@"]+$/.test(email)) return null
     const records = await getAll(T.USERS, {
       filterByFormula: `{Email}="${email.toLowerCase()}"`,
       maxRecords: '1',

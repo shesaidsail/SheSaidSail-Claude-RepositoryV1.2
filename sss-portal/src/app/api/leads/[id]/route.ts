@@ -34,6 +34,9 @@ export async function PATCH(
   if (body.probability !== undefined && (body.probability < 0 || body.probability > 100)) {
     return NextResponse.json({ error: 'Probability must be between 0 and 100' }, { status: 400 })
   }
+  if (body.notes !== undefined && body.notes.length > 5000) {
+    return NextResponse.json({ error: 'Notes must be 5000 characters or fewer' }, { status: 400 })
+  }
 
   const actor = session.user.name ?? session.user.email
 

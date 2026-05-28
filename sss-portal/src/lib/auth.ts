@@ -4,6 +4,12 @@ import bcrypt from 'bcryptjs'
 import { users } from '@/lib/airtable'
 import type { Role } from '@/types'
 
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
+    throw new Error('NEXTAUTH_SECRET must be set to at least 32 characters in production. Run: openssl rand -base64 32')
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

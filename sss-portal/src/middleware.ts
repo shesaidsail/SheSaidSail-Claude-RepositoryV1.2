@@ -41,12 +41,13 @@ export async function middleware(req: NextRequest) {
   }
 
   const role = token.role as Role
+  const roleHome = ROLE_HOME[role] ?? '/owner/dashboard'
 
   for (const [prefix, allowed] of Object.entries(PROTECTED)) {
     if (pathname.startsWith(prefix)) {
       if (!allowed.includes(role)) {
         const url = req.nextUrl.clone()
-        url.pathname = ROLE_HOME[role]
+        url.pathname = roleHome
         return NextResponse.redirect(url)
       }
     }
@@ -54,7 +55,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === '/login' || pathname === '/') {
     const url = req.nextUrl.clone()
-    url.pathname = ROLE_HOME[role]
+    url.pathname = roleHome
     return NextResponse.redirect(url)
   }
 

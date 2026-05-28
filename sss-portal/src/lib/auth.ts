@@ -18,6 +18,8 @@ export const authOptions: NextAuthOptions = {
         const record = await users.findByEmail(credentials.email)
         if (!record) return null
 
+        if (!record.fields.Active) return null
+
         const hash = record.fields.Password_Hash as string | undefined
         if (!hash) return null
 

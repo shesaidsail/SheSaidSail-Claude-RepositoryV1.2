@@ -2,38 +2,30 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Users, ChevronRight } from 'lucide-react'
 import { leads } from '@/lib/airtable'
-import { SLABadge, StatusBadge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/badge'
 import { fmtDate, timeAgo } from '@/lib/utils'
-import type { SLAStatus } from '@/types'
 
 export const metadata: Metadata = { title: 'Lead Board' }
+
+function leadName(f: Record<string, unknown>): string {
+  const first = (f['First Name'] as string) ?? ''
+  const last = (f['Last Name'] as string) ?? ''
+  return [first, last].filter(Boolean).join(' ') || 'Unknown'
+}
+
+function selectName(v: unknown): string {
+  if (!v) return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'object' && v !== null && 'name' in v) return (v as { name: string }).name
+  return ''
+}
 
 export default async function LeadBoardPage() {
   const allLeads = await leads.getActive()
 
-  // Sort: BREACHED first, then WARNING, then by created desc
-  const sorted = allLeads.sort((a, b) => {
-    const slaOrder: Record<string, number> = { BREACHED: 0, WARNING: 1, GREEN: 2 }
-    const aSLA = slaOrder[(a.fields.SLA_Status as string) ?? 'GREEN'] ?? 2
-    const bSLA = slaOrder[(b.fields.SLA_Status as string) ?? 'GREEN'] ?? 2
-    if (aSLA !== bSLA) return aSLA - bSLA
-    return new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime()
-  })
-
-  const byStatus = {
-    new: sorted.filter((r) => r.fields.Status === 'NEW'),
-    contacted: sorted.filter((r) => r.fields.Status === 'CONTACTED'),
-    qualified: sorted.filter((r) =>
-      ['QUALIFIED', 'AVAILABILITY_CONFIRMED', 'PROPOSAL_SENT', 'NEGOTIATING'].includes(
-        (r.fields.Status as string) ?? ''
-      )
-    ),
-    other: sorted.filter((r) =>
-      !['NEW', 'CONTACTED', 'QUALIFIED', 'AVAILABILITY_CONFIRMED', 'PROPOSAL_SENT', 'NEGOTIATING'].includes(
-        (r.fields.Status as string) ?? ''
-      )
-    ),
-  }
+  const sorted = allLeads.sort(
+    (a, b) => new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime()
+  )
 
   return (
     <div className="p-8">
@@ -55,26 +47,23 @@ export default async function LeadBoardPage() {
         </div>
       ) : (
         <div className="bg-[#141414] border border-[#252525] rounded-xl overflow-hidden">
-          {/* Table header */}
-          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-[#1e1e1e] text-xs font-medium uppercase tracking-widest text-[#404040]">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-3 border-b border-[#1e1e1e] text-xs font-medium uppercase tracking-widest text-[#404040]">
             <span>Lead</span>
-            <span className="text-right">Charter Date</span>
+            <span className="text-right">Preferred Date</span>
             <span className="text-right">Status</span>
-            <span className="text-right">SLA</span>
             <span />
           </div>
 
           {sorted.map((record) => {
             const f = record.fields
-            const sla = (f.SLA_Status as SLAStatus) ?? 'GREEN'
             const status = (f.Status as string) ?? ''
-            const attention = f.Attention_Required as boolean | undefined
+            const attention = f['🔔 Response Needed'] as boolean | undefined
 
             return (
               <Link
                 key={record.id}
                 href={`/concierge/leads/${record.id}`}
-                className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center px-5 py-3.5 border-b border-[#1a1a1a] last:border-0 hover:bg-[#161616] transition-colors group"
+                className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-3.5 border-b border-[#1a1a1a] last:border-0 hover:bg-[#161616] transition-colors group"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -82,25 +71,22 @@ export default async function LeadBoardPage() {
                       <div className="h-1.5 w-1.5 rounded-full bg-red-400 flex-shrink-0" />
                     )}
                     <span className="text-sm font-medium text-[#f0ede8] truncate">
-                      {(f.Name as string) ?? 'Unknown'}
+                      {leadName(f)}
                     </span>
                   </div>
                   <div className="text-xs text-[#505050] mt-0.5">
-                    {(f.Destination as string) ?? '—'} ·{' '}
-                    {(f.Group_Size as number)
-                      ? `${f.Group_Size} guests`
+                    {(f.Experience as string) ?? '—'} ·{' '}
+                    {(f['Guest Count'] as number)
+                      ? `${f['Guest Count']} guests`
                       : '—'}{' '}
                     · {timeAgo(record.createdTime)}
                   </div>
                 </div>
                 <span className="text-sm text-[#808080] text-right">
-                  {fmtDate(f.Charter_Date as string)}
+                  {fmtDate(f['Preferred Date'] as string)}
                 </span>
                 <div className="flex justify-end">
                   <StatusBadge status={status || 'NEW'} />
-                </div>
-                <div className="flex justify-end">
-                  <SLABadge status={sla} />
                 </div>
                 <ChevronRight className="h-4 w-4 text-[#303030] group-hover:text-[#606060] transition-colors" />
               </Link>

@@ -10,8 +10,9 @@ import {
   Anchor,
   TrendingUp,
   LogOut,
-  ChevronDown,
   Activity,
+  CheckSquare,
+  AlertTriangle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Role } from '@/types'
@@ -47,6 +48,18 @@ const NAV: NavItem[] = [
     href: '/operations/charters',
     icon: <Anchor className="h-4 w-4" />,
     roles: ['Owner', 'Operations'],
+  },
+  {
+    label: 'Approvals',
+    href: '/owner/approvals',
+    icon: <CheckSquare className="h-4 w-4" />,
+    roles: ['Owner'],
+  },
+  {
+    label: 'Issues',
+    href: '/owner/issues',
+    icon: <AlertTriangle className="h-4 w-4" />,
+    roles: ['Owner'],
   },
   {
     label: 'Activity',

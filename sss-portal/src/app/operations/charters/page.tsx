@@ -1,21 +1,26 @@
 import type { Metadata } from 'next'
-import { Anchor, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
+import { Anchor } from 'lucide-react'
 import { bookings } from '@/lib/airtable'
-import { SLABadge, StatusBadge, Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/badge'
 import { fmtDate, fmt$ } from '@/lib/utils'
 import { FlagBookingButton } from './flag-booking-button'
-import type { SLAStatus } from '@/types'
 
 export const metadata: Metadata = { title: 'Charter Board' }
+
+function lookupFirst(v: unknown): string {
+  if (Array.isArray(v)) return (v[0] as string) ?? '—'
+  if (typeof v === 'string') return v
+  return '—'
+}
 
 export default async function CharterBoardPage() {
   const activeBookings = await bookings.getActive()
 
-  const sorted = activeBookings.sort((a, b) => {
-    const slaOrder: Record<string, number> = { BREACHED: 0, WARNING: 1, GREEN: 2 }
-    const aSLA = slaOrder[(a.fields.SLA_Status as string) ?? 'GREEN'] ?? 2
-    const bSLA = slaOrder[(b.fields.SLA_Status as string) ?? 'GREEN'] ?? 2
-    return aSLA - bSLA
+  const sorted = [...activeBookings].sort((a, b) => {
+    const dateA = new Date((a.fields['Charter Date'] as string) ?? 0).getTime()
+    const dateB = new Date((b.fields['Charter Date'] as string) ?? 0).getTime()
+    return dateA - dateB
   })
 
   return (
@@ -38,61 +43,47 @@ export default async function CharterBoardPage() {
         </div>
       ) : (
         <div className="bg-[#141414] border border-[#252525] rounded-xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-[#1e1e1e] text-xs font-medium uppercase tracking-widest text-[#404040]">
+          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-[#1e1e1e] text-xs font-medium uppercase tracking-widest text-[#404040]">
             <span>Booking</span>
             <span className="text-right">Charter Date</span>
             <span className="text-right">Value</span>
             <span className="text-right">Status</span>
-            <span className="text-right">SLA</span>
             <span />
           </div>
 
           {sorted.map((record) => {
             const f = record.fields
-            const sla = (f.SLA_Status as SLAStatus) ?? 'GREEN'
-            const flagged = f.Flagged as boolean | undefined
+            const flagged = f.Emergency_Flag as boolean | undefined
 
             return (
-              <div
+              <Link
                 key={record.id}
-                className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 items-center px-5 py-3.5 border-b border-[#1a1a1a] last:border-0"
+                href={`/operations/charters/${record.id}`}
+                className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center px-5 py-3.5 border-b border-[#1a1a1a] last:border-0 hover:bg-[#161616] transition-colors group"
               >
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    {flagged && (
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
-                    )}
-                    <span className="text-sm font-medium text-[#f0ede8]">
-                      {(f.Booking_Reference as string) ?? record.id.slice(-6).toUpperCase()}
-                    </span>
-                    {flagged && (
-                      <Badge variant="red" className="text-xs">
-                        FLAGGED
-                      </Badge>
-                    )}
+                  <div className="text-sm font-medium text-[#f0ede8]">
+                    {(f['Booking ID'] as string) ?? record.id.slice(-6).toUpperCase()}
                   </div>
                   <div className="text-xs text-[#505050] mt-0.5">
-                    {(f.Client_Name as string) ?? '—'} · {(f.Vessel as string) ?? '—'} ·{' '}
-                    {(f.Destination as string) ?? '—'}
+                    {lookupFirst(f['Client Name'])} · {(f['Yacht Name'] as string) ?? '—'} ·{' '}
+                    {(f['Port of Call'] as string) ?? '—'}
                   </div>
-                  {f.Flag_Reason ? (
-                    <div className="text-xs text-red-400 mt-0.5">{f.Flag_Reason as string}</div>
+                  {flagged && f.Charter_Notes ? (
+                    <div className="text-xs text-red-400 mt-0.5">⚑ {f.Charter_Notes as string}</div>
                   ) : null}
                 </div>
                 <span className="text-sm text-[#808080] text-right">
-                  {fmtDate(f.Charter_Date as string)}
+                  {fmtDate(f['Charter Date'] as string)}
                 </span>
                 <span className="text-sm text-[#808080] text-right">
-                  {fmt$(f.Total_Value as number)}
+                  {fmt$(f['Package Price'] as number)}
                 </span>
                 <div className="flex justify-end">
-                  <StatusBadge status={(f.Status as string) ?? 'CONFIRMED'} />
-                </div>
-                <div className="flex justify-end">
-                  <SLABadge status={sla} />
+                  <StatusBadge status={(f.Status as string) ?? 'ACTIVE'} />
                 </div>
                 <FlagBookingButton bookingId={record.id} alreadyFlagged={!!flagged} />
-              </div>
+              </Link>
             )
           })}
         </div>

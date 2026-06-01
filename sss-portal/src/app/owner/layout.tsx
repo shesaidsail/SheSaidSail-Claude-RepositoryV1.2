@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import { SidebarLayout } from '@/components/nav/Sidebar'
 
-// TEMPORARY QA BYPASS — auth check removed for staging. Restore before production.
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions)
+  if (!session) redirect('/login')
+  if (session.user.role !== 'Owner') redirect('/login')
   return <SidebarLayout>{children}</SidebarLayout>
 }

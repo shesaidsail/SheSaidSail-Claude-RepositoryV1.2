@@ -10,11 +10,17 @@ import { fmt$ } from '@/lib/utils'
 export const metadata: Metadata = { title: 'Dashboard' }
 
 export default async function OwnerDashboardPage() {
-  const [stats, actionItems, recentActivity] = await Promise.all([
+  const [statsRes, actionRes, activityRes] = await Promise.allSettled([
     getDashboardStats(),
     getActionItems(),
     activity.getRecent(20),
   ])
+
+  const stats = statsRes.status === 'fulfilled'
+    ? statsRes.value
+    : { activeLeads: 0, attentionRequired: 0, activeBookings: 0, pendingApprovals: 0, openIssues: 0, monthRevenue: 0 }
+  const actionItems = actionRes.status === 'fulfilled' ? actionRes.value : []
+  const recentActivity = activityRes.status === 'fulfilled' ? activityRes.value : []
 
   const topActions = actionItems.slice(0, 5)
 

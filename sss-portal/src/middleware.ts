@@ -17,19 +17,38 @@ const ROLE_HOME: Record<Role, string> = {
   Marketing: '/marketing',
 }
 
-// ─── TEMPORARY QA BYPASS ─────────────────────────────────────────────────────
-// Auth is disabled for staging review. To re-enable: delete the 4 lines below
-// and uncomment the original auth logic (see git history: commit 602d259).
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  if (pathname === '/' || pathname === '/login') {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+  // Not authenticated
+  if (!token) {
+    if (pathname === '/login') return NextResponse.next()
     const url = req.nextUrl.clone()
-    url.pathname = '/owner/dashboard'
+    url.pathname = '/login'
     return NextResponse.redirect(url)
   }
+
+  const role = token.role as Role
+
+  // Already logged in — redirect away from login page
+  if (pathname === '/login' || pathname === '/') {
+    const url = req.nextUrl.clone()
+    url.pathname = ROLE_HOME[role] ?? '/owner/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // Role-based route protection
+  for (const [prefix, allowed] of Object.entries(PROTECTED)) {
+    if (pathname.startsWith(prefix) && !allowed.includes(role)) {
+      const url = req.nextUrl.clone()
+      url.pathname = ROLE_HOME[role] ?? '/login'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return NextResponse.next()
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],

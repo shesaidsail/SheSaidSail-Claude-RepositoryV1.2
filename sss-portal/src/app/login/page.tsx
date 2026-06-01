@@ -1,13 +1,10 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { LoginForm } from './login-form'
 
 export const metadata: Metadata = { title: 'Sign In' }
 
 export default function LoginPage() {
-  // TEMPORARY QA BYPASS — redirects /login straight to dashboard. Restore before production.
-  redirect('/owner/dashboard')
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       {/* Subtle background grain */}

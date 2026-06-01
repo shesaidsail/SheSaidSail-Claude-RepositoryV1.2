@@ -107,6 +107,8 @@ async function create(tableId: string, fields: Record<string, unknown>): Promise
 }
 
 // ─── Audit Log ───────────────────────────────────────────────────────────────
+// Real field names: "Action Type", "Changed Table", "Scenario ID", "Actor",
+// "Severity Level", "Log Entry", "Timestamp", "Follow-up Required"
 
 async function log(
   eventType: string,
@@ -118,12 +120,12 @@ async function log(
 ): Promise<void> {
   try {
     await create(T.AUDIT_LOG, {
-      Event_Type: eventType,
-      Entity: entity,
-      Entity_ID: entityId,
+      'Action Type': eventType,
+      'Changed Table': entity,
+      'Scenario ID': entityId,
       Actor: actor,
-      Severity: severity,
-      Details: details ?? '',
+      'Severity Level': severity,
+      'Log Entry': details ?? '',
     })
   } catch {
     // best-effort — never block the main operation
@@ -225,7 +227,7 @@ export const bookings = {
 export const activity = {
   async getRecent(limit = 50): Promise<ATRecord[]> {
     return getAll(T.AUDIT_LOG, {
-      'sort[0][field]': 'Created',
+      'sort[0][field]': 'Timestamp',
       'sort[0][direction]': 'desc',
       maxRecords: String(limit),
     })
@@ -233,12 +235,12 @@ export const activity = {
 
   async getUnresolved(): Promise<ATRecord[]> {
     return getAll(T.AUDIT_LOG, {
-      filterByFormula: `AND({Resolved}=0,OR({Severity}="ERROR",{Severity}="CRITICAL"))`,
+      filterByFormula: `{Follow-up Required}=1`,
     })
   },
 
   async resolve(id: string, actor: string): Promise<ATRecord> {
-    const record = await patch(T.AUDIT_LOG, id, { Resolved: true })
+    const record = await patch(T.AUDIT_LOG, id, { 'Follow-up Required': false })
     await log('ISSUE_RESOLVED', 'AuditLog', id, actor)
     return record
   },

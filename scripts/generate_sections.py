@@ -113,4 +113,64 @@ write("section-faq-conversion.json", export("Questions, Answered", [
     accordion(faq_pairs),
 ]))
 
-print("Generated 4 section templates")
+# --- Team section helpers (Founder + Emma + Tania + office) ---
+def img_ph(label):
+    return {"id": hid(), "elType": "widget", "widgetType": "text-editor",
+            "settings": {"editor": f"<p style=\"text-align:center;color:#9aa;border:1px dashed #ccc;padding:48px 0;\">{label}</p>",
+                         "align": "center"}, "elements": [], "isInner": False}
+
+def col(children, width=33):
+    return {"id": hid(), "elType": "container",
+            "settings": {"flex_direction": "column", "content_width": "full",
+                         "width": {"unit": "%", "size": width},
+                         "padding": {"unit": "px", "top": "0", "right": "16",
+                                     "bottom": "0", "left": "16", "isLinked": False}},
+            "elements": children, "isInner": True}
+
+def row(children):
+    return {"id": hid(), "elType": "container",
+            "settings": {"flex_direction": "row", "content_width": "boxed",
+                         "flex_wrap": "wrap",
+                         "flex_gap": {"unit": "px", "size": 24, "column": "24", "row": "24"}},
+            "elements": children, "isInner": False}
+
+def person(name, role, bio, photo_label):
+    return col([
+        img_ph(photo_label),
+        {"id": hid(), "elType": "widget", "widgetType": "heading",
+         "settings": {"title": name, "header_size": "h3", "align": "center"},
+         "elements": [], "isInner": False},
+        {"id": hid(), "elType": "widget", "widgetType": "heading",
+         "settings": {"title": role, "header_size": "h6", "align": "center"},
+         "elements": [], "isInner": False},
+        text(f"<p>{bio}</p>"),
+    ])
+
+# Team page section: founder + Emma + Tania + office placeholder
+write("section-team.json", export("Meet the Team Behind She Said Sail", [
+    heading("Meet the Team Behind She Said Sail"),
+    text("<p>A small, hands-on team behind every celebration. Real people who plan your "
+         "day, answer your questions, and make sure the water feels handled.</p>"),
+    row([
+        person("[FOUNDER NAME]", "Founder",
+               "She Said Sail was built to make private yacht experiences feel more curated, "
+               "more personal, and easier to plan. The goal is simple: help groups celebrate "
+               "on the water without the stress of figuring everything out alone.",
+               "[FOUNDER PHOTO TO BE ADDED]"),
+        person("Emma", "[ROLE TO CONFIRM, e.g. Concierge Lead]",
+               "[SHORT BIO TO APPROVE] Emma helps groups shape the day from first message to "
+               "departure, matching each celebration to the right vessel and handling the "
+               "details so the planning feels calm and clear.",
+               "[EMMA PHOTO TO BE ADDED]"),
+        person("Tania", "[ROLE TO CONFIRM, e.g. Client Experience]",
+               "[SHORT BIO TO APPROVE] Tania looks after the experience on the day, "
+               "coordinating styling, timing, and add ons so every group arrives to a "
+               "celebration that is ready for them.",
+               "[TANIA PHOTO TO BE ADDED]"),
+    ]),
+    heading("Inside Our World", "h3"),
+    img_ph("[OFFICE / TEAM PHOTO TO BE ADDED]"),
+    img_ph("[BEHIND THE SCENES / STYLING PHOTO TO BE ADDED]"),
+]))
+
+print("Generated 5 section templates")

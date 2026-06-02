@@ -14,11 +14,14 @@ function f(record: ATRecord, key: string) {
 }
 
 export function ActivityFeedItem({ record }: { record: ATRecord }) {
-  const severity = (f(record, 'Severity') as Severity) ?? 'INFO'
-  const eventType = f(record, 'Event_Type') ?? 'Event'
-  const details = f(record, 'Details')
+  const severityRaw = f(record, 'Severity Level') ?? 'INFO'
+  const severity = (['INFO', 'WARNING', 'ERROR', 'CRITICAL'].includes(severityRaw)
+    ? severityRaw
+    : 'INFO') as Severity
+  const eventType = f(record, 'Action Type') ?? 'Event'
+  const details = f(record, 'Log Entry') ?? f(record, 'Payload Summary')
   const actor = f(record, 'Actor')
-  const created = f(record, 'Created') ?? record.createdTime
+  const created = f(record, 'Timestamp') ?? record.createdTime
 
   return (
     <div className="flex gap-3 py-3 border-b border-[#1a1a1a] last:border-0">

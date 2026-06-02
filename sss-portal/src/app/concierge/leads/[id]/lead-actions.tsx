@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { CheckCircle, Save, AlertCircle } from 'lucide-react'
+import { CheckCircle, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -22,35 +22,22 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
-const STATUSES = [
-  'NEW',
-  'CONTACTED',
-  'QUALIFIED',
-  'AVAILABILITY_CONFIRMED',
-  'PROPOSAL_SENT',
-  'NEGOTIATING',
-  'CLOSED_WON',
-  'CLOSED_LOST',
-  'NURTURE',
-]
+const STATUSES = ['NEW', 'QUALIFIED', 'BOOKED', 'CLOSED']
 
 interface LeadActionsProps {
   leadId: string
   currentStatus: string
   currentNotes: string
-  currentProbability: number
 }
 
 export function LeadActions({
   leadId,
   currentStatus,
   currentNotes,
-  currentProbability,
 }: LeadActionsProps) {
   const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [notes, setNotes] = useState(currentNotes)
-  const [probability, setProbability] = useState(currentProbability)
   const [saving, setSaving] = useState(false)
   const [qualifying, setQualifying] = useState(false)
   const [qualifyOpen, setQualifyOpen] = useState(false)
@@ -61,7 +48,7 @@ export function LeadActions({
       const res = await fetch(`/api/leads/${leadId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, notes, probability }),
+        body: JSON.stringify({ status, notes }),
       })
       if (!res.ok) throw new Error()
       toast.success('Saved')
@@ -88,7 +75,7 @@ export function LeadActions({
     }
   }
 
-  const canQualify = !['AVAILABILITY_CONFIRMED', 'CLOSED_WON', 'CLOSED_LOST'].includes(status)
+  const canQualify = !['BOOKED', 'CLOSED'].includes(status)
 
   return (
     <div className="space-y-4">
@@ -133,20 +120,6 @@ export function LeadActions({
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium uppercase tracking-widest text-[#505050]">
-            Probability %
-          </label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={probability}
-            onChange={(e) => setProbability(Number(e.target.value))}
-            className="flex h-9 w-full rounded-lg border border-[#252525] bg-[#1c1c1c] px-3 text-sm text-[#f0ede8] outline-none focus:border-[#c9a96e]"
-          />
         </div>
 
         <div className="space-y-1.5">

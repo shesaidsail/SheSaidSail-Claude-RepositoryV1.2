@@ -6,7 +6,7 @@ import { ActivityFeedItem } from '@/components/ui/activity-feed'
 export const metadata: Metadata = { title: 'Activity' }
 
 export default async function ActivityPage() {
-  const records = await activity.getRecent(100)
+  const records = await activity.getRecent(100).catch(() => [])
 
   return (
     <div className="p-8 max-w-[700px]">

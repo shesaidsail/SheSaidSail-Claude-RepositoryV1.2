@@ -55,7 +55,7 @@ export function FlagBookingButton({
       <Button
         variant="ghost"
         size="icon-sm"
-        onClick={() => setOpen(true)}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true) }}
         className="text-[#404040] hover:text-red-400"
         title="Flag booking"
       >

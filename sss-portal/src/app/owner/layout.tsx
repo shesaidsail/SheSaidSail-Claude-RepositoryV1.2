@@ -5,8 +5,7 @@ import { SidebarLayout } from '@/components/nav/Sidebar'
 
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== 'Owner') {
-    redirect('/login')
-  }
+  if (!session) redirect('/login')
+  if (session.user.role !== 'Owner') redirect('/login')
   return <SidebarLayout>{children}</SidebarLayout>
 }

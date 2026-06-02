@@ -36,11 +36,22 @@ Pulled from the SheSaidSail Consierge HQ Drive folder:
 - Pink Palm Copy.docx and Monaco Social Copy.docx: real experience copy
 - Brand and lifestyle photography by Susan Berry, April 2026
 
-## Elementor JSON status: pending files
+## Elementor JSON status: implemented
 
-The core request includes editing the Elementor JSON exports directly. At the time of this pass, the Elementor exports (elementor-5894, 5888, 5884, 5877, 5874, 5871, 5868, 5865, 5859, 5856, 5853 and related, dated 2026-06-02) live in the Claude Project knowledge for "SheSaidSail Consierge OS." That project panel is not accessible from this Claude Code environment, and the files are not in the git repo, the connected Google Drive, or the chat uploads.
+All 17 Elementor exports were uploaded into the chat in batches, imported to elementor-source/ as the version controlled source of truth, and edited directly. Updated import ready copies are in elementor-updated/, with originals preserved. See docs/elementor-file-map.md for the inventory and classification.
 
-No Elementor JSON was fabricated, because inventing widget structure and IDs would risk corrupting a real import. Once the elementor-*.json files are committed to the repo, the JSON edits will be applied directly and safely per docs/wordpress-elementor-manual-steps.md, preserving IDs, widget types, styling, responsive settings, forms, and tracking.
+What was applied to the 17 files (text only, all IDs, widget types, styling, responsive settings, and forms preserved):
+- Removed all lorem ipsum (98 fields), replaced with on brand copy
+- Removed the Peter Lawson placeholder and cleared demo testimonial data (20 items: Jhon Malthans, "Customer", lorem reviews) to clearly marked [REAL TESTIMONIAL NEEDED] slots
+- Replaced the demo theme brand "Odysea" with She Said Sail in all visible text, and demo email odysea@mail.com with hello@shesaidsail.com
+- Replaced the unverifiable "Trusted by 1000+ clients" claim with an honest line
+- Upgraded 48 weak CTAs to Check Availability, Reserve Your Date, Find the Right Yacht, and Talk to a Concierge
+- Replaced "Rent This Yacht" with "Reserve This Yacht"
+- Replaced 36 generic demo FAQ entries with real questions and calm, accurate answers
+
+Four new importable section templates were generated in elementor-updated/: How It Works, Why Groups Choose She Said Sail, FAQ conversion block (10 questions), and the Founder section with a photo placeholder.
+
+Reality check on the exports: they were still on theme demo content (demo vessels such as "Welson Lux Yacht", demo prices such as "$950/day", demo image URLs on the theme author's server). There was no "ADD BOAT PHOTO" or "Inquire" text in the JSON, those appeared only in the pricing PDF mockup. Real fleet, pricing, photos, and testimonials still need to be layered in per the content/ files.
 
 ## Brand voice applied
 

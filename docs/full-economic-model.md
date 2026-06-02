@@ -23,9 +23,9 @@ Anchored to real data where it exists ($550 labor from Airtable, $100 per guest 
 | Component | Basis | Rosé | Golden Hour | Pink Palm | Monaco |
 |---|---|---|---|---|---|
 | Yacht cost (broker rate x 90%) | Market 6hr charter, ASSUMPTION | $6,000 | $6,000 | $6,000 | $6,000 |
-| Captain | Usually bundled in broker rate | included | included | included | included |
-| Crew | Usually bundled in broker rate | included | included | included | included |
-| Fuel | Usually bundled in broker rate | included | included | included | included |
+| Captain | Bundled in broker rate (vessel) | included | included | included | included |
+| Crew | Bundled in broker rate (vessel) | included | included | included | included |
+| Fuel | CLIENT PAID pass-through, not an SSS cost | $0 | $0 | $0 | $0 |
 | Concierge labor | Airtable $550 flat | $550 | $550 | $550 | $550 |
 | Gift bags | $100 per guest x 12 | $1,200 | $1,200 | $1,200 | $1,200 |
 | Decor and styling | tier based | $500 | $600 | $900 | $1,200 |
@@ -34,20 +34,29 @@ Anchored to real data where it exists ($550 labor from Airtable, $100 per guest 
 | Credit card fees | about 3% of revenue | varies | varies | varies | varies |
 | Sales commission | 5% referral, blended about 2.5% | varies | varies | varies | varies |
 
-Note: captain, crew, and fuel are shown as bundled in the broker rate, which matches how Miami charters are quoted. If your broker rate is bareboat, move those into their own cost fields in the engine, which already exist.
+Note: captain and crew are bundled in the broker rate. Fuel, gratuity, and tax are NOT in the package price, they are billed to the client on top, so they are margin neutral pass-throughs for She Said Sail (see next section). If your broker rate is bareboat, move captain and crew into their own cost fields in the engine, which already exist.
+
+## Pass-through items (client paid, margin neutral)
+
+The package prices below do not include these. They are added to the client total and washed through, so they are neither She Said Sail revenue nor cost:
+- Fuel surcharge. Billed to the client. If the broker rate includes fuel, She Said Sail bills a matching surcharge, net zero.
+- Gratuity. Typically 18 to 20 percent, paid by the client to captain and crew. Not She Said Sail revenue or cost.
+- Sales and use tax. Miami 7 percent, Fort Lauderdale 6 percent. Collected and remitted.
+
+Client out the door price example, Rosé Day Club 6hr at $16,900: package $16,900 plus fuel surcharge (say $600) plus gratuity at 18 percent on the charter portion (about $3,000) plus 7 percent Miami tax (about $1,183) equals roughly $21,700 all in. This matters for two reasons: it is the number the client actually compares, and it confirms the competitive read, because Miami competitors add the same fuel, gratuity, and tax on top of their charter rate. The like for like base comparison is therefore cleaner than it first appears, and the She Said Sail premium is for the produced experience (styling, F&B, concierge), not for bundling pass-throughs.
 
 ## Per package economics at current pricing (Mirracle class, 6 hours)
 
-Using the variable stack above. Fixed per booking cost before fees: yacht $6,000 + labor $550 + gift $1,200 + transport $150 = $7,900, plus the tier decor and F&B, plus 3% card and 2.5% commission on revenue.
+Because fuel is client paid, it is removed from the cost stack, which raises contribution by roughly the fuel amount versus a fuel inclusive model. Fixed per booking cost before fees: yacht $6,000 + labor $550 + gift $1,200 + transport $150 = $7,900, plus the tier decor and F&B, plus 3% card and 2.5% commission on revenue. Gratuity and tax do not appear because they are pass-throughs.
 
-| Package | Current price | Variable cost | Contribution | Contribution margin |
+| Package | Current price | Variable cost (ex fuel) | Contribution | Contribution margin |
 |---|---|---|---|---|
 | Rosé Day Club | $16,900 | about $10,730 | about $6,170 | about 37% |
 | Golden Hour Escape | $17,950 | about $11,260 | about $6,690 | about 37% |
 | Pink Palm Club | $19,050 | about $12,250 | about $6,800 | about 36% |
 | Monaco Social | $20,900 | about $13,050 | about $7,850 | about 38% |
 
-Takeaway: current contribution margins are healthy (36 to 38 percent) even after a $1,200 gift bag cost. There is room to lower price for penetration and still clear the 30 percent floor.
+Takeaway: with fuel, gratuity, and tax handled as client paid pass-throughs, the package price is close to net experience revenue, and contribution margins are a healthy 36 to 38 percent (higher than a fuel inclusive model would show). There is real room to lower price for penetration and still clear the 30 percent floor. Note: the broker rate above is assumed to be vessel and crew only. If it currently includes fuel, lower the yacht cost by the fuel amount and add the matching client surcharge, which lifts contribution by roughly $500 to $1,000 and margins toward 40 percent.
 
 ## Fixed costs and break even
 

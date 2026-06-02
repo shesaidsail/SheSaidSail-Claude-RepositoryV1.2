@@ -6,7 +6,7 @@ import { ActionItemRow } from '@/components/ui/action-item-row'
 export const metadata: Metadata = { title: 'Action Center' }
 
 export default async function ActionCenterPage() {
-  const items = await getActionItems()
+  const items = await getActionItems().catch(() => [])
 
   const breached = items.filter((i) => i.sla === 'BREACHED')
   const warning = items.filter((i) => i.sla === 'WARNING')

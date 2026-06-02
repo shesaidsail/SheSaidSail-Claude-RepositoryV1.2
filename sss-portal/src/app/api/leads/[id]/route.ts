@@ -4,10 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { leads } from '@/lib/airtable'
 import type { LeadStatus } from '@/types'
 
-const VALID_STATUSES: LeadStatus[] = [
-  'NEW', 'CONTACTED', 'QUALIFIED', 'AVAILABILITY_CONFIRMED',
-  'PROPOSAL_SENT', 'NEGOTIATING', 'CLOSED_WON', 'CLOSED_LOST', 'NURTURE',
-]
+const VALID_STATUSES: LeadStatus[] = ['NEW', 'QUALIFIED', 'BOOKED', 'CLOSED']
 
 export async function PATCH(
   req: NextRequest,

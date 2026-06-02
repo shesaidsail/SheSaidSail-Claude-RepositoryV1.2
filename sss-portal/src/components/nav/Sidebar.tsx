@@ -13,6 +13,9 @@ import {
   Activity,
   CheckSquare,
   AlertTriangle,
+  BarChart2,
+  Workflow,
+  Mail,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Role } from '@/types'
@@ -62,10 +65,28 @@ const NAV: NavItem[] = [
     roles: ['Owner'],
   },
   {
+    label: 'Insights',
+    href: '/owner/insights',
+    icon: <BarChart2 className="h-4 w-4" />,
+    roles: ['Owner'],
+  },
+  {
+    label: 'Automations',
+    href: '/owner/automations',
+    icon: <Workflow className="h-4 w-4" />,
+    roles: ['Owner'],
+  },
+  {
     label: 'Activity',
     href: '/owner/activity',
     icon: <Activity className="h-4 w-4" />,
     roles: ['Owner'],
+  },
+  {
+    label: 'Inbox',
+    href: '/concierge/inbox',
+    icon: <Mail className="h-4 w-4" />,
+    roles: ['Owner', 'Concierge'],
   },
   {
     label: 'Marketing',

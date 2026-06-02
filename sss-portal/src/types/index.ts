@@ -3,16 +3,7 @@ import 'next-auth'
 export type Role = 'Owner' | 'Marketing' | 'Operations' | 'Concierge'
 export type SLAStatus = 'GREEN' | 'WARNING' | 'BREACHED'
 export type Severity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
-export type LeadStatus =
-  | 'NEW'
-  | 'CONTACTED'
-  | 'QUALIFIED'
-  | 'AVAILABILITY_CONFIRMED'
-  | 'PROPOSAL_SENT'
-  | 'NEGOTIATING'
-  | 'CLOSED_WON'
-  | 'CLOSED_LOST'
-  | 'NURTURE'
+export type LeadStatus = 'NEW' | 'QUALIFIED' | 'BOOKED' | 'CLOSED'
 
 export interface ATRecord {
   id: string

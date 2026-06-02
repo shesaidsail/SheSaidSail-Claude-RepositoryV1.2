@@ -4,14 +4,9 @@ import bcrypt from 'bcryptjs'
 import { users } from '@/lib/airtable'
 import type { Role } from '@/types'
 
-if (process.env.NODE_ENV === 'production') {
-  if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
-    throw new Error('NEXTAUTH_SECRET must be set to at least 32 characters in production. Run: openssl rand -base64 32')
-  }
-  // Vercel sets VERCEL_URL automatically — use it as fallback if NEXTAUTH_URL isn't set
-  if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
-    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`
-  }
+// Apply VERCEL_URL fallback at module load (safe at build time)
+if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`
 }
 
 export const authOptions: NextAuthOptions = {
@@ -23,6 +18,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        if (process.env.NODE_ENV === 'production' &&
+            (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32)) {
+          throw new Error('NEXTAUTH_SECRET must be set to at least 32 characters in production.')
+        }
         if (!credentials?.email || !credentials?.password) return null
 
         const record = await users.findByEmail(credentials.email)

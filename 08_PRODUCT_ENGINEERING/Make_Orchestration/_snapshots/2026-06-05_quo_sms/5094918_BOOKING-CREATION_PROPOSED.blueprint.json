@@ -82,7 +82,7 @@
       "mapper": {
         "ca": "", "qs": [],
         "url": "https://hook.us2.make.com/n2hr4tzsi66ekeyrt65v5v1k4kg4hmqt",
-        "data": "{\"triggering_event\": \"Request Status = BOOKED — Booking Creation\", \"source_data\": \"Request ID: {{1.id}}, Client: {{1.`First Name`}} {{1.`Last Name`}}, Date: {{formatDate(1.`Preferred Date`; \\\"YYYY-MM-DD\\\")}}\", \"output\": \"Booking created: {{5.id}}. Stripe deposit link: {{6.url}}. Email sent; deposit SMS via native Quo (to {{1.Phone}}; msg id: {{10.id}}).\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{1.Brand}}\", \"city\": \"{{1.fields.City}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings + Stripe API + Gmail + Quo SMS\"}",
+        "data": "{\"triggering_event\": \"Request Status = BOOKED — Booking Creation\", \"source_data\": \"Request ID: {{1.id}}, Client: {{1.`First Name`}} {{1.`Last Name`}}, Date: {{formatDate(1.`Preferred Date`; \\\"YYYY-MM-DD\\\")}}\", \"output\": \"Booking created: {{5.id}}. Stripe deposit link: {{6.url}}. Email sent; deposit SMS via native Quo to {{1.Phone}}.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{1.Brand}}\", \"city\": \"{{1.fields.City}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings + Stripe API + Gmail + Quo SMS\"}",
         "gzip": true, "method": "post",
         "headers": [ { "name": "Content-Type", "value": "application/json" } ],
         "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true

@@ -1,0 +1,121 @@
+{
+  "flow": [
+    {
+      "id": 1,
+      "mapper": {},
+      "module": "airtable:TriggerWatchRecords",
+      "version": 3,
+      "metadata": {
+        "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } },
+        "designer": { "x": 0, "y": 0 }
+      },
+      "parameters": {
+        "base": "appdZ49WqgjRXxA1R",
+        "table": "tblTlSB9CO4dTGodg",
+        "config": { "labelField": "Email", "triggerField": "Last Modified Time" },
+        "formula": "AND({Availability Confirmed} = 1, {Environment} = 'Production')",
+        "maxRecords": 1,
+        "__IMTCONN__": 9234902,
+        "useColumnId": false
+      }
+    },
+    {
+      "id": 3,
+      "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tbl72omPibBkn2hZL", "formula": "{Idempotency_Key} = \"BOOKING-{{1.id}}\"", "maxRecords": "1", "useColumnId": false },
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } }, "designer": { "x": 200, "y": 0 } },
+      "parameters": { "__IMTCONN__": 9234902 }
+    },
+    {
+      "id": 12,
+      "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tblr84vRIWC5HmKvo", "formula": "LOWER({Email}) = '{{lower(trim(1.Email))}}'", "maxRecords": "1", "useColumnId": false },
+      "module": "airtable:ActionSearchRecords",
+      "version": 3,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } }, "designer": { "x": 250, "y": -150 } },
+      "parameters": { "__IMTCONN__": 9234902 }
+    },
+    {
+      "id": 13,
+      "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tblr84vRIWC5HmKvo", "record": { "fld56AYwJneVVBAAI": "{{1.Phone}}", "fldaEnEBL0h7WEiK5": "{{lower(trim(1.Email))}}", "fldr1EtIF4HfaSkIk": "{{1.`First Name`}} {{1.`Last Name`}}" }, "recordId": "{{12.id}}", "typecast": false, "useColumnId": false },
+      "module": "airtable:upsertRecord",
+      "version": 3,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } }, "designer": { "x": 250, "y": 0 } },
+      "parameters": { "__IMTCONN__": 9234902 }
+    },
+    {
+      "id": 5,
+      "filter": { "name": "Skip if booking already exists (idempotency)", "conditions": [ [ { "a": "{{3.id}}", "o": "notexist" } ] ] },
+      "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tbl72omPibBkn2hZL", "record": { "fld6jABND5nEo2ayu": "{{1.`Special Requests`}}", "fld7b21pShgN7UV7p": false, "fldBhJISslfxz9S7d": "{{parseNumber(1.`Guest Count`)}}", "fldCRivfAvO70n5sM": "{{1.`Add-Ons Selected`}}", "fldCzvnOsy7WgdOTa": "{{1.`Preferred Date`}}", "fldDYU12jK3MGVh5O": "{{1.fields.City}}", "fldG71fePcaCp9uZN": "{{1.Brand}}", "fldLaXR9F9auWh1CX": [ "{{13.id}}" ], "fldf51usvsXDhp2tf": "Broker Confirmed", "fldghdjUFtlwGblxf": "{{1.Occasion}}", "fldipyq6e0uxXWc38": "{{1.`Boarding Location`}}", "fldjxNVa8Cr9RJhIq": "BOOKING-{{1.id}}", "fldoWuwFg008gxnCe": false, "flduB7GqI7TOdQKUB": false, "fldyGl7P0advyuLHS": false }, "typecast": false, "useColumnId": false },
+      "module": "airtable:ActionCreateRecord",
+      "version": 3,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } }, "designer": { "x": 400, "y": 0 } },
+      "parameters": { "__IMTCONN__": 9234902 }
+    },
+    {
+      "id": 6,
+      "mapper": { "line_items": [ { "price": "price_1SoZjdJ4IFUeX7X3kjNZ8qsY", "quantity": 1 } ] },
+      "module": "stripe:createPaymentLink",
+      "version": 1,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "stripe2" }, "label": "She Said Sail Stripe" } } }, "designer": { "x": 600, "y": 0 } },
+      "parameters": { "__IMTCONN__": 7687405 }
+    },
+    {
+      "id": 7,
+      "mapper": { "id": "{{5.id}}", "base": "appdZ49WqgjRXxA1R", "table": "tbl72omPibBkn2hZL", "record": { "fldEC9EFiPtEpO66x": "{{6.id}}", "fldbPuAUbLvQTZPzw": "{{6.url}}", "fldf51usvsXDhp2tf": "Deposit Sent", "fldmAWa2yufOas9GT": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ssZ\")}}" }, "typecast": false, "useColumnId": false },
+      "module": "airtable:ActionUpdateRecords",
+      "version": 3,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "airtable3" }, "label": "Aitable Final (User ID: usrvADUT34M91fUYZ)" } } }, "designer": { "x": 800, "y": 0 } },
+      "parameters": { "__IMTCONN__": 9234902 }
+    },
+    {
+      "id": 9,
+      "filter": { "name": "Check Automations_Paused before outbound", "conditions": [ [ { "a": "{{5.Automations_Paused}}", "b": "true", "o": "text:notequal" } ] ] },
+      "mapper": { "to": "{{1.Email}}", "content": "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background-color:#f4f4f4;font-family:'Georgia',serif;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f4f4;padding:40px 0;\"><tr><td align=\"center\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff;border-radius:8px;overflow:hidden;max-width:600px;\"><tr><td align=\"center\" style=\"background-color:#0a2342;padding:36px 40px;\"><img src=\"https://shesaidsail.com/wp-content/uploads/2026/03/Asset-3.png\" alt=\"She Said Sail\" width=\"180\" style=\"display:block;\"/></td></tr><tr><td align=\"center\" style=\"background-color:#0a2342;padding:0 40px 40px 40px;\"><h1 style=\"color:#c9a84c;font-size:28px;margin:0;letter-spacing:2px;\">YOUR DATE IS AVAILABLE</h1><p style=\"color:#ffffff;font-size:16px;margin:12px 0 0 0;\">Secure your spot with your deposit.</p></td></tr><tr><td style=\"padding:40px 40px 24px 40px;\"><p style=\"color:#0a2342;font-size:16px;line-height:1.7;margin:0;\">Hi {{1.`First Name`}},</p><p style=\"color:#333333;font-size:16px;line-height:1.7;margin:16px 0 0 0;\">Great news — we've confirmed availability for your experience. To officially secure your booking, please complete your 50% deposit using the link below.</p></td></tr><tr><td style=\"padding:0 40px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background-color:#f9f6f0;border-left:4px solid #c9a84c;border-radius:4px;padding:24px;\"><p style=\"color:#0a2342;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:0 0 16px 0;font-weight:bold;\">Booking Summary</p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#666666;font-size:14px;padding:6px 0;width:40%;\">Experience</td><td style=\"color:#0a2342;font-size:14px;font-weight:bold;padding:6px 0;\">{{1.Experience}}</td></tr><tr><td style=\"color:#666666;font-size:14px;padding:6px 0;\">Preferred Date</td><td style=\"color:#0a2342;font-size:14px;font-weight:bold;padding:6px 0;\">{{formatDate(1.`Preferred Date`; \"MMM D, YYYY\")}}</td></tr><tr><td style=\"color:#666666;font-size:14px;padding:6px 0;\">Guests</td><td style=\"color:#0a2342;font-size:14px;font-weight:bold;padding:6px 0;\">{{1.`Guest Count`}}</td></tr></table></td></tr></table></td></tr><tr><td align=\"center\" style=\"padding:40px;\"><a href=\"{{6.url}}\" style=\"background-color:#c9a84c;color:#0a2342;font-size:16px;font-weight:bold;text-decoration:none;padding:16px 40px;border-radius:4px;letter-spacing:1px;display:inline-block;\">PAY DEPOSIT NOW</a><p style=\"color:#999999;font-size:12px;margin:16px 0 0 0;\">This link expires in 24 hours.</p></td></tr><tr><td style=\"padding:0 40px 40px 40px;\"><p style=\"color:#333333;font-size:15px;line-height:1.8;margin:0;\">Questions? Just reply to this email — we're here.<br><br>Warmly,<br><strong style=\"color:#0a2342;\">The {{if(1.Brand = \"She Said Sail\"; \"She Said Sail\"; \"Mare Executive\")}} Team</strong></p></td></tr><tr><td align=\"center\" style=\"background-color:#0a2342;padding:24px 40px;\"><p style=\"color:#c9a84c;font-size:12px;letter-spacing:1px;margin:0;\">hello@shesaidsail.com</p><p style=\"color:#ffffff;font-size:11px;margin:8px 0 0 0;opacity:0.6;\">© 2025 She Said Sail. All rights reserved.</p></td></tr></table></td></tr></table></body></html>", "subject": "Your {{if(1.Brand = \"She Said Sail\"; \"She Said Sail\"; \"Mare Executive\")}} experience is ready to book, {{1.`First Name`}}", "bodyType": "rawHtml" },
+      "module": "google-email:sendAnEmail",
+      "version": 4,
+      "metadata": { "restore": { "parameters": { "__IMTCONN__": { "data": { "scoped": "true", "connection": "google-email" }, "label": "Primary (hello@shesaidsail.com)" } } }, "designer": { "x": 1000, "y": 0 } },
+      "parameters": { "__IMTCONN__": 8911480 }
+    },
+    {
+      "id": 11,
+      "mapper": {
+        "ca": "", "qs": [],
+        "url": "https://hook.us2.make.com/n2hr4tzsi66ekeyrt65v5v1k4kg4hmqt",
+        "data": "{\"triggering_event\": \"Request Status = BOOKED — Booking Creation\", \"source_data\": \"Request ID: {{1.id}}, Client: {{1.`First Name`}} {{1.`Last Name`}}, Date: {{formatDate(1.`Preferred Date`; \\\"YYYY-MM-DD\\\")}}\", \"output\": \"Booking created: {{5.id}}. Stripe deposit link: {{6.url}}. Email sent; SMS attempted.\", \"approval_state\": \"AUTONOMOUS\", \"brand\": \"{{1.Brand}}\", \"city\": \"{{1.fields.City}}\", \"environment\": \"Production\", \"destination\": \"Airtable Bookings + Stripe API + Gmail + Quo SMS\"}",
+        "gzip": true, "method": "post",
+        "headers": [ { "name": "Content-Type", "value": "application/json" } ],
+        "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true
+      },
+      "module": "http:ActionSendData",
+      "version": 3,
+      "metadata": { "designer": { "x": 1412, "y": -3 } },
+      "parameters": { "handleErrors": false, "useNewZLibDeCompress": true }
+    },
+    {
+      "id": 10,
+      "mapper": {
+        "ca": "", "qs": [],
+        "url": "https://api.quosms.com/v1/messages",
+        "data": "{\"to\": \"{{1.Phone}}\", \"body\": \"Hi {{1.`First Name`}}! Your {{if(1.Brand = \\\"She Said Sail\\\"; \\\"She Said Sail\\\"; \\\"Mare Executive\\\")}} experience is available on {{formatDate(1.`Preferred Date`; \\\"MMM D, YYYY\\\")}}. Secure your spot with your deposit: {{6.url}} — Reply STOP to opt out.\"}",
+        "gzip": true, "method": "post",
+        "headers": [ { "name": "Authorization", "value": "Bearer 00b0724211d0f716d2d2cef6ab2e7a7bf417aa176f85cd7281654f9cc2b0e1e5" }, { "name": "Content-Type", "value": "application/json" } ],
+        "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true
+      },
+      "module": "http:ActionSendData",
+      "onerror": [ { "id": 9001, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 1200, "y": 150 } } } ],
+      "version": 3,
+      "metadata": { "designer": { "x": 1200, "y": 0 } },
+      "parameters": { "handleErrors": true, "useNewZLibDeCompress": true }
+    }
+  ],
+  "name": "SSS-BOOKING-CREATION",
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "designer": { "orphans": [] },
+    "scenario": { "dlq": false, "slots": null, "dataloss": false, "maxErrors": 3, "autoCommit": true, "roundtrips": 1, "sequential": true, "confidential": false, "freshVariables": false, "autoCommitTriggerLast": true }
+  },
+  "scheduling": { "type": "indefinitely", "interval": 900 },
+  "interface": { "input": [], "output": [] }
+}

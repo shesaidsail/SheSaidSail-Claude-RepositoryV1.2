@@ -1,0 +1,162 @@
+{
+  "flow": [
+    {
+      "id": 1,
+      "mapper": {},
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "metadata": { "designer": { "x": 0, "y": 0 } },
+      "parameters": { "hook": 2407357, "maxResults": 1 }
+    },
+    {
+      "id": 2,
+      "mapper": { "json": "{{1.entries}}" },
+      "module": "json:ParseJSON",
+      "onerror": [
+        {
+          "id": 20,
+          "mapper": { "text": "🛑 *Lead Capture FAILED — malformed payload*\nParseJSON could not read the form submission. Raw entries:\n```{{1.entries}}```\nReferrer: {{1.referrer_url}} | Entry: {{1.entry_id}}\n_Manual follow-up required._", "parse": false, "mrkdwn": true, "channel": "C0B46T8AX61", "channelWType": "manualy" },
+          "module": "slack:CreateMessage",
+          "version": 4,
+          "metadata": { "designer": { "x": 300, "y": -300 } },
+          "parameters": { "__IMTCONN__": 7721501 }
+        },
+        {
+          "id": 21,
+          "mapper": {
+            "ca": "", "qs": [],
+            "url": "https://hook.us2.make.com/n2hr4tzsi66ekeyrt65v5v1k4kg4hmqt",
+            "data": "{\"triggering_event\":\"Lead Intake V2 — PARSE FAILURE\",\"source_data\":\"{{1.entries}}\",\"output\":\"ParseJSON failed; manual follow-up required\",\"approval_state\":\"PENDING_HUMAN\",\"action_type\":\"Other\",\"brand\":\"SSS\",\"environment\":\"Production\",\"destination\":\"Slack ops alert\"}",
+            "gzip": true, "method": "post",
+            "headers": [ { "name": "Content-Type", "value": "application/json" } ],
+            "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true
+          },
+          "module": "http:ActionSendData",
+          "onerror": [ { "id": 31, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 0, "y": 400 } } } ],
+          "version": 3,
+          "metadata": { "designer": { "x": 500, "y": -300 } },
+          "parameters": { "handleErrors": false, "useNewZLibDeCompress": true }
+        },
+        { "id": 22, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 700, "y": -300 } } }
+      ],
+      "version": 1,
+      "metadata": { "designer": { "x": 304, "y": -45 } }
+    },
+    {
+      "id": 3,
+      "mapper": null,
+      "module": "builtin:BasicRouter",
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "filter": { "name": "Valid lead — email present", "conditions": [ [ { "a": "{{2.email}}", "o": "exist" }, { "a": "{{2.email}}", "b": "^.+@.+\\..+$", "o": "text:pattern" } ] ] },
+              "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tblTlSB9CO4dTGodg", "formula": "AND({Email}='{{lower(trim(2.email))}}',{Status}='New')", "maxRecords": "1", "useColumnId": false },
+              "module": "airtable:ActionSearchRecords",
+              "version": 3,
+              "metadata": { "designer": { "x": 600, "y": 0 } },
+              "parameters": { "__IMTCONN__": 9234902 }
+            },
+            {
+              "id": 5,
+              "filter": { "name": "Skip if duplicate", "conditions": [ [ { "a": "{{4.id}}", "o": "notexist" } ] ] },
+              "mapper": { "base": "appdZ49WqgjRXxA1R", "table": "tblTlSB9CO4dTGodg", "record": { "fldAUAcuW2jhfDQJk": "{{2.quoted_price}}", "fldDJzUNAaucWL6g7": "{{2.guests}}", "fldEfSjdGBG9Vkqzq": "{{ifempty(2.`mf-textarea`; \"\")}}", "fldF8PaiQacfKVtyE": "Production", "fldHehlMwdqIjX3sq": "She Said Sail", "fldMeWM4WGrsiUaQR": "{{1.referrer_url}}", "fldSSdTllQEeyzqSv": "{{2.duration}}", "fldTTOYX4N9bHneAz": "LEAD-{{lower(trim(2.email))}}-{{2.date}}-{{2.guests}}", "fldbsr8J2CGxOR76b": "{{lower(trim(2.email))}}", "flddMCLCWDgPfaX3Z": "{{2.experience}}", "fldhWyTQgG1AYpsZp": "Make", "fldiz7m1LjsTIXYUH": "{{2.date}}", "fldmikVqe3jhZz4z8": "{{2.addons_list}}", "fldnoQVfi0rPZjaky": "{{2.base_price}}", "fldouoNURHn5Emq6l": "{{ifempty(2.`mf-listing-fname`; \"Guest\")}}", "fldrzCt39oqn2Lo5N": "{{2.phone}}", "fldsQWCChboxSDeoE": "{{ifempty(2.last_name; \"\")}}", "fldu60CxW8HgOCTRB": "{{2.addons_total}}", "fldv1NEyNPuXqv5bT": "New", "fldzqnKL8dDMJNPG7": "{{2.yacht_name}}" }, "typecast": true, "useColumnId": false },
+              "module": "airtable:ActionCreateRecord",
+              "version": 3,
+              "metadata": { "designer": { "x": 800, "y": 0 } },
+              "parameters": { "__IMTCONN__": 9234902 }
+            },
+            {
+              "id": 6,
+              "filter": { "name": "Only on new record", "conditions": [ [ { "a": "{{5.id}}", "o": "exist" } ] ] },
+              "mapper": { "to": [ "{{lower(trim(2.email))}}" ], "content": "<div style=\"font-family:Georgia,serif;background:#0a2342;color:#fff;padding:32px;text-align:center\"><p style=\"color:#c9a84c;letter-spacing:3px;font-size:11px\">YOUR EXPERIENCE IS IN MOTION</p><h1 style=\"font-weight:normal\">Your Miami charter experience starts here</h1></div><div style=\"font-family:Arial,sans-serif;padding:28px;color:#4f4f4f\"><p>Hi {{ifempty(2.`mf-listing-fname`; \"there\")}},</p><p>Thank you for reaching out. A She Said Sail concierge is reviewing your request and will be in touch shortly during concierge hours, Monday to Friday, 9am to 5pm EST.</p><p style=\"color:#0a2342\">With warmth,<br><em style=\"color:#c9a84c\">The She Said Sail Concierge Team</em></p></div>", "subject": "{{ifempty(2.`mf-listing-fname`; \"Hello\")}}, we received your She Said Sail inquiry", "bodyType": "rawHtml" },
+              "module": "google-email:sendAnEmail",
+              "version": 4,
+              "metadata": { "designer": { "x": 1000, "y": 0 } },
+              "parameters": { "__IMTCONN__": 8911480 }
+            },
+            {
+              "id": 7,
+              "mapper": { "text": "🆕 *New Lead — She Said Sail*\n*Name:* {{ifempty(2.`mf-listing-fname`; \"Guest\")}} {{2.last_name}}\n*Experience:* {{ifempty(2.experience; \"—\")}} | *Yacht:* {{ifempty(2.yacht_name; \"—\")}}\n*Date:* {{ifempty(2.date; \"—\")}} | *Guests:* {{ifempty(2.guests; \"—\")}}\n*Email:* {{lower(trim(2.email))}} | *Phone:* {{ifempty(2.phone; \"—\")}}\n*Quoted:* ${{ifempty(2.quoted_price; \"0\")}}\n*Record:* {{5.id}}", "parse": false, "mrkdwn": true, "channel": "C0B4DD89GJY", "channelWType": "manualy" },
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "metadata": { "designer": { "x": 1200, "y": 0 } },
+              "parameters": { "__IMTCONN__": 7721501 }
+            },
+            {
+              "id": 40,
+              "filter": { "name": "New record + phone present", "conditions": [ [ { "a": "{{5.id}}", "o": "exist" }, { "a": "{{2.phone}}", "o": "exist" } ] ] },
+              "mapper": {
+                "content": "Hi {{ifempty(2.`mf-listing-fname`; \"there\")}}! Thanks for reaching out to She Said Sail. We've received your request and a concierge is reviewing the details now. We'll contact you shortly regarding availability and next steps. Questions? Reply directly to this message.",
+                "from": "+17547012228",
+                "to": [ "{{if(length(replace(2.phone; \"/[^0-9]/g\"; \"\")) = 10; \"+1\" + replace(2.phone; \"/[^0-9]/g\"; \"\"); if(length(replace(2.phone; \"/[^0-9]/g\"; \"\")) = 11; \"+\" + replace(2.phone; \"/[^0-9]/g\"; \"\"); replace(2.phone; \"/[^0-9]/g\"; \"\")))}}" ]
+              },
+              "module": "open-phone:sendATextMessageSms",
+              "onerror": [ { "id": 41, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 1400, "y": 200 } } } ],
+              "version": 1,
+              "metadata": { "designer": { "x": 1300, "y": 0 }, "restore": { "parameters": { "__IMTCONN__": { "label": "My Quo connection", "data": { "scoped": "true", "connection": "open-phone" } } }, "expect": { "from": { "label": "She Said Sail (+17547012228)" } } } },
+              "parameters": { "__IMTCONN__": 8825028 }
+            },
+            {
+              "id": 8,
+              "mapper": {
+                "ca": "", "qs": [],
+                "url": "https://hook.us2.make.com/n2hr4tzsi66ekeyrt65v5v1k4kg4hmqt",
+                "data": "{\"triggering_event\":\"Lead Intake V2 — capture OK\",\"source_data\":\"Email {{lower(trim(2.email))}}, Date {{2.date}}, Guests {{2.guests}}\",\"output\":\"Request {{5.id}} created; reply sent; Slack notified; ack SMS via native Quo (to {{2.phone}}; msg id: {{40.id}})\",\"approval_state\":\"AUTONOMOUS\",\"action_type\":\"Create\",\"brand\":\"SSS\",\"environment\":\"Production\",\"destination\":\"Airtable Requests + Gmail + Slack\"}",
+                "gzip": true, "method": "post",
+                "headers": [ { "name": "Content-Type", "value": "application/json" } ],
+                "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true
+              },
+              "module": "http:ActionSendData",
+              "onerror": [ { "id": 32, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 1600, "y": 0 } } } ],
+              "version": 3,
+              "metadata": { "designer": { "x": 1400, "y": 0 } },
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 9,
+              "filter": { "name": "Invalid lead — email missing/bad", "conditions": [ [ { "a": "{{2.email}}", "o": "notexist" } ], [ { "a": "{{2.email}}", "b": "^.+@.+\\..+$", "o": "text:notpattern" } ] ] },
+              "mapper": { "text": "⚠️ *Lead Capture — INVALID/INCOMPLETE*\nEmail missing or invalid; no record created.\n*Name:* {{ifempty(2.`mf-listing-fname`; \"?\")}}\n*Phone:* {{ifempty(2.phone; \"—\")}}\n*Raw:* ```{{1.entries}}```\n_Manual follow-up required._", "parse": false, "mrkdwn": true, "channel": "C0B46T8AX61", "channelWType": "manualy" },
+              "module": "slack:CreateMessage",
+              "version": 4,
+              "metadata": { "designer": { "x": 600, "y": 300 } },
+              "parameters": { "__IMTCONN__": 7721501 }
+            },
+            {
+              "id": 10,
+              "mapper": {
+                "ca": "", "qs": [],
+                "url": "https://hook.us2.make.com/n2hr4tzsi66ekeyrt65v5v1k4kg4hmqt",
+                "data": "{\"triggering_event\":\"Lead Intake V2 — VALIDATION FAILURE\",\"source_data\":\"{{1.entries}}\",\"output\":\"Email missing/invalid; manual follow-up required\",\"approval_state\":\"PENDING_HUMAN\",\"action_type\":\"Other\",\"brand\":\"SSS\",\"environment\":\"Production\",\"destination\":\"Slack ops alert\"}",
+                "gzip": true, "method": "post",
+                "headers": [ { "name": "Content-Type", "value": "application/json" } ],
+                "timeout": "", "useMtls": false, "authPass": "", "authUser": "", "bodyType": "raw", "contentType": "application/json", "serializeUrl": false, "shareCookies": false, "parseResponse": false, "followRedirect": true, "useQuerystring": false, "followAllRedirects": false, "rejectUnauthorized": true
+              },
+              "module": "http:ActionSendData",
+              "onerror": [ { "id": 33, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 1000, "y": 300 } } } ],
+              "version": 3,
+              "metadata": { "designer": { "x": 800, "y": 300 } },
+              "parameters": { "handleErrors": false, "useNewZLibDeCompress": true }
+            }
+          ]
+        }
+      ],
+      "version": 1,
+      "metadata": { "designer": { "x": 300, "y": 150 } }
+    }
+  ],
+  "name": "SSS-LEAD-INTAKE-V2",
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "designer": { "orphans": [] },
+    "scenario": { "dlq": false, "slots": null, "maxErrors": 3, "autoCommit": true, "sequential": false }
+  },
+  "scheduling": { "type": "immediately", "maximum_runs_per_minute": 100 },
+  "interface": { "input": [], "output": [] }
+}

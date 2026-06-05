@@ -96,14 +96,14 @@
       "id": 10,
       "mapper": {
         "content": "Hi {{1.`First Name`}}! Your {{if(1.Brand = \"She Said Sail\"; \"She Said Sail\"; \"Mare Executive\")}} experience is available on {{formatDate(1.`Preferred Date`; \"MMM D, YYYY\")}}. Secure your spot with your deposit: {{6.url}} — Reply STOP to opt out.",
-        "from": "+17547012228",
-        "to": [ "{{if(length(replace(1.Phone; \"/[^0-9]/g\"; \"\")) = 10; \"+1\" + replace(1.Phone; \"/[^0-9]/g\"; \"\"); if(length(replace(1.Phone; \"/[^0-9]/g\"; \"\")) = 11; \"+\" + replace(1.Phone; \"/[^0-9]/g\"; \"\"); replace(1.Phone; \"/[^0-9]/g\"; \"\")))}}" ]
+        "from": "PNbv8kHAzw",
+        "to": [ "+{{if(length(replace(1.Phone; \"/[^0-9]/g\"; \"\")) = 10; \"1\" + replace(1.Phone; \"/[^0-9]/g\"; \"\"); replace(1.Phone; \"/[^0-9]/g\"; \"\"))}}" ]
       },
       "module": "open-phone:sendATextMessageSms",
       "onerror": [ { "id": 9001, "mapper": {}, "module": "builtin:Resume", "version": 1, "metadata": { "designer": { "x": 1200, "y": 150 } } } ],
       "version": 1,
-      "metadata": { "designer": { "x": 1200, "y": 0 }, "restore": { "parameters": { "__IMTCONN__": { "label": "My Quo connection", "data": { "scoped": "true", "connection": "open-phone" } } }, "expect": { "from": { "label": "She Said Sail (+17547012228)" } } } },
-      "parameters": { "__IMTCONN__": 8825028 }
+      "metadata": { "designer": { "x": 1200, "y": 0 }, "restore": { "parameters": { "__IMTCONN__": { "label": "Make ", "data": { "scoped": "true", "connection": "open-phone" } } }, "expect": { "from": { "label": "(754) 701-2228" } } } },
+      "parameters": { "__IMTCONN__": 9263456 }
     }
   ],
   "name": "SSS-BOOKING-CREATION",

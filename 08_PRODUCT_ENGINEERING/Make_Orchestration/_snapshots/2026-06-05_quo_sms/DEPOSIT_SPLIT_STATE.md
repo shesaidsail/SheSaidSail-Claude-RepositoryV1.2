@@ -24,3 +24,16 @@
 Stripe connection stripe2 (7687405) lacks read_write scope -> Make 'Make an API Call'
 to create a Price returns more_permissions_required. Founder must re-auth the Stripe
 connection in Make with read_write scope. Then reactivate 5303151 and retest.
+
+## 2026-06-05 — TESTED GREEN
+- Stripe write connection: "She Said Sail Stripe Write" id 9267612 (API key). Stage 2 modules 2 & 3 repointed to it.
+- Stage 2 (5303151) ACTIVE.
+- Stage 1 exec 3fcf734d11134b5bb9da09672bcfc197 (status 1) -> Booking Broker Confirmed, Total $10,000, no link.
+- Stage 2 exec e8c38cb8db6c498ea2962856d3e86ff5 (status 1):
+  - Stripe Price price_1Tf58YJ4IFUeX7X3Cw6Eucja = unit_amount 500000 ($5,000 = exact 50%)
+  - Payment Link plink_1Tf58YJ4IFUeX7X3EZ1gMVp9 / https://buy.stripe.com/cNi14obQm5PM15T0XobMQ0f
+  - Booking Status -> Deposit Sent; Deposit Sent At set; Send Deposit Link auto-unchecked; deposit email + Quo SMS sent.
+- Idempotency exec c668c7cf427a4418a94bdafc088031bd: re-check + re-run created NO duplicate (URL-not-blank guard held).
+- Zero-dollar guard exec 239c21625a204c82b410227d97a78f13: $0 booking skipped (Total>0 gate).
+- Paid -> Concierge -> ACTIVE -> Confirmation: NOT executed (requires real $5k card payment). Detection wired: SSS-STRIPE-DEPOSIT matches Stripe_Payment_Link_ID.
+- All test records deleted. Orphan Stripe test objects to archive: price_1Tf58YJ4IFUeX7X3Cw6Eucja, plink_1Tf58YJ4IFUeX7X3EZ1gMVp9.
